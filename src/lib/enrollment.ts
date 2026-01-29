@@ -83,6 +83,7 @@ export async function getEnrolledCourses(): Promise<Course[]> {
         return []
     }
 
-    // Map the result to return just the course objects
-    return data.map((enrollment: any) => enrollment.courses) as Course[]
+    return data
+        .map((enrollment: any) => enrollment.courses)
+        .filter(Boolean) as Course[]
 }

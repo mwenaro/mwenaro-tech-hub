@@ -21,8 +21,8 @@ export function CourseCard({ course, progress }: CourseCardProps) {
                     className="object-cover transition-transform duration-500 group-hover:scale-110"
                 />
                 {progress !== undefined && (
-                    <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent">
-                        <div className="flex items-center justify-between text-[10px] font-black text-white mb-1.5 uppercase tracking-widest">
+                    <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/90 via-black/40 to-transparent">
+                        <div className="flex items-center justify-between text-[11px] font-black text-white mb-2 uppercase tracking-widest opacity-90">
                             <span>Progress</span>
                             <span>{progress}%</span>
                         </div>
