@@ -16,6 +16,7 @@ export async function login(formData: FormData) {
     })
 
     if (error) {
+        console.error('Login Error:', error)
         redirect('/error')
     }
 
@@ -35,6 +36,7 @@ export async function signup(formData: FormData) {
     })
 
     if (error) {
+        console.error('Signup Error:', error)
         redirect('/error')
     }
 
