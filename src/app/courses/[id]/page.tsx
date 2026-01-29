@@ -1,3 +1,4 @@
+import { getCourseLessons } from '@/lib/lessons'
 import { getCourse } from '@/lib/courses'
 import { hasEnrolled, enrollUser } from '@/lib/enrollment'
 import { Button } from '@/components/ui/button'
@@ -14,6 +15,7 @@ interface CoursePageProps {
 export default async function CoursePage({ params }: CoursePageProps) {
     const { id } = await params
     const course = await getCourse(id)
+    const lessons = await getCourseLessons(id)
     const isEnrolled = await hasEnrolled(id)
 
     if (!course) {
@@ -64,9 +66,35 @@ export default async function CoursePage({ params }: CoursePageProps) {
                                 </Button>
                             </form>
                         )}
-                        <Button variant="outline" size="lg" className="w-full sm:w-auto">
-                            View Syllabus
-                        </Button>
+                    </div>
+
+                    <div className="mt-8 border-t pt-8">
+                        <h2 className="text-2xl font-bold mb-4">Course Syllabus</h2>
+                        {lessons.length === 0 ? (
+                            <p className="text-muted-foreground">No lessons available yet.</p>
+                        ) : (
+                            <div className="space-y-4">
+                                {lessons.map((lesson, index) => (
+                                    <div key={lesson.id} className="flex items-center justify-between p-4 border rounded-lg bg-card text-card-foreground">
+                                        <div className="flex items-center gap-4">
+                                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm">
+                                                {index + 1}
+                                            </div>
+                                            <span className="font-medium">{lesson.title}</span>
+                                        </div>
+                                        {isEnrolled ? (
+                                            <Link href={`/courses/${course.id}/lessons/${lesson.id}`}>
+                                                <Button size="sm" variant="secondary">Start</Button>
+                                            </Link>
+                                        ) : (
+                                            <Button size="sm" variant="ghost" disabled>
+                                                <span className="mr-2">🔒</span> Locked
+                                            </Button>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
