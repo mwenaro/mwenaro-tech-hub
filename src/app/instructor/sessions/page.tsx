@@ -2,6 +2,7 @@ import { getInstructorSessions, getMyCohorts } from '@/lib/sessions'
 import { Card } from '@/components/ui/card'
 import { CreateSessionForm } from '@/components/create-session-form'
 
+
 export default async function SessionsPage() {
     const sessions = await getInstructorSessions()
     const cohorts = await getMyCohorts()
