@@ -102,6 +102,9 @@ export default async function LessonPage({ params }: LessonPageProps) {
                         existingLink={progress?.project_repo_link}
                         quizRequired={questions.length > 0}
                         quizPassed={(progress?.highest_quiz_score || 0) >= 70}
+                        isReviewed={progress?.project_reviewed || false}
+                        rating={progress?.project_rating}
+                        feedback={progress?.project_feedback}
                     />
                 </div>
             )}

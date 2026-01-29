@@ -12,6 +12,11 @@ export interface LessonProgress {
     highest_quiz_score: number
     project_repo_link: string | null
     completed_at: string | null
+    project_reviewed: boolean
+    project_rating: number | null
+    reviewed_by: string | null
+    reviewed_at: string | null
+    project_feedback: string | null
 }
 
 export async function getUserProgress(): Promise<LessonProgress[]> {
@@ -167,6 +172,11 @@ export async function submitProject(lessonId: string, repoLink: string) {
     const progress = await getLessonProgress(lessonId)
     const questions = await getLessonQuestions(lessonId)
 
+    // Check if project has been reviewed (locked)
+    if (progress?.project_reviewed) {
+        throw new Error('Project has been reviewed and cannot be updated')
+    }
+
     // Determine completion:
     // Completed ONLY IF (submitting project AND (no questions OR quiz already passed))
     const hasQuizRequirement = questions.length > 0
@@ -180,12 +190,56 @@ export async function submitProject(lessonId: string, repoLink: string) {
             lesson_id: lessonId,
             project_repo_link: repoLink,
             is_completed: isCompletedNow,
-            completed_at: isCompletedNow ? new Date().toISOString() : (progress?.completed_at || null)
+            completed_at: isCompletedNow ? new Date().toISOString() : (progress?.completed_at || null),
+            // Reset review status when updating submission
+            project_reviewed: false,
+            project_rating: null,
+            reviewed_by: null,
+            reviewed_at: null,
+            project_feedback: null
         })
 
     if (error) {
         console.error('Error submitting project:', error)
         throw new Error('Failed to submit project')
+    }
+
+    revalidatePath(`/courses`)
+}
+
+export async function reviewProject(
+    lessonId: string,
+    studentUserId: string,
+    rating: number,
+    feedback?: string
+) {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) throw new Error('Unauthorized')
+
+    // TODO: Add role check for instructor permissions
+    // For now, any authenticated user can review (will add role-based auth later)
+
+    if (rating < 0 || rating > 100) {
+        throw new Error('Rating must be between 0 and 100')
+    }
+
+    const { error } = await supabase
+        .from('lesson_progress')
+        .update({
+            project_reviewed: true,
+            project_rating: rating,
+            reviewed_by: user.id,
+            reviewed_at: new Date().toISOString(),
+            project_feedback: feedback || null
+        })
+        .eq('user_id', studentUserId)
+        .eq('lesson_id', lessonId)
+
+    if (error) {
+        console.error('Error reviewing project:', error)
+        throw new Error('Failed to review project')
     }
 
     revalidatePath(`/courses`)
