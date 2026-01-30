@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache'
 import { getCourseLessons, getLessonQuestions } from './lessons'
 import { createNotification } from './notifications'
 import { sendNotificationEmail } from './email'
+import { analyzeProject } from './ai'
 
 export interface LessonProgress {
     user_id: string
@@ -206,6 +207,11 @@ export async function submitProject(lessonId: string, repoLink: string) {
         console.error('Error submitting project:', error)
         throw new Error('Failed to submit project')
     }
+
+    // Trigger AI Analysis asynchronously
+    analyzeProject(lessonId, repoLink, user.id).catch(err => {
+        console.error('Triggering AI analysis failed:', err)
+    })
 
     revalidatePath(`/courses`)
 }

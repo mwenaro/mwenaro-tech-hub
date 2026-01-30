@@ -110,6 +110,40 @@ export default async function ReviewPage({
                             </div>
                         </Card>
 
+                        {/* AI Insights */}
+                        <Card className="p-6 border-orange-200 bg-orange-50/20 dark:bg-orange-950/10 dark:border-orange-900/50">
+                            <div className="flex items-center gap-2 mb-4">
+                                <div className="p-2 bg-orange-600 rounded-lg">
+                                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                </div>
+                                <h2 className="text-xl font-black">AI Insights</h2>
+                            </div>
+
+                            {submission.ai_status === 'pending' ? (
+                                <div className="flex items-center gap-2 py-4 text-muted-foreground italic">
+                                    <div className="animate-spin h-4 w-4 border-2 border-orange-600 border-t-transparent rounded-full" />
+                                    AI is analyzing the project...
+                                </div>
+                            ) : submission.ai_status === 'failed' ? (
+                                <p className="text-sm text-red-500 py-4">AI analysis failed to complete.</p>
+                            ) : (
+                                <div className="space-y-4">
+                                    <div className="flex items-center justify-between">
+                                        <p className="text-sm text-muted-foreground font-bold uppercase tracking-wider">Suggested Rating</p>
+                                        <div className="text-2xl font-black text-orange-600">
+                                            {submission.ai_rating}%
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm text-muted-foreground font-bold uppercase tracking-wider mb-2">Automated Feedback</p>
+                                        <div className="bg-white dark:bg-gray-950 border rounded-xl p-4 text-sm leading-relaxed border-orange-100 dark:border-orange-900/30">
+                                            {submission.ai_feedback}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </Card>
+
                         {/* Lesson Content */}
                         {lesson && (
                             <Card className="p-6">

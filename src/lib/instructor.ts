@@ -14,6 +14,9 @@ export interface SubmissionWithDetails {
     course_title: string
     course_id: string
     submitted_at: string | null
+    ai_rating: number | null
+    ai_feedback: string | null
+    ai_status: string | null
 }
 
 /**
@@ -98,7 +101,10 @@ export async function getAllSubmissions(): Promise<SubmissionWithDetails[]> {
                     id,
                     title
                 )
-            )
+            ),
+            ai_rating,
+            ai_feedback,
+            ai_status
         `)
         .not('project_repo_link', 'is', null)
         .in('user_id', studentIds) // Filter by my students
@@ -131,6 +137,9 @@ export async function getAllSubmissions(): Promise<SubmissionWithDetails[]> {
         lesson_title: (submission.lessons as any).title,
         course_title: (submission.lessons as any).courses.title,
         course_id: (submission.lessons as any).courses.id,
+        ai_rating: (submission as any).ai_rating,
+        ai_feedback: (submission as any).ai_feedback,
+        ai_status: (submission as any).ai_status,
     }))
 }
 
@@ -190,7 +199,10 @@ export async function getStudentSubmission(
                     id,
                     title
                 )
-            )
+            ),
+            ai_rating,
+            ai_feedback,
+            ai_status
         `)
         .eq('user_id', userId)
         .eq('lesson_id', lessonId)
@@ -218,5 +230,8 @@ export async function getStudentSubmission(
         lesson_title: (data.lessons as any).title,
         course_title: (data.lessons as any).courses.title,
         course_id: (data.lessons as any).courses.id,
+        ai_rating: (data as any).ai_rating,
+        ai_feedback: (data as any).ai_feedback,
+        ai_status: (data as any).ai_status,
     }
 }
