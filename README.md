@@ -1,36 +1,76 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Mwenaro Tech Academy
 
-## Getting Started
+Mwenaro Tech Academy is a premium, AI-powered ed-tech platform designed to empower the next generation of tech leaders. Built with a modern tech stack and a focus on interactive learning, it provides a seamless experience for students, instructors, and administrators.
 
-First, run the development server:
+## 🚀 Key Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### 🧠 AI-Powered Project Marking
+Students receive immediate, constructive feedback on their project submissions. The platform leverages **OpenAI GPT-4o** to analyze code repositories and provide suggested ratings and detailed improvement tips before final instructor review.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 💬 Real-Time Communication
+A robust, Supabase-powered chat system connects everyone on the platform. 
+- **Learners**: Can initiate support or educational chats via a global floating widget.
+- **Staff**: Dedicated messaging dashboards for instructors and admins to manage high-volume communications.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 🔔 Dynamic Notification Engine
+Never miss an update. The platform features a real-time notification system:
+- **In-App Alerts**: A persistent notification bell in the navbar for messages, session updates, and project reviews.
+- **Email Notifications**: Automated email alerts for critical events (simulated via configured service).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 📊 Professional Dashboards
+Tailored experiences for every user role:
+- **Learner Dashboard**: Track course progress with visual indicators and sequential lesson unlocking.
+- **Instructor Dashboard**: Manage cohorts, schedule live sessions, and review project submissions with AI-assisted insights.
+- **Admin Dashboard**: Comprehensive control over users, courses, and platform-wide analytics.
 
-## Learn More
+## 🛠 Tech Stack
 
-To learn more about Next.js, take a look at the following resources:
+- **Frontend**: [Next.js 16](https://nextjs.org/) (App Router, Server Actions, `proxy.ts` middleware)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/) + [Radix UI](https://www.radix-ui.com/)
+- **Backend & Real-time**: [Supabase](https://supabase.com/) (PostgreSQL, Realtime, Auth, SSR)
+- **AI Integration**: [OpenAI API](https://openai.com/)
+- **Icons**: [Lucide React](https://lucide.dev/)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🏁 Getting Started
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Prerequisites
+- Node.js (Latest LTS)
+- A Supabase Project
+- OpenAI API Key (Optional for mock mode)
 
-## Deploy on Vercel
+### Installation
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/mwenaro/mwenaro-tech-hub.git
+   cd mwenaro-tech-academy
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+3. **Configure Environment Variables**:
+   Create a `.env.local` file in the root directory and add:
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+   OPENAI_API_KEY=your_openai_key
+   ```
+
+4. **Run the development server**:
+   ```bash
+   npm run dev
+   ```
+
+Open [http://localhost:3000](http://localhost:3000) to see the platform in action.
+
+## 📦 Deployment
+
+The platform is optimized for [Vercel](https://vercel.com/) and utilizes Next.js Server Actions and Middleware for high performance.
+
+---
+
+© 2026 Mwenaro Tech Academy. All rights reserved.
