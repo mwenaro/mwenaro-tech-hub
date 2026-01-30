@@ -1,8 +1,19 @@
 import { Button } from "@/components/ui/button"
 import Link from 'next/link'
 import Image from 'next/image'
+import { getCourses } from '@/lib/courses'
+import { CourseCard } from '@/components/course-card'
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 
-export default function Home() {
+export default async function Home() {
+  const courses = await getCourses()
+  const featuredCourses = courses.slice(0, 3)
+
   return (
     <div className="flex flex-col min-h-screen bg-background">
       {/* Hero Section */}
@@ -36,16 +47,6 @@ export default function Home() {
                   </Button>
                 </Link>
               </div>
-              <div className="flex items-center justify-center lg:justify-start gap-6 pt-8 text-sm font-bold text-gray-400">
-                <div className="flex items-center gap-2">
-                  <svg className="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
-                  4.9/5 Rating
-                </div>
-                <div className="w-px h-4 bg-gray-700"></div>
-                <div>10,000+ Students</div>
-                <div className="w-px h-4 bg-gray-700"></div>
-                <div>Top Rated AI Ed-Tech</div>
-              </div>
             </div>
 
             <div className="relative group">
@@ -65,14 +66,14 @@ export default function Home() {
                   <div className="flex items-center gap-4">
                     <div className="flex -space-x-3">
                       {[1, 2, 3].map(i => (
-                        <div key={i} className="w-10 h-10 rounded-full border-2 border-secondary bg-gray-800 flex items-center justify-center text-[10px] font-black">
-                          U{i}
+                        <div key={i} className="w-10 h-10 rounded-full border-2 border-secondary bg-gray-800 flex items-center justify-center text-[10px] font-black uppercase tracking-tighter">
+                          Dev
                         </div>
                       ))}
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-bold text-white">Join 500+ students this week</p>
-                      <p className="text-xs text-gray-400">Personalized learning paths active now.</p>
+                      <p className="text-sm font-bold text-white uppercase tracking-tighter">Join 10k+ Tech Leaders</p>
+                      <p className="text-xs text-gray-400">95% hiring rate across our graduates.</p>
                     </div>
                   </div>
                 </div>
@@ -82,109 +83,173 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Features Spotlight */}
-      <section className="py-24 bg-white dark:bg-zinc-950">
+      {/* Trust Bar - Hiring Partners */}
+      <section className="py-12 bg-white dark:bg-zinc-950 border-b border-border/50 overflow-hidden">
         <div className="container mx-auto px-4">
-          <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-            <h2 className="text-sm font-black text-primary uppercase tracking-[0.3em]">Built for Professionals</h2>
-            <h3 className="text-4xl md:text-5xl font-black text-secondary dark:text-white">Learn Smarter, Not Harder</h3>
-            <p className="text-lg text-muted-foreground leading-relaxed">
-              We've integrated cutting-edge AI technology and industry workflows to ensure you're job-ready from day one.
-            </p>
+          <p className="text-center text-xs font-black text-muted-foreground uppercase tracking-[0.3em] mb-10">Our Graduates Work At</p>
+          <div className="flex flex-wrap justify-center gap-12 md:gap-24 opacity-30 grayscale hover:grayscale-0 transition-all duration-500">
+            {['GOOGLE', 'APPLE', 'META', 'AMAZON', 'NETFLIX', 'MICROSOFT'].map(brand => (
+              <span key={brand} className="text-2xl font-black tracking-tighter text-secondary dark:text-white">{brand}</span>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Courses Preview */}
+      <section className="py-24 bg-zinc-50 dark:bg-zinc-950">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row items-end justify-between mb-16 gap-6">
+            <div className="space-y-4 max-w-2xl">
+              <h2 className="text-sm font-black text-primary uppercase tracking-[0.3em]">Trending Now</h2>
+              <h3 className="text-4xl md:text-5xl font-black text-secondary dark:text-white">Start Your Learning Journey</h3>
+            </div>
+            <Link href="/courses">
+              <Button variant="outline" className="font-bold border-primary/20 text-primary hover:bg-primary/5 px-8 h-12 rounded-xl">
+                View All 50+ Courses
+              </Button>
+            </Link>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {featuredCourses.map(course => (
+              <CourseCard key={course.id} course={course} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works Section */}
+      <section className="py-24 bg-white dark:bg-zinc-950">
+        <div className="container mx-auto px-4">
+          <div className="text-center max-w-3xl mx-auto mb-20 space-y-4">
+            <h2 className="text-sm font-black text-primary uppercase tracking-[0.3em]">Your Roadmap</h2>
+            <h3 className="text-4xl md:text-5xl font-black text-secondary dark:text-white">How Mwenaro Works</h3>
+            <p className="text-lg text-muted-foreground leading-relaxed">
+              A seamless, structured path designed to take you from curious beginner to expert professional.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 relative">
+            {/* Connecting Line (Desktop) */}
+            <div className="hidden md:block absolute top-12 left-0 w-full h-0.5 bg-gradient-to-r from-primary/5 via-primary/20 to-primary/5" />
+
             {[
-              {
-                title: "AI-Powered Grading",
-                desc: "Get instant, professional-grade feedback on your projects and code using our specialized AI tutor.",
-                icon: "🤖",
-                color: "bg-orange-500/10 text-orange-600"
-              },
-              {
-                title: "Real-time Mentorship",
-                desc: "Stuck on a problem? Our messaging system connects you directly with instructors and expert support.",
-                icon: "⚡",
-                color: "bg-blue-500/10 text-blue-600"
-              },
-              {
-                title: "Industry Projects",
-                desc: "Build a portfolio that stands out. Work on real-world scenarios designed by Silicon Valley engineers.",
-                icon: "💼",
-                color: "bg-green-500/10 text-green-600"
-              },
-              {
-                title: "Sequential Learning",
-                desc: "Master concepts step-by-step with a curriculum that adapts to your pace and unlocks as you grow.",
-                icon: "📚",
-                color: "bg-purple-500/10 text-purple-600"
-              },
-              {
-                title: "Verified Certificates",
-                desc: "Earn certifications that carry weight with employers, validated by our academy's rigorous standards.",
-                icon: "🏆",
-                color: "bg-yellow-500/10 text-yellow-600"
-              },
-              {
-                title: "Vibrant Community",
-                desc: "Join cohorts of like-minded learners. Collaborate, network, and grow your tech circle.",
-                icon: "🎨",
-                color: "bg-pink-500/10 text-pink-600"
-              }
-            ].map((feat, i) => (
-              <div key={i} className="group p-8 rounded-3xl border border-border border-white/10 hover:border-primary/20 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 dark:bg-zinc-900/50">
-                <div className={`w-14 h-14 rounded-2xl ${feat.color} flex items-center justify-center text-2xl mb-6 shadow-sm`}>
-                  {feat.icon}
+              { step: "01", title: "Enroll", desc: "Choose your course and join a high-achieving cohort.", icon: "🎯" },
+              { step: "02", title: "Master", desc: "Learn with interactive labs and AI-assisted modules.", icon: "💡" },
+              { step: "03", title: "Build", desc: "Apply knowledge to real projects reviewed by pros.", icon: "🛠️" },
+              { step: "04", title: "Scale", desc: "Earn your certificate and launch your dream career.", icon: "🚀" }
+            ].map((item, i) => (
+              <div key={i} className="relative z-10 flex flex-col items-center text-center space-y-6">
+                <div className="w-16 h-16 rounded-3xl bg-primary text-white flex items-center justify-center text-2xl font-black shadow-xl shadow-primary/20 ring-4 ring-white dark:ring-zinc-950">
+                  {item.icon}
                 </div>
-                <h4 className="text-xl font-black mb-3 text-secondary dark:text-white group-hover:text-primary transition-colors">{feat.title}</h4>
-                <p className="text-muted-foreground text-sm leading-relaxed">{feat.desc}</p>
+                <div>
+                  <h4 className="text-xl font-black mb-2 text-secondary dark:text-white">{item.title}</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                </div>
+                <span className="absolute -top-4 text-[6rem] opacity-[0.03] font-black -z-10 text-secondary dark:text-white select-none">
+                  {item.step}
+                </span>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Stats section */}
-      <section className="py-20 bg-secondary text-white relative overflow-hidden">
+      {/* Testimonials */}
+      <section className="py-24 bg-secondary text-white relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-64 h-64 bg-primary/10 blur-[120px] rounded-full translate-x-1/2" />
         <div className="container mx-auto px-4 relative z-10">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-12 text-center">
-            <div>
-              <p className="text-5xl font-black text-primary mb-2">95%</p>
-              <p className="text-sm font-bold uppercase tracking-wider text-gray-400">Job Placement Rate</p>
+          <div className="text-center mb-20">
+            <h2 className="text-sm font-black text-primary uppercase tracking-[0.3em] mb-4">Student Stories</h2>
+            <h3 className="text-4xl md:text-5xl font-black">Success Is Our Default</h3>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              { name: "Sarah K.", role: "Frontend Dev at Meta", quote: "The AI marking gave me the courage to push my code further. I learned more in 3 months here than 4 years of college.", avatar: "SK" },
+              { name: "John Doe", role: "Backend Engineer", quote: "Direct access to instructors via chat was the game changer. No more being stuck for days on a single bug.", avatar: "JD" },
+              { name: "Alice M.", role: "UI/UX Designer", quote: "Mwenaro doesn't just teach tools; they teach workflows. I was job-ready before I even finished the course.", avatar: "AM" }
+            ].map((t, i) => (
+              <div key={i} className="p-10 rounded-[2.5rem] bg-white/5 border border-white/10 backdrop-blur-sm space-y-6">
+                <div className="flex text-primary">
+                  {[1, 2, 3, 4, 5].map(s => <svg key={s} className="w-5 h-5 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>)}
+                </div>
+                <p className="text-lg italic leading-relaxed text-gray-300">"{t.quote}"</p>
+                <div className="flex items-center gap-4 pt-4">
+                  <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center font-black">{t.avatar}</div>
+                  <div>
+                    <p className="font-bold">{t.name}</p>
+                    <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">{t.role}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="py-24 bg-white dark:bg-zinc-950">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <div className="text-center mb-16 space-y-4">
+            <h2 className="text-sm font-black text-primary uppercase tracking-[0.3em]">Common Questions</h2>
+            <h3 className="text-4xl font-black text-secondary dark:text-white">Everything You Need to Know</h3>
+          </div>
+
+          <Accordion type="single" collapsible className="w-full space-y-4">
+            {[
+              { q: "Is Mwenaro Tech Academy for absolute beginners?", a: "Absolutely! We have introductory paths designed specifically for those with zero experience, leading up to professional mastery." },
+              { q: "How long does a typical course take?", a: "Most learners complete a professional-track course in 8-12 weeks, depending on their pace and the complexity of the subject." },
+              { q: "What kind of support will I receive?", a: "You get 24/7 AI tutoring, direct chat access to instructors, and weekly live sessions with your cohort." },
+              { q: "Is the certificate recognized by employers?", a: "Yes. Our certificates are verified and recognized by our network of hiring partners who trust our rigorous project-based learning." }
+            ].map((faq, i) => (
+              <AccordionItem key={i} value={`item-${i}`} className="border-none bg-zinc-50 dark:bg-zinc-900 px-8 rounded-3xl">
+                <AccordionTrigger className="text-lg font-black hover:no-underline text-left py-6">{faq.q}</AccordionTrigger>
+                <AccordionContent className="text-muted-foreground pb-6 text-base leading-relaxed">
+                  {faq.a}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
+      </section>
+
+      {/* Newsletter / Lead Magnet */}
+      <section className="py-24 bg-zinc-50 dark:bg-zinc-950 border-t border-border/50">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-12 p-12 bg-white dark:bg-zinc-900 rounded-[3rem] shadow-xl border border-border/50">
+            <div className="flex-1 space-y-4">
+              <h3 className="text-3xl font-black">Stay in the Loop</h3>
+              <p className="text-muted-foreground">Receive weekly tech insights, career tips, and exclusive course discounts directly in your inbox.</p>
             </div>
-            <div>
-              <p className="text-5xl font-black text-white mb-2">250+</p>
-              <p className="text-sm font-bold uppercase tracking-wider text-gray-400">Advanced Lessons</p>
-            </div>
-            <div>
-              <p className="text-5xl font-black text-white mb-2">15k</p>
-              <p className="text-sm font-bold uppercase tracking-wider text-gray-400">Active Learners</p>
-            </div>
-            <div>
-              <p className="text-5xl font-black text-white mb-2">4.9</p>
-              <p className="text-sm font-bold uppercase tracking-wider text-gray-400">Average Review</p>
+            <div className="flex-1 w-full space-y-4">
+              <div className="flex gap-2">
+                <input type="email" placeholder="Email Address" className="flex-1 h-14 px-6 rounded-2xl bg-zinc-100 dark:bg-zinc-800 border-transparent focus:border-primary/50 focus:ring-0 font-bold" />
+                <Button className="h-14 px-8 font-black bg-secondary dark:bg-primary rounded-2xl">Join</Button>
+              </div>
+              <p className="text-[10px] text-muted-foreground text-center font-bold uppercase tracking-widest">Join 50k+ readers. Unsubscribe anytime.</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* CTA Final */}
       <section className="py-24 relative overflow-hidden bg-white dark:bg-zinc-950">
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto p-12 lg:p-20 rounded-[3rem] bg-gradient-to-br from-primary to-orange-600 shadow-3xl text-center text-white relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"></div>
             <div className="relative z-10">
-              <h2 className="text-4xl md:text-6xl font-black mb-6 leading-tight">Ready to start your<br />journey today?</h2>
-              <p className="text-xl text-white/80 mb-10 max-w-xl mx-auto">
-                Join our next cohort starting Monday. Special early-bird discounts available for new students.
+              <h2 className="text-4xl md:text-6xl font-black mb-6 leading-tight font-black">Ready to scale up?</h2>
+              <p className="text-xl text-white/80 mb-10 max-w-xl mx-auto font-medium">
+                Join our next cohort and transition into a high-paying tech career.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Link href="/signup">
                   <Button size="lg" className="h-14 px-10 text-lg font-black bg-white text-primary hover:bg-gray-100 rounded-xl shadow-xl">
-                    Get Started Free
+                    Enroll Now Free
                   </Button>
                 </Link>
-                <p className="text-sm font-bold text-white/60">No credit card required to start.</p>
+                <p className="text-sm font-bold text-white/60">Success is 3 clicks away.</p>
               </div>
             </div>
           </div>
