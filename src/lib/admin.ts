@@ -4,6 +4,7 @@ import { createClient } from './supabase/server'
 import { createAdminClient } from './supabase/admin'
 import { revalidatePath } from 'next/cache'
 import { Course } from './courses'
+import { Lesson } from './lessons'
 
 export interface User {
     id: string
@@ -173,4 +174,39 @@ export async function assignStudentToCohort(studentId: string, courseId: string,
     }
 
     revalidatePath('/admin/cohorts')
+}
+
+// --- Lesson Management ---
+
+export async function createLesson(data: { course_id: string, title: string, content: string, order_index: number, has_project: boolean }) {
+    if (!await isAdmin()) throw new Error('Unauthorized')
+    const supabase = await createClient()
+    const { error } = await supabase.from('lessons').insert(data)
+    if (error) throw new Error(error.message)
+    revalidatePath(`/admin/courses/${data.course_id}/lessons`)
+    revalidatePath(`/courses/${data.course_id}/lessons`)
+}
+
+export async function updateLesson(id: string, data: Partial<Lesson>) {
+    if (!await isAdmin()) throw new Error('Unauthorized')
+    const supabase = await createClient()
+    const { data: lesson } = await supabase.from('lessons').select('course_id').eq('id', id).single()
+    const { error } = await supabase.from('lessons').update(data).eq('id', id)
+    if (error) throw new Error(error.message)
+    if (lesson) {
+        revalidatePath(`/admin/courses/${lesson.course_id}/lessons`)
+        revalidatePath(`/courses/${lesson.course_id}/lessons`)
+    }
+}
+
+export async function deleteLesson(id: string) {
+    if (!await isAdmin()) throw new Error('Unauthorized')
+    const supabase = await createClient()
+    const { data: lesson } = await supabase.from('lessons').select('course_id').eq('id', id).single()
+    const { error } = await supabase.from('lessons').delete().eq('id', id)
+    if (error) throw new Error(error.message)
+    if (lesson) {
+        revalidatePath(`/admin/courses/${lesson.course_id}/lessons`)
+        revalidatePath(`/courses/${lesson.course_id}/lessons`)
+    }
 }

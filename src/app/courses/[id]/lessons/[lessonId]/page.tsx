@@ -2,6 +2,7 @@ import { getLesson, getCourseLessons, getLessonQuestions } from '@/lib/lessons'
 import { getCourse } from '@/lib/courses'
 import { hasEnrolled } from '@/lib/enrollment'
 import { getLessonProgress, isLessonLocked } from '@/lib/progress'
+import { createClient } from '@/lib/supabase/server'
 import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -15,12 +16,19 @@ interface LessonPageProps {
     }>
 }
 
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+
 export default async function LessonPage({ params }: LessonPageProps) {
     const { id: courseId, lessonId } = await params
 
     // Check enrollment first
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    const isAdmin = user?.user_metadata?.role === 'admin'
     const isEnrolled = await hasEnrolled(courseId)
-    if (!isEnrolled) {
+
+    if (!isEnrolled && !isAdmin) {
         redirect(`/courses/${courseId}`)
     }
 
@@ -53,7 +61,7 @@ export default async function LessonPage({ params }: LessonPageProps) {
     const prevLesson = currentIndex > 0 ? allLessons[currentIndex - 1] : null
     const nextLesson = currentIndex < allLessons.length - 1 ? allLessons[currentIndex + 1] : null
 
-    const showNextButton = progress?.is_completed && nextLesson
+    const showNextButton = (progress?.is_completed || isAdmin) && nextLesson
 
     return (
         <div className="container py-8 px-4 max-w-4xl mx-auto">
@@ -67,10 +75,11 @@ export default async function LessonPage({ params }: LessonPageProps) {
             </div>
 
             <article className="prose prose-slate dark:prose-invert max-w-none">
-                <h1 className="text-3xl font-bold mb-6">{lesson.title}</h1>
-                <div className="p-6 border rounded-lg bg-card">
-                    {/* In a real app, use react-markdown here */}
-                    <p className="whitespace-pre-wrap">{lesson.content}</p>
+                <h1 className="text-3xl font-bold mb-6 tracking-tight">{lesson.title}</h1>
+                <div className="p-8 border rounded-2xl bg-card shadow-sm">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {lesson.content}
+                    </ReactMarkdown>
                 </div>
             </article>
 

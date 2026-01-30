@@ -1,7 +1,7 @@
 import { getCourses } from '@/lib/courses'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-// import { CreateCourseForm } from '@/components/create-course-form'
+import Link from 'next/link'
 import { deleteCourse } from '@/lib/admin'
 import { CreateCourseForm } from '@/components/create-course-form'
 
@@ -30,7 +30,10 @@ export default async function CoursesPage() {
                                         <p className="text-muted-foreground text-sm line-clamp-1">{course.description}</p>
                                         <p className="text-sm font-bold mt-2 text-purple-600">${course.price}</p>
                                     </div>
-                                    <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <div className="flex gap-2">
+                                        <Link href={`/admin/courses/${course.id}/lessons`}>
+                                            <Button variant="outline" size="sm">Manage Lessons</Button>
+                                        </Link>
                                         <form action={async () => {
                                             'use server'
                                             await deleteCourse(course.id)

@@ -2,6 +2,7 @@ import { getCourseLessons } from '@/lib/lessons'
 import { getCourse } from '@/lib/courses'
 import { hasEnrolled, enrollUser } from '@/lib/enrollment'
 import { getCourseProgress } from '@/lib/progress'
+import { createClient } from '@/lib/supabase/server'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import Image from 'next/image'
@@ -19,7 +20,12 @@ export default async function CoursePage({ params }: CoursePageProps) {
     const { id } = await params
     const course = await getCourse(id)
     const lessons = await getCourseLessons(id)
+
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    const isAdmin = user?.user_metadata?.role === 'admin'
     const isEnrolled = await hasEnrolled(id)
+    const canPreview = isEnrolled || isAdmin
 
     if (!course) {
         notFound()
@@ -54,7 +60,7 @@ export default async function CoursePage({ params }: CoursePageProps) {
                     <div className="space-y-6">
                         <div className="flex items-center justify-between">
                             <h2 className="text-3xl font-bold tracking-tight">About this Course</h2>
-                            {!isEnrolled && (
+                            {!canPreview && (
                                 <div className="text-3xl font-black text-primary drop-shadow-sm">
                                     ${course.price.toFixed(2)}
                                 </div>
@@ -85,7 +91,7 @@ export default async function CoursePage({ params }: CoursePageProps) {
                             Course Content
                         </h2>
 
-                        {!isEnrolled ? (
+                        {!canPreview ? (
                             <div className="space-y-6">
                                 <p className="text-muted-foreground">Enroll now to access all lessons and track your progress.</p>
                                 <form action={enrollUser.bind(null, course.id)} className="w-full">
@@ -114,7 +120,7 @@ export default async function CoursePage({ params }: CoursePageProps) {
                                     const isFirst = index === 0
                                     const prevLessonId = !isFirst ? lessons[index - 1].id : null
                                     const prevProgress = prevLessonId ? progressRecords.find(p => p.lesson_id === prevLessonId) : null
-                                    const isUnlocked = isFirst || (prevProgress?.is_completed ?? false)
+                                    const isUnlocked = isFirst || (prevProgress?.is_completed ?? false) || isAdmin
 
                                     let statusContent;
                                     if (isCompleted) {

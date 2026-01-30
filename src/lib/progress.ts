@@ -82,6 +82,7 @@ export async function isLessonLocked(courseId: string, lessonId: string): Promis
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) return true // Locked if no user
+    if (user.user_metadata?.role === 'admin') return false
 
     const lessons = await getCourseLessons(courseId)
     const currentLessonIndex = lessons.findIndex(l => l.id === lessonId)
