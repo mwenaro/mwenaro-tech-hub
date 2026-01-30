@@ -37,12 +37,20 @@ export async function Navbar() {
                                 <Link href="/instructor/payments" className="text-sm font-medium transition-colors hover:text-primary">
                                     Payments
                                 </Link>
+                                <Link href="/instructor/messages" className="text-sm font-medium transition-colors hover:text-primary">
+                                    Messages
+                                </Link>
                             </>
                         )}
                         {user?.user_metadata?.role === 'admin' && (
-                            <Link href="/admin/dashboard" className="text-sm font-medium transition-colors hover:text-primary text-red-600 dark:text-red-400">
-                                Admin
-                            </Link>
+                            <>
+                                <Link href="/admin/dashboard" className="text-sm font-medium transition-colors hover:text-primary text-red-600 dark:text-red-400">
+                                    Admin
+                                </Link>
+                                <Link href="/admin/messages" className="text-sm font-medium transition-colors hover:text-primary">
+                                    Messages
+                                </Link>
+                            </>
                         )}
                     </div>
                 </div>
