@@ -4,7 +4,7 @@ import { getPendingSubmissions, getInstructorStats } from '@/lib/instructor'
 import Link from 'next/link'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Users, BookOpen } from 'lucide-react'
+import { Users, BookOpen, Settings } from 'lucide-react'
 
 export default async function InstructorDashboard() {
     const supabase = await createClient()
@@ -43,6 +43,12 @@ export default async function InstructorDashboard() {
                             <Button variant="outline" className="font-bold rounded-xl h-12 px-6 border-zinc-200 dark:border-zinc-800">
                                 <BookOpen className="w-5 h-5 mr-2" />
                                 Manage Courses
+                            </Button>
+                        </Link>
+                        <Link href="/settings">
+                            <Button variant="outline" className="font-bold rounded-xl h-12 px-6 border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/50">
+                                <Settings className="w-5 h-5 mr-2" />
+                                Settings
                             </Button>
                         </Link>
                     </div>

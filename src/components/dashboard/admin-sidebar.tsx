@@ -72,11 +72,6 @@ export function AdminSidebar({ user, ...props }: AdminSidebarProps) {
             url: "/admin/messages",
             icon: MessageSquare,
         },
-        {
-            title: "Settings",
-            url: "/settings",
-            icon: Settings,
-        },
     ]
 
     return (
@@ -129,6 +124,14 @@ export function AdminSidebar({ user, ...props }: AdminSidebarProps) {
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                     <SidebarSeparator />
+                    <SidebarMenuItem>
+                        <SidebarMenuButton asChild isActive={pathname === "/settings"} tooltip="Settings">
+                            <Link href="/settings">
+                                <Settings />
+                                <span>Settings</span>
+                            </Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
                     <SidebarMenuItem>
                         <form action={signOut} className="w-full">
                             <SidebarMenuButton asChild tooltip="Log out">

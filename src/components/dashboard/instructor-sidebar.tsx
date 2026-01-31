@@ -72,11 +72,6 @@ export function InstructorSidebar({ user, ...props }: InstructorSidebarProps) {
             url: "/instructor/payments",
             icon: DollarSign,
         },
-        {
-            title: "Settings",
-            url: "/settings",
-            icon: Settings,
-        },
     ]
 
     return (
@@ -129,6 +124,14 @@ export function InstructorSidebar({ user, ...props }: InstructorSidebarProps) {
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                     <SidebarSeparator />
+                    <SidebarMenuItem>
+                        <SidebarMenuButton asChild isActive={pathname === "/settings"} tooltip="Settings">
+                            <Link href="/settings">
+                                <Settings />
+                                <span>Settings</span>
+                            </Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
                     <SidebarMenuItem>
                         <form action={signOut} className="w-full">
                             <SidebarMenuButton asChild tooltip="Log out">

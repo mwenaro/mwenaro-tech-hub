@@ -59,6 +59,12 @@ export default async function AdminDashboard() {
                             <p className="text-muted-foreground leading-relaxed">Monitor AI grading accuracy, view platform trends, and system logs.</p>
                         </Card>
                     </Link>
+                    <Link href="/settings">
+                        <Card className="group p-8 hover:shadow-2xl transition-all duration-300 cursor-pointer border-t-4 border-t-zinc-400 bg-card/50 backdrop-blur-sm">
+                            <h3 className="text-xl font-black mb-2 group-hover:text-primary transition-colors">Personal Settings</h3>
+                            <p className="text-muted-foreground leading-relaxed">Update your profile information, manage security, and preferences.</p>
+                        </Card>
+                    </Link>
                 </div>
             </div>
         </div>
