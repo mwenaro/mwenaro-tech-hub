@@ -60,10 +60,10 @@ export default async function InstructorDashboard() {
                     <Card className="p-6 bg-gradient-to-br from-primary/5 to-transparent border-primary/10 shadow-sm border-white/10">
                         <div className="flex items-center justify-between">
                             <div className="flex-1">
-                                <p className="text-sm font-bold uppercase tracking-widest text-muted-foreground mb-3">Expand Courseware</p>
-                                <Link href="/courses">
+                                <p className="text-sm font-bold uppercase tracking-widest text-muted-foreground mb-3">Curriculum Control</p>
+                                <Link href="/instructor/courses">
                                     <Button variant="outline" className="w-full border-primary/20 text-primary hover:bg-primary/5 font-bold h-12 rounded-xl">
-                                        Browse Curriculum
+                                        Manage My Courses
                                     </Button>
                                 </Link>
                             </div>

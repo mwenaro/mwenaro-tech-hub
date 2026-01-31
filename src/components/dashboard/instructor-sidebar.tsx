@@ -7,7 +7,8 @@ import {
     MessageSquare,
     DollarSign,
     Calendar,
-    ClipboardCheck
+    ClipboardCheck,
+    BookOpen
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -44,6 +45,11 @@ export function InstructorSidebar({ user, ...props }: InstructorSidebarProps) {
             title: "Dashboard",
             url: "/instructor/dashboard",
             icon: LayoutDashboard,
+        },
+        {
+            title: "Courses",
+            url: "/instructor/courses",
+            icon: BookOpen,
         },
         {
             title: "Sessions",

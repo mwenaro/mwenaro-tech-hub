@@ -6,6 +6,8 @@ export interface Course {
     description: string
     price: number
     image_url: string
+    instructor_id?: string
+    is_published?: boolean
     level?: string
     created_at: string
 }
@@ -39,4 +41,20 @@ export async function getCourse(id: string): Promise<Course | null> {
     }
 
     return data as Course
+}
+
+export async function getInstructorCourses(instructorId: string): Promise<Course[]> {
+    const supabase = await createClient()
+    const { data, error } = await supabase
+        .from('courses')
+        .select('*')
+        .eq('instructor_id', instructorId)
+        .order('created_at', { ascending: false })
+
+    if (error) {
+        console.error('Error fetching instructor courses:', error)
+        return []
+    }
+
+    return data as Course[]
 }

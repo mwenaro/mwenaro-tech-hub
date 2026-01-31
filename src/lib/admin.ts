@@ -21,6 +21,25 @@ export async function isAdmin(): Promise<boolean> {
     return user.user_metadata?.role === 'admin'
 }
 
+export async function isAuthorizedForCourse(courseId: string): Promise<boolean> {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return false
+
+    if (user.user_metadata?.role === 'admin') return true
+    if (user.user_metadata?.role !== 'instructor') return false
+
+    const { data: course } = await supabase.from('courses').select('instructor_id').eq('id', courseId).single()
+    return course?.instructor_id === user.id
+}
+
+export async function isAuthorizedForLesson(lessonId: string): Promise<boolean> {
+    const supabase = await createClient()
+    const { data: lesson } = await supabase.from('lessons').select('course_id').eq('id', lessonId).single()
+    if (!lesson) return false
+    return isAuthorizedForCourse(lesson.course_id)
+}
+
 export async function getAllUsers(): Promise<User[]> {
     if (!await isAdmin()) throw new Error('Unauthorized')
 
@@ -74,7 +93,14 @@ export async function getDashboardStats() {
 
 // --- Course Management ---
 
-export async function createCourse(data: { title: string, description: string, price: number, image_url: string }) {
+export async function createCourse(data: {
+    title: string,
+    description: string,
+    price: number,
+    image_url: string,
+    instructor_id?: string,
+    is_published?: boolean
+}) {
     if (!await isAdmin()) throw new Error('Unauthorized')
     const supabase = await createClient()
     const { error } = await supabase.from('courses').insert(data)
@@ -84,12 +110,28 @@ export async function createCourse(data: { title: string, description: string, p
 }
 
 export async function updateCourse(id: string, data: Partial<Course>) {
-    if (!await isAdmin()) throw new Error('Unauthorized')
     const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('Unauthorized')
+
+    const isAdminUser = user.user_metadata?.role === 'admin'
+    const isInstructorUser = user.user_metadata?.role === 'instructor'
+
+    if (!isAdminUser && !isInstructorUser) throw new Error('Unauthorized')
+
+    // If instructor, verify they own the course
+    if (!isAdminUser) {
+        const { data: course } = await supabase.from('courses').select('instructor_id').eq('id', id).single()
+        if (course?.instructor_id !== user.id) throw new Error('Unauthorized: You can only edit your own courses')
+    }
+
     const { error } = await supabase.from('courses').update(data).eq('id', id)
     if (error) throw new Error(error.message)
+
     revalidatePath('/admin/courses')
     revalidatePath(`/courses/${id}`)
+    revalidatePath('/instructor/dashboard')
+    revalidatePath('/dashboard')
 }
 
 export async function deleteCourse(id: string) {
@@ -179,7 +221,7 @@ export async function assignStudentToCohort(studentId: string, courseId: string,
 // --- Lesson Management ---
 
 export async function createLesson(data: { course_id: string, title: string, content: string, video_url?: string, order_index: number, has_project: boolean }) {
-    if (!await isAdmin()) throw new Error('Unauthorized')
+    if (!await isAuthorizedForCourse(data.course_id)) throw new Error('Unauthorized')
     const supabase = await createClient()
     const { error } = await supabase.from('lessons').insert(data)
     if (error) throw new Error(error.message)
@@ -188,7 +230,7 @@ export async function createLesson(data: { course_id: string, title: string, con
 }
 
 export async function updateLesson(id: string, data: Partial<Lesson>) {
-    if (!await isAdmin()) throw new Error('Unauthorized')
+    if (!await isAuthorizedForLesson(id)) throw new Error('Unauthorized')
     const supabase = await createClient()
     const { data: lesson } = await supabase.from('lessons').select('course_id').eq('id', id).single()
     const { error } = await supabase.from('lessons').update(data).eq('id', id)
@@ -200,7 +242,7 @@ export async function updateLesson(id: string, data: Partial<Lesson>) {
 }
 
 export async function deleteLesson(id: string) {
-    if (!await isAdmin()) throw new Error('Unauthorized')
+    if (!await isAuthorizedForLesson(id)) throw new Error('Unauthorized')
     const supabase = await createClient()
     const { data: lesson } = await supabase.from('lessons').select('course_id').eq('id', id).single()
     const { error } = await supabase.from('lessons').delete().eq('id', id)
@@ -214,7 +256,7 @@ export async function deleteLesson(id: string) {
 // --- Quiz Management ---
 
 export async function createQuestion(data: { lesson_id: string, question_text: string, options: string[], correct_answer: number }) {
-    if (!await isAdmin()) throw new Error('Unauthorized')
+    if (!await isAuthorizedForLesson(data.lesson_id)) throw new Error('Unauthorized')
     const supabase = await createClient()
     const { error } = await supabase.from('questions').insert(data)
     if (error) throw new Error(error.message)
@@ -229,9 +271,9 @@ export async function createQuestion(data: { lesson_id: string, question_text: s
 }
 
 export async function updateQuestion(id: string, data: Partial<Question>) {
-    if (!await isAdmin()) throw new Error('Unauthorized')
     const supabase = await createClient()
     const { data: q } = await supabase.from('questions').select('lesson_id').eq('id', id).single()
+    if (!q || !await isAuthorizedForLesson(q.lesson_id)) throw new Error('Unauthorized')
     const { error } = await supabase.from('questions').update(data).eq('id', id)
     if (error) throw new Error(error.message)
 
@@ -246,9 +288,9 @@ export async function updateQuestion(id: string, data: Partial<Question>) {
 }
 
 export async function deleteQuestion(id: string) {
-    if (!await isAdmin()) throw new Error('Unauthorized')
     const supabase = await createClient()
     const { data: q } = await supabase.from('questions').select('lesson_id').eq('id', id).single()
+    if (!q || !await isAuthorizedForLesson(q.lesson_id)) throw new Error('Unauthorized')
     const { error } = await supabase.from('questions').delete().eq('id', id)
     if (error) throw new Error(error.message)
 
@@ -263,7 +305,7 @@ export async function deleteQuestion(id: string) {
 }
 
 export async function createQuestionsBulk(lessonId: string, questions: { question_text: string, options: string[], correct_answer: number, explanation?: string }[]) {
-    if (!await isAdmin()) throw new Error('Unauthorized')
+    if (!await isAuthorizedForLesson(lessonId)) throw new Error('Unauthorized')
     const supabase = await createClient()
 
     const data = questions.map(q => ({
@@ -283,7 +325,7 @@ export async function createQuestionsBulk(lessonId: string, questions: { questio
 }
 
 export async function deleteAllQuestions(lessonId: string) {
-    if (!await isAdmin()) throw new Error('Unauthorized')
+    if (!await isAuthorizedForLesson(lessonId)) throw new Error('Unauthorized')
     const supabase = await createClient()
 
     const { error } = await supabase.from('questions').delete().eq('lesson_id', lessonId)
