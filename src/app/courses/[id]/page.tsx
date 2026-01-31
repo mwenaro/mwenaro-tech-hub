@@ -25,7 +25,8 @@ export default async function CoursePage({ params }: CoursePageProps) {
     const { data: { user } } = await supabase.auth.getUser()
     const isAdmin = user?.user_metadata?.role === 'admin'
     const isEnrolled = await hasEnrolled(id)
-    const canPreview = isEnrolled || isAdmin
+    const isInstructor = user?.user_metadata?.role === 'instructor' && course?.instructor_id === user?.id
+    const canPreview = isEnrolled || isAdmin || isInstructor
 
     if (!course) {
         notFound()
@@ -118,6 +119,17 @@ export default async function CoursePage({ params }: CoursePageProps) {
                                         </Button>
                                     </Link>
                                 )}
+                                {isInstructor && !isEnrolled && lessons.length > 0 && (
+                                    <Link href={`/learn/${course.id}/${lessons[0].id}`}>
+                                        <Button variant="outline" className="w-full mb-6 font-black h-14 rounded-xl shadow-lg border-primary/20 hover:bg-primary/5 transition-all text-primary flex flex-col gap-0 h-auto py-3">
+                                            <div className="flex items-center gap-2">
+                                                <Maximize2 className="w-4 h-4" />
+                                                Browse as Instructor
+                                            </div>
+                                            <span className="text-[10px] uppercase tracking-widest opacity-60">Preview Mode Active</span>
+                                        </Button>
+                                    </Link>
+                                )}
                                 {lessons.map((lesson, index) => {
                                     const progress = progressRecords.find(p => p.lesson_id === lesson.id)
                                     const isCompleted = progress?.is_completed || false
@@ -128,7 +140,7 @@ export default async function CoursePage({ params }: CoursePageProps) {
                                     const isFirst = index === 0
                                     const prevLessonId = !isFirst ? lessons[index - 1].id : null
                                     const prevProgress = prevLessonId ? progressRecords.find(p => p.lesson_id === prevLessonId) : null
-                                    const isUnlocked = isFirst || (prevProgress?.is_completed ?? false) || isAdmin
+                                    const isUnlocked = isFirst || (prevProgress?.is_completed ?? false) || isAdmin || isInstructor
 
                                     let statusContent;
                                     if (isCompleted) {

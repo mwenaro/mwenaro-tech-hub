@@ -34,6 +34,8 @@ export default async function LearnLayout({
     }
 
     const isAdmin = user?.user_metadata?.role === 'admin'
+    const isInstructor = user?.user_metadata?.role === 'instructor' && course?.instructor_id === user?.id
+    const canBypass = isAdmin || isInstructor
 
     // Enrich lessons with status
     const enrichedLessons = lessons.map((lesson, index) => {
@@ -45,7 +47,7 @@ export default async function LearnLayout({
         const isFirst = index === 0
         const prevLessonId = !isFirst ? lessons[index - 1].id : null
         const prevProgress = prevLessonId ? progress.find(p => p.lesson_id === prevLessonId) : null
-        const isUnlocked = isFirst || (prevProgress?.is_completed ?? false) || isAdmin
+        const isUnlocked = isFirst || (prevProgress?.is_completed ?? false) || canBypass
 
         return {
             id: lesson.id,

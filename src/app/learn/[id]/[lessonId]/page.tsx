@@ -1,4 +1,5 @@
 import { getLesson, getCourseLessons, getLessonQuestions } from '@/lib/lessons'
+import { getCourse } from '@/lib/courses'
 import { getLessonProgress } from '@/lib/progress'
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
@@ -24,25 +25,28 @@ export default async function ImmersiveLessonPage({ params }: LessonPageProps) {
 
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
-    const isAdmin = user?.user_metadata?.role === 'admin'
-
     const lesson = await getLesson(lessonId)
     if (!lesson) {
         notFound()
     }
 
-    const [questions, progress, allLessons] = await Promise.all([
+    const [course, questions, progress, allLessons] = await Promise.all([
+        getCourse(courseId),
         getLessonQuestions(lessonId),
         getLessonProgress(lessonId),
         getCourseLessons(courseId)
     ])
 
+    const isAdmin = user?.user_metadata?.role === 'admin'
+    const isInstructor = user?.user_metadata?.role === 'instructor' && course?.instructor_id === user?.id
+    const canBypass = isAdmin || isInstructor
+
     // Determine Navigation
-    const currentIndex = allLessons.findIndex(l => l.id === lessonId)
+    const currentIndex = allLessons.findIndex((l: any) => l.id === lessonId)
     const prevLesson = currentIndex > 0 ? allLessons[currentIndex - 1] : null
     const nextLesson = currentIndex < allLessons.length - 1 ? allLessons[currentIndex + 1] : null
 
-    const canContinue = (progress?.is_completed || isAdmin)
+    const canContinue = (progress?.is_completed || canBypass)
 
     return (
         <div className="max-w-5xl mx-auto px-6 py-10 space-y-12 pb-32">
@@ -96,7 +100,11 @@ export default async function ImmersiveLessonPage({ params }: LessonPageProps) {
                                     </div>
                                 )}
                             </div>
-                            {progress?.is_completed ? (
+                            {isInstructor ? (
+                                <p className="text-primary font-bold bg-primary/5 p-6 rounded-2xl border border-primary/20 italic">
+                                    Instructor Preview: Quizzes are disabled in this mode.
+                                </p>
+                            ) : progress?.is_completed ? (
                                 <p className="text-zinc-600 dark:text-zinc-400 font-medium bg-white dark:bg-zinc-800/50 p-6 rounded-2xl border border-green-500/20">
                                     Bravo! You've mastered this quiz with a score of <span className="font-black text-zinc-900 dark:text-white">{progress.highest_quiz_score}%</span>.
                                 </p>
@@ -116,16 +124,22 @@ export default async function ImmersiveLessonPage({ params }: LessonPageProps) {
                                 <h2 className="text-2xl font-black tracking-tight mb-1">Hands-on Challenge</h2>
                                 <p className="text-sm text-primary/70 font-medium">Apply what you've learned in a real-world project.</p>
                             </div>
-                            <ProjectSubmission
-                                lessonId={lesson.id}
-                                isCompleted={progress?.is_completed || false}
-                                existingLink={progress?.project_repo_link}
-                                quizRequired={questions.length > 0}
-                                quizPassed={(progress?.highest_quiz_score || 0) >= 70}
-                                isReviewed={progress?.project_reviewed || false}
-                                rating={progress?.project_rating}
-                                feedback={progress?.project_feedback}
-                            />
+                            {isInstructor ? (
+                                <p className="text-primary font-bold bg-primary/5 p-6 rounded-2xl border border-primary/20 italic">
+                                    Instructor Preview: Submissions are disabled in this mode.
+                                </p>
+                            ) : (
+                                <ProjectSubmission
+                                    lessonId={lesson.id}
+                                    isCompleted={progress?.is_completed || false}
+                                    existingLink={progress?.project_repo_link}
+                                    quizRequired={questions.length > 0}
+                                    quizPassed={(progress?.highest_quiz_score || 0) >= 70}
+                                    isReviewed={progress?.project_reviewed || false}
+                                    rating={progress?.project_rating}
+                                    feedback={progress?.project_feedback}
+                                />
+                            )}
                         </div>
                     )}
                 </div>
