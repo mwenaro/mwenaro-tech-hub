@@ -27,7 +27,8 @@ export async function Navbar() {
                     {user && (
                         <Link href="/dashboard" className="text-sm font-bold text-muted-foreground hover:text-primary transition-colors uppercase tracking-widest">My Learning</Link>
                     )}
-                    <Link href="#" className="text-sm font-bold text-muted-foreground hover:text-primary transition-colors uppercase tracking-widest">About</Link>
+                    <Link href="/about" className="text-sm font-bold text-muted-foreground hover:text-primary transition-colors uppercase tracking-widest">About</Link>
+                    <Link href="/contact" className="text-sm font-bold text-muted-foreground hover:text-primary transition-colors uppercase tracking-widest">Contact</Link>
                 </div>
 
                 <div className="flex items-center gap-4">
