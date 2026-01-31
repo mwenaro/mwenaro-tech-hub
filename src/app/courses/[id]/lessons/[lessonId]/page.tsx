@@ -9,7 +9,7 @@ import { ProjectSubmission } from '@/components/project-submission'
 import { VideoPlayer } from '@/components/video-player'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Monitor } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface LessonPageProps {
@@ -70,7 +70,15 @@ export default async function LessonPage({ params }: LessonPageProps) {
                     <span>•</span>
                     <span>{allLessons.length} lessons total</span>
                 </div>
-                <h1 className="text-4xl font-black tracking-tight">{lesson.title}</h1>
+                <div className="flex items-center justify-between gap-4">
+                    <h1 className="text-4xl font-black tracking-tight">{lesson.title}</h1>
+                    <Link href={`/learn/${courseId}/${lessonId}`}>
+                        <Button variant="outline" className="rounded-xl font-bold shadow-sm">
+                            <Monitor className="w-4 h-4 mr-2" />
+                            Immersive Mode
+                        </Button>
+                    </Link>
+                </div>
             </div>
 
             {/* Content Area */}

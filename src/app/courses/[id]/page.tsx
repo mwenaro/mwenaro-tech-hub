@@ -8,7 +8,7 @@ import { Progress } from '@/components/ui/progress'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { CheckCircle2, Lock, PlayCircle } from 'lucide-react'
+import { CheckCircle2, Lock, PlayCircle, Maximize2 } from 'lucide-react'
 
 interface CoursePageProps {
     params: Promise<{
@@ -110,6 +110,14 @@ export default async function CoursePage({ params }: CoursePageProps) {
                             </div>
                         ) : (
                             <div className="space-y-3">
+                                {isEnrolled && lessons.length > 0 && (
+                                    <Link href={`/learn/${course.id}/${lessons[0].id}`}>
+                                        <Button className="w-full mb-6 font-black h-14 rounded-xl shadow-xl shadow-primary/20 gap-2 border-primary/20 bg-gradient-to-r from-primary to-primary/90 hover:scale-[1.02] transition-transform">
+                                            <Maximize2 className="w-5 h-5" />
+                                            Launch Immersive Player
+                                        </Button>
+                                    </Link>
+                                )}
                                 {lessons.map((lesson, index) => {
                                     const progress = progressRecords.find(p => p.lesson_id === lesson.id)
                                     const isCompleted = progress?.is_completed || false
