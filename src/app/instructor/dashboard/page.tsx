@@ -4,6 +4,7 @@ import { getPendingSubmissions, getInstructorStats } from '@/lib/instructor'
 import Link from 'next/link'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Users, BookOpen } from 'lucide-react'
 
 export default async function InstructorDashboard() {
     const supabase = await createClient()
@@ -26,9 +27,25 @@ export default async function InstructorDashboard() {
         <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
             <div className="max-w-7xl mx-auto p-8">
                 {/* Header */}
-                <div className="mb-8 p-8 rounded-3xl bg-white/50 dark:bg-card/50 backdrop-blur-sm border border-white/20 shadow-xl">
-                    <h1 className="text-4xl font-black tracking-tight mb-2 text-primary">Instructor Hub</h1>
-                    <p className="text-muted-foreground text-lg italic">Guidance • Mentorship • Future Leaders</p>
+                <div className="mb-8 p-8 rounded-3xl bg-white/50 dark:bg-card/50 backdrop-blur-sm border border-white/20 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div>
+                        <h1 className="text-4xl font-black tracking-tight mb-2 text-primary">Instructor Hub</h1>
+                        <p className="text-muted-foreground text-lg italic">Guidance • Mentorship • Future Leaders</p>
+                    </div>
+                    <div className="flex flex-wrap gap-3">
+                        <Link href="/instructor/students">
+                            <Button className="font-bold rounded-xl h-12 px-6 shadow-lg shadow-primary/20">
+                                <Users className="w-5 h-5 mr-2" />
+                                My Students
+                            </Button>
+                        </Link>
+                        <Link href="/instructor/courses">
+                            <Button variant="outline" className="font-bold rounded-xl h-12 px-6 border-zinc-200 dark:border-zinc-800">
+                                <BookOpen className="w-5 h-5 mr-2" />
+                                Manage Courses
+                            </Button>
+                        </Link>
+                    </div>
                 </div>
 
                 {/* Stats Cards */}

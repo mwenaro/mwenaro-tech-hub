@@ -1,4 +1,6 @@
 import { createClient } from './supabase/server'
+import { createAdminClient } from './supabase/admin'
+import { User } from '@supabase/supabase-js'
 
 export interface SubmissionWithDetails {
     user_id: string
@@ -276,4 +278,91 @@ export async function getInstructorStats(instructorId: string) {
         totalStudents: studentsCount,
         totalCohorts: cohortIds.length
     }
+}
+
+export interface EnrolledStudent {
+    id: string
+    user_id: string
+    email: string
+    full_name: string | null
+    course_title: string
+    cohort_name: string
+    enrolled_at: string
+    is_completed: boolean
+}
+
+/**
+ * Get all students enrolled in an instructor's cohorts
+ */
+export async function getInstructorStudents(instructorId: string): Promise<EnrolledStudent[]> {
+    const supabase = await createClient()
+
+    // 1. Get cohorts led by this instructor
+    const { data: cohorts } = await supabase
+        .from('cohorts')
+        .select(`
+            id,
+            name,
+            course_id,
+            courses (title)
+        `)
+        .eq('instructor_id', instructorId)
+
+    if (!cohorts || cohorts.length === 0) return []
+
+    const cohortIds = cohorts.map(c => c.id)
+
+    // 2. Get enrollments for these cohorts
+    // We'll join with auth via a hypothetical profiles table or just use emails if available
+    // For now, we'll try to get enrollment and nested user info
+    const { data: enrollments, error } = await supabase
+        .from('enrollments')
+        .select(`
+            user_id,
+            cohort_id,
+            enrolled_at,
+            course_id
+        `)
+        .in('cohort_id', cohortIds)
+
+    if (error || !enrollments) {
+        console.error('Error fetching enrollments:', error)
+        return []
+    }
+
+    // 3. Get user details from auth (using admin client to see all users)
+    const adminSupabase = createAdminClient()
+    const { data: { users: authUsers } } = await adminSupabase.auth.admin.listUsers()
+
+    // Create a map for fast lookup
+    const userMap = new Map<string, { email: string, full_name: string }>(
+        authUsers.map((u: User) => [u.id, {
+            email: u.email || '',
+            full_name: (u.user_metadata?.full_name as string) || u.email?.split('@')[0] || 'Student'
+        }])
+    )
+
+    const cohortMap = new Map(cohorts.map(c => [c.id, {
+        name: c.name,
+        course_title: (c.courses as any)?.title || 'Unknown Course'
+    }]))
+
+    // 4. Transform to EnrolledStudent format
+    const students: EnrolledStudent[] = enrollments.map(e => {
+        const user = userMap.get(e.user_id)
+        const cohort = cohortMap.get(e.cohort_id)
+
+        return {
+            id: `${e.user_id}-${e.cohort_id}`,
+            user_id: e.user_id,
+            email: user?.email || 'unknown',
+            full_name: user?.full_name || null,
+            course_title: cohort?.course_title || 'Unknown',
+            cohort_name: cohort?.name || 'Unknown',
+            enrolled_at: e.enrolled_at,
+            is_completed: false // Logic for completion can be added later (e.g. check lesson_progress)
+        }
+    })
+
+    return students
 }
