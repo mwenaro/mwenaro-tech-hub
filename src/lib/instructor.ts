@@ -242,20 +242,26 @@ export async function getStudentSubmission(
 export async function getInstructorStats(instructorId: string) {
     const supabase = await createClient()
 
-    // 1. Total Courses assigned to this instructor
-    const { count: coursesCount } = await supabase
-        .from('courses')
-        .select('*', { count: 'exact', head: true })
-        .eq('instructor_id', instructorId)
-
-    // 2. Total Students in cohorts assigned to this instructor
+    // 1. Get cohorts assigned to this instructor (and their course IDs)
     const { data: cohorts } = await supabase
         .from('cohorts')
-        .select('id')
+        .select('id, course_id')
         .eq('instructor_id', instructorId)
 
     const cohortIds = cohorts?.map(c => c.id) || []
+    const cohortCourseIds = cohorts?.map(c => c.course_id) || []
 
+    // 2. Total unique courses this instructor is involved in
+    // Either as course owner OR as an instructor of a cohort in that course
+    const { data: ownedCourses } = await supabase
+        .from('courses')
+        .select('id')
+        .eq('instructor_id', instructorId)
+
+    const ownedCourseIds = ownedCourses?.map(c => c.id) || []
+    const allUniqueCourseIds = new Set([...ownedCourseIds, ...cohortCourseIds])
+
+    // 3. Total Students in cohorts assigned to this instructor
     let studentsCount = 0
     if (cohortIds.length > 0) {
         const { count } = await supabase
@@ -266,7 +272,8 @@ export async function getInstructorStats(instructorId: string) {
     }
 
     return {
-        totalCourses: coursesCount || 0,
-        totalStudents: studentsCount
+        totalCourses: allUniqueCourseIds.size,
+        totalStudents: studentsCount,
+        totalCohorts: cohortIds.length
     }
 }

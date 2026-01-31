@@ -32,11 +32,11 @@ export default async function InstructorDashboard() {
                 </div>
 
                 {/* Stats Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
                     <Card className="p-6 bg-gradient-to-br from-primary/10 to-transparent border-primary/20">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm font-bold uppercase tracking-widest text-primary mb-1 text-primary">Pending Reviews</p>
+                                <p className="text-sm font-bold uppercase tracking-widest text-primary mb-1">Pending Reviews</p>
                                 <p className="text-5xl font-black">{pendingSubmissions.length}</p>
                             </div>
                             <div className="p-4 bg-primary rounded-2xl shadow-lg shadow-primary/20">
@@ -53,6 +53,18 @@ export default async function InstructorDashboard() {
                             </div>
                             <div className="p-4 bg-secondary rounded-2xl shadow-lg shadow-secondary/20">
                                 <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                            </div>
+                        </div>
+                    </Card>
+
+                    <Card className="p-6 bg-gradient-to-br from-orange-500/10 to-transparent border-orange-500/20 shadow-sm border-white/10">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-sm font-bold uppercase tracking-widest text-orange-600 mb-1">Active Cohorts</p>
+                                <p className="text-5xl font-black">{(stats as any).totalCohorts}</p>
+                            </div>
+                            <div className="p-4 bg-orange-500 rounded-2xl shadow-lg shadow-orange-500/20">
+                                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                             </div>
                         </div>
                     </Card>
