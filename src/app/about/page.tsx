@@ -38,25 +38,25 @@ const team = [
     {
         name: "Alex Mwero",
         role: "Founder & CEO",
-        image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop",
+        image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=300&h=300&fit=crop",
         bio: "Former Google engineer with a passion for democratizing tech education.",
     },
     {
         name: "Sarah Chen",
         role: "Head of Curriculum",
-        image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&h=300&fit=crop",
+        image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&h=300&fit=crop",
         bio: "10+ years in educational technology, building courses at top universities.",
     },
     {
         name: "David Okonkwo",
         role: "Lead Instructor",
-        image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&h=300&fit=crop",
+        image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=300&h=300&fit=crop",
         bio: "Full-stack developer and AWS certified architect with 15+ years experience.",
     },
     {
         name: "Emily Martinez",
         role: "Student Success Manager",
-        image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop",
+        image: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=300&h=300&fit=crop",
         bio: "Dedicated to helping every student achieve their career goals in tech.",
     },
 ];
@@ -125,7 +125,7 @@ export default function AboutPage() {
                             </div>
                             <div className="relative">
                                 <img
-                                    src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&h=400&fit=crop"
+                                    src="https://images.unsplash.com/photo-1531482615713-2afd69097998?w=600&h=400&fit=crop"
                                     alt="Students learning together"
                                     className="rounded-2xl card-shadow"
                                 />
