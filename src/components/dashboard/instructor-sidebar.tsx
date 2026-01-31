@@ -8,7 +8,8 @@ import {
     DollarSign,
     Calendar,
     ClipboardCheck,
-    BookOpen
+    BookOpen,
+    Settings
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -70,6 +71,11 @@ export function InstructorSidebar({ user, ...props }: InstructorSidebarProps) {
             title: "Payments",
             url: "/instructor/payments",
             icon: DollarSign,
+        },
+        {
+            title: "Settings",
+            url: "/settings",
+            icon: Settings,
         },
     ]
 

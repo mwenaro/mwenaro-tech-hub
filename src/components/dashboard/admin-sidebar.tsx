@@ -72,6 +72,11 @@ export function AdminSidebar({ user, ...props }: AdminSidebarProps) {
             url: "/admin/messages",
             icon: MessageSquare,
         },
+        {
+            title: "Settings",
+            url: "/settings",
+            icon: Settings,
+        },
     ]
 
     return (
