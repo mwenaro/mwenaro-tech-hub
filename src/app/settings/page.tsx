@@ -7,6 +7,7 @@ import { PasswordForm } from '@/components/settings/password-form'
 import { User, ShieldCheck } from 'lucide-react'
 
 export default async function SettingsPage() {
+    console.log('--- RENDERING SETTINGS PAGE ---')
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 

@@ -32,6 +32,13 @@ BEGIN
       FOR UPDATE USING (auth.uid() = id);
   END IF;
 
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE tablename = 'profiles' AND policyname = 'Users can insert their own profile'
+  ) THEN
+    CREATE POLICY "Users can insert their own profile" ON public.profiles
+      FOR INSERT WITH CHECK (auth.uid() = id);
+  END IF;
+
   -- Also allow admins to view all profiles
   IF NOT EXISTS (
     SELECT 1 FROM pg_policies WHERE tablename = 'profiles' AND policyname = 'Admins can view all profiles'
