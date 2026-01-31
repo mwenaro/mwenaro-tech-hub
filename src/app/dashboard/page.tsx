@@ -1,10 +1,15 @@
 import { getEnrolledCourses } from '@/lib/enrollment'
-import { CourseCard } from '@/components/course-card'
+import { getStudentSessions } from '@/lib/sessions'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getUserProgress } from '@/lib/progress'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { StatsCards } from '@/components/dashboard/stats-cards'
+import { EnrolledCourseCard } from '@/components/dashboard/enrolled-course-card'
+import { UpcomingSessionCard } from '@/components/dashboard/upcoming-session-card'
+import { ArrowRight, BookOpen, Calendar, Award } from "lucide-react"
 
 export const revalidate = 0 // Ensure dynamic data
 
@@ -16,8 +21,20 @@ export default async function DashboardPage() {
         redirect('/login')
     }
 
-    const enrolledCourses = await getEnrolledCourses()
-    const allProgress = await getUserProgress()
+    // Role-based redirection
+    const role = user.user_metadata?.role
+    if (role === 'admin') {
+        redirect('/admin/dashboard')
+    } else if (role === 'instructor') {
+        redirect('/instructor/dashboard')
+    }
+
+    // Proceed as Learner
+    const [enrolledCourses, upcomingSessions, allProgress] = await Promise.all([
+        getEnrolledCourses(),
+        getStudentSessions(),
+        getUserProgress()
+    ])
 
     // Fetch lesson counts for ONLY the enrolled courses to avoid any leakage
     const courseIds = enrolledCourses.map(c => c.id)
@@ -47,43 +64,119 @@ export default async function DashboardPage() {
         })
     }
 
-    return (
-        <div className="container py-12 px-4 max-w-7xl mx-auto">
-            <header className="mb-12 border-b pb-8">
-                <h1 className="text-4xl font-black tracking-tight mb-2">Learner Dashboard</h1>
-                <p className="text-muted-foreground text-lg">You are currently enrolled in {enrolledCourses.length} {enrolledCourses.length === 1 ? 'course' : 'courses'}.</p>
-            </header>
+    const firstName = user.user_metadata?.full_name?.split(' ')[0] || 'Learner'
 
-            <div className="space-y-12">
-                <section>
-                    <div className="flex items-center justify-between mb-8">
-                        <h2 className="text-2xl font-bold tracking-tight">My Enrolled Courses</h2>
+    return (
+        <div className="space-y-8">
+            <div className="flex flex-col gap-2">
+                <h1 className="text-3xl font-bold tracking-tight">Welcome back, {firstName}!</h1>
+                <p className="text-muted-foreground">
+                    Track your progress and continue learning.
+                </p>
+            </div>
+
+            <StatsCards courses={coursesWithProgress} />
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Main Content: Enrolled Courses */}
+                <div className="lg:col-span-2 space-y-4">
+                    <div className="flex items-center justify-between">
+                        <h2 className="text-xl font-semibold text-foreground">
+                            Continue Learning
+                        </h2>
+                        <Button variant="ghost" size="sm" asChild>
+                            <Link href="/courses">
+                                View all <ArrowRight className="ml-1 h-4 w-4" />
+                            </Link>
+                        </Button>
                     </div>
 
-                    {enrolledCourses.length === 0 ? (
-                        <div className="bg-muted/30 border-2 border-dashed rounded-3xl p-16 text-center max-w-2xl mx-auto">
-                            <h3 className="text-2xl font-bold mb-4">Your dashboard is empty</h3>
-                            <p className="text-muted-foreground mb-8 text-lg">
-                                You haven't started any courses yet. Explore our curriculum to begin your learning journey.
-                            </p>
-                            <Link href="/courses">
-                                <Button size="lg" className="h-14 px-8 text-lg font-bold shadow-xl shadow-primary/20 transition-all hover:scale-105 active:scale-95">
-                                    Browse Available Courses
-                                </Button>
-                            </Link>
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-3">
-                            {coursesWithProgress.map((course) => (
-                                <CourseCard
+                    <div className="space-y-4">
+                        {coursesWithProgress.length === 0 ? (
+                            <Card className="border-dashed">
+                                <CardContent className="py-12 text-center">
+                                    <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                                    <h3 className="font-semibold text-foreground mb-2">No courses yet</h3>
+                                    <p className="text-muted-foreground mb-4">
+                                        Start your learning journey by enrolling in a course
+                                    </p>
+                                    <Button asChild>
+                                        <Link href="/courses">Browse Courses</Link>
+                                    </Button>
+                                </CardContent>
+                            </Card>
+                        ) : (
+                            coursesWithProgress.slice(0, 3).map((course) => (
+                                <EnrolledCourseCard
                                     key={course.id}
                                     course={course}
                                     progress={course.progress}
                                 />
-                            ))}
-                        </div>
-                    )}
-                </section>
+                            ))
+                        )}
+                    </div>
+                </div>
+
+                {/* Sidebar Content: Sessions & Actions */}
+                <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                        <h2 className="text-xl font-semibold text-foreground">
+                            Upcoming Sessions
+                        </h2>
+                        <Button variant="ghost" size="sm" asChild>
+                            <Link href="/dashboard/sessions">
+                                <Calendar className="mr-1 h-4 w-4" />
+                                All
+                            </Link>
+                        </Button>
+                    </div>
+
+                    <div className="space-y-3">
+                        {upcomingSessions.length === 0 ? (
+                            <Card className="border-dashed">
+                                <CardContent className="py-8 text-center">
+                                    <Calendar className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+                                    <p className="text-sm text-muted-foreground">
+                                        No upcoming sessions
+                                    </p>
+                                </CardContent>
+                            </Card>
+                        ) : (
+                            upcomingSessions.slice(0, 3).map((session) => (
+                                <UpcomingSessionCard
+                                    key={session.id}
+                                    id={session.id}
+                                    title={session.title}
+                                    courseName={session.cohort?.name}
+                                    scheduledAt={session.start_time}
+                                    durationMinutes={session.duration_minutes}
+                                    meetingUrl={session.meeting_link}
+                                />
+                            ))
+                        )}
+                    </div>
+
+                    {/* Quick Links */}
+                    <Card className="mt-6">
+                        <CardHeader className="pb-3">
+                            <CardTitle className="text-base">Quick Actions</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-2">
+                            <Button variant="outline" className="w-full justify-start" asChild>
+                                <Link href="/courses">
+                                    <BookOpen className="mr-2 h-4 w-4" />
+                                    Browse Courses
+                                </Link>
+                            </Button>
+                            <Button variant="outline" className="w-full justify-start" asChild>
+                                <Link href="/dashboard/certificates">
+                                    <Award className="mr-2 h-4 w-4" />
+                                    View Certificates
+                                </Link>
+                            </Button>
+                        </CardContent>
+                    </Card>
+                </div>
             </div>
         </div>
     )
