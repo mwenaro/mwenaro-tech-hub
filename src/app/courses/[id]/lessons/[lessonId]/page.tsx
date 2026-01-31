@@ -124,6 +124,10 @@ export default async function LessonPage({ params }: LessonPageProps) {
                             <QuizModal
                                 lessonId={lesson.id}
                                 questions={questions}
+                                initialProgress={progress ? {
+                                    highest_quiz_score: progress.highest_quiz_score,
+                                    quiz_attempts: progress.quiz_attempts
+                                } : undefined}
                             />
                         )}
                     </div>

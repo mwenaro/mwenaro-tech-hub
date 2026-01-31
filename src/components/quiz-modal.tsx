@@ -13,14 +13,21 @@ import { useRouter } from 'next/navigation'
 interface QuizModalProps {
     lessonId: string
     questions: Question[]
+    initialProgress?: {
+        highest_quiz_score: number
+        quiz_attempts: number
+    }
 }
 
-export function QuizModal({ lessonId, questions }: QuizModalProps) {
+export function QuizModal({ lessonId, questions, initialProgress }: QuizModalProps) {
     const router = useRouter()
     const [isOpen, setIsOpen] = useState(false)
     const [answers, setAnswers] = useState<number[]>(new Array(questions.length).fill(-1))
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [result, setResult] = useState<{ passed: boolean; score: number; message: string } | null>(null)
+
+    const hasTaken = (initialProgress?.quiz_attempts || 0) > 0
+    const highestScore = initialProgress?.highest_quiz_score || 0
 
     const handleSubmit = async () => {
         if (answers.includes(-1)) {
@@ -49,7 +56,9 @@ export function QuizModal({ lessonId, questions }: QuizModalProps) {
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
-                <Button size="lg" className="w-full">Take Quiz</Button>
+                <Button size="lg" className="w-full">
+                    {!hasTaken ? 'Take Quiz' : `Retake Quiz (Best: ${highestScore}%)`}
+                </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
