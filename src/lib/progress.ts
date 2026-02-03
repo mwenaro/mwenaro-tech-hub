@@ -6,6 +6,7 @@ import { getCourseLessons, getLessonQuestions } from './lessons'
 import { createNotification } from './notifications'
 import { sendNotificationEmail } from './email'
 import { analyzeProject } from './ai'
+import { updateLearningStreak } from './streaks'
 
 export interface LessonProgress {
     user_id: string
@@ -105,7 +106,7 @@ export async function isLessonLocked(courseId: string, lessonId: string): Promis
     return !data?.is_completed
 }
 
-export async function submitQuiz(lessonId: string, answers: number[]): Promise<{ success: boolean; score: number; passed: boolean; message: string }> {
+export async function submitQuiz(lessonId: string, answers: number[]): Promise<{ success: boolean; score: number; passed: boolean; message: string; streakData?: { current_streak: number; is_milestone: boolean; milestone_value: number } }> {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
@@ -162,11 +163,20 @@ export async function submitQuiz(lessonId: string, answers: number[]): Promise<{
         throw new Error('Failed to save progress')
     }
 
+    // Update learning streak if lesson is completed
+    let streakData
+    if (isCompletedNow && !progress?.is_completed) {
+        const result = await updateLearningStreak(user.id)
+        if (result) {
+            streakData = result
+        }
+    }
+
     revalidatePath(`/courses`)
-    return { success: true, score, passed, message: passed ? 'Quiz passed!' : 'Quiz failed. Try again.' }
+    return { success: true, score, passed, message: passed ? 'Quiz passed!' : 'Quiz failed. Try again.', streakData }
 }
 
-export async function submitProject(lessonId: string, repoLink: string) {
+export async function submitProject(lessonId: string, repoLink: string): Promise<{ streakData?: { current_streak: number; is_milestone: boolean; milestone_value: number } }> {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
@@ -208,12 +218,22 @@ export async function submitProject(lessonId: string, repoLink: string) {
         throw new Error('Failed to submit project')
     }
 
+    // Update learning streak if lesson is completed
+    let streakData
+    if (isCompletedNow && !progress?.is_completed) {
+        const result = await updateLearningStreak(user.id)
+        if (result) {
+            streakData = result
+        }
+    }
+
     // Trigger AI Analysis asynchronously
     analyzeProject(lessonId, repoLink, user.id).catch(err => {
         console.error('Triggering AI analysis failed:', err)
     })
 
     revalidatePath(`/courses`)
+    return { streakData }
 }
 
 export async function reviewProject(

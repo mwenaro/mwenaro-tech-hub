@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getUserProgress } from '@/lib/progress'
+import { getLearningStreak, isStreakActive } from '@/lib/streaks'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { StatsCards } from '@/components/dashboard/stats-cards'
@@ -30,11 +31,17 @@ export default async function DashboardPage() {
     }
 
     // Proceed as Learner
-    const [enrolledCourses, upcomingSessions, allProgress] = await Promise.all([
+    const [enrolledCourses, upcomingSessions, allProgress, streakData] = await Promise.all([
         getEnrolledCourses(),
         getStudentSessions(),
-        getUserProgress()
+        getUserProgress(),
+        getLearningStreak(user.id)
     ])
+
+    // Calculate current streak (0 if not active)
+    const currentStreak = streakData && isStreakActive(streakData.last_activity_date)
+        ? streakData.current_streak
+        : 0
 
     // Fetch lesson counts for ONLY the enrolled courses to avoid any leakage
     const courseIds = enrolledCourses.map(c => c.id)
@@ -75,7 +82,7 @@ export default async function DashboardPage() {
                 </p>
             </div>
 
-            <StatsCards courses={coursesWithProgress} />
+            <StatsCards courses={coursesWithProgress} streak={currentStreak} />
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Main Content: Enrolled Courses */}
