@@ -33,39 +33,26 @@ Tailored experiences for every user role:
 
 ## 🏁 Getting Started
 
+This application is part of the [Mwenaro Tech Monorepo](../README.md).
+
 ### Prerequisites
-- Node.js (Latest LTS)
+- Node.js 20+
 - A Supabase Project
 - OpenAI API Key (Optional for mock mode)
 
-### Installation
+### Installation & Development
 
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/mwenaro/mwenaro-tech-hub.git
-   cd mwenaro-tech-academy
-   ```
-
-2. **Install dependencies**:
+1. **Install dependencies** (from the monorepo root):
    ```bash
    npm install
    ```
 
-3. **Configure Environment Variables**:
-   Create a `.env.local` file in the root directory and add:
-   ```env
-   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-   SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
-   OPENAI_API_KEY=your_openai_key
-   ```
-
-4. **Run the development server**:
+2. **Run the development server**:
    ```bash
-   npm run dev
+   npm run dev:academy
    ```
 
-Open [http://localhost:3000](http://localhost:3000) to see the platform in action.
+Open [http://localhost:3001](http://localhost:3001) to see the platform in action.
 
 ## 📦 Deployment
 
