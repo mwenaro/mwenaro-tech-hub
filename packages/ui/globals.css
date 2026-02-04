@@ -1,0 +1,167 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-primary);
+  --font-mono: var(--font-mono);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+}
+
+:root {
+  /* Modern HSL Color System */
+  --background: hsl(220 33% 98%);
+  --foreground: hsl(224 71.4% 4.1%);
+
+  --primary: hsl(12 76% 57%);
+  /* Mwenaro Orange */
+  --primary-foreground: hsl(0 0% 100%);
+
+  --secondary: hsl(222 47% 22%);
+  /* Professional Navy */
+  --secondary-foreground: hsl(0 0% 100%);
+
+  --muted: hsl(220 14.3% 95.9%);
+  --muted-foreground: hsl(220 8.9% 46.1%);
+
+  --accent: hsl(12 76% 95%);
+  --accent-foreground: hsl(12 76% 40%);
+
+  --destructive: hsl(0 84.2% 60.2%);
+  --destructive-foreground: hsl(210 20% 98%);
+
+  --border: hsl(220 13% 91%);
+  --input: hsl(220 13% 91%);
+  --ring: hsl(12 76% 57%);
+
+  --card: hsl(0 0% 100%);
+  --card-foreground: hsl(224 71.4% 4.1%);
+
+  --radius: 1rem;
+
+  /* Premium Values for CSS usage */
+  --shadow-premium: 0 10px 40px -10px rgba(30, 48, 84, 0.15);
+  --gradient-mesh: radial-gradient(at 0% 0%, hsla(12, 76%, 57%, 0.05) 0, transparent 50%),
+    radial-gradient(at 50% 0%, hsla(222, 47%, 22%, 0.03) 0, transparent 50%),
+    radial-gradient(at 100% 0%, hsla(35, 92%, 50%, 0.05) 0, transparent 50%);
+}
+
+.dark {
+  --background: hsl(222.2 84% 4.9%);
+  --foreground: hsl(210 40% 98%);
+
+  --card: hsl(222.2 84% 4.9%);
+  --card-foreground: hsl(210 40% 98%);
+
+  --primary: hsl(12 76% 57%);
+  --primary-foreground: hsl(0 0% 100%);
+
+  --secondary: hsl(217.2 32.6% 17.5%);
+  --secondary-foreground: hsl(210 40% 98%);
+
+  --muted: hsl(217.2 32.6% 17.5%);
+  --muted-foreground: hsl(215 20.2% 65.1%);
+
+  --accent: hsl(217.2 32.6% 17.5%);
+  --accent-foreground: hsl(210 40% 98%);
+
+  --border: hsl(217.2 32.6% 17.5%);
+  --input: hsl(217.2 32.6% 17.5%);
+  --ring: hsl(12 76% 57%);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased selection:bg-primary/20 selection:text-primary;
+    background-image: var(--gradient-mesh);
+    background-attachment: fixed;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-white/70 backdrop-blur-xl border border-white/20;
+    box-shadow: var(--shadow-premium);
+  }
+
+  .glass-nav {
+    @apply bg-white/50 backdrop-blur-lg border-b border-white/20;
+  }
+
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-orange-500 font-extrabold;
+  }
+
+  .btn-premium {
+    @apply relative overflow-hidden transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shadow-lg;
+  }
+
+  .btn-premium:hover {
+    box-shadow: 0 10px 15px -3px rgba(232, 93, 59, 0.2);
+  }
+}
+
+@layer utilities {
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .animate-reveal {
+    animation: reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  @keyframes float {
+
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-20px);
+    }
+  }
+
+  @keyframes reveal {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}

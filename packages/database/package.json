@@ -1,0 +1,10 @@
+{
+    "name": "@mwenaro/database",
+    "version": "0.1.0",
+    "private": true,
+    "main": "./index.ts",
+    "dependencies": {
+        "@supabase/ssr": "^0.8.0",
+        "@supabase/supabase-js": "^2.93.2"
+    }
+}
