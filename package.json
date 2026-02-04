@@ -5,6 +5,7 @@
         "academy",
         "hub",
         "talent",
+        "labs",
         "packages/*"
     ],
     "scripts": {
@@ -16,6 +17,9 @@
         "lint:hub": "npm run lint -w hub",
         "dev:talent": "npm run dev -w talent",
         "build:talent": "npm run build -w talent",
-        "lint:talent": "npm run lint -w talent"
+        "lint:talent": "npm run lint -w talent",
+        "dev:labs": "npm run dev -w labs",
+        "build:labs": "npm run build -w labs",
+        "lint:labs": "npm run lint -w labs"
     }
 }

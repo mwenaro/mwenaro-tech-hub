@@ -3,13 +3,22 @@ import { BrandLogo } from './brand-logo';
 import { cn } from '../lib/utils';
 
 export const Footer = () => {
+    const urls = {
+        hub: process.env.NEXT_PUBLIC_HUB_URL || '/',
+        academy: process.env.NEXT_PUBLIC_ACADEMY_URL || '/academy',
+        talent: process.env.NEXT_PUBLIC_TALENT_URL || '/talent',
+        labs: process.env.NEXT_PUBLIC_LABS_URL || '/labs',
+    };
+
     return (
         <footer className="bg-secondary text-white mt-40 relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-50" />
             <div className="max-w-7xl mx-auto px-6 py-20 relative z-10">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-16">
                     <div className="space-y-6 col-span-1 md:col-span-1">
-                        <BrandLogo className="brightness-200 contrast-200" />
+                        <a href={urls.hub} className="block hover:opacity-80 transition-opacity">
+                            <BrandLogo className="brightness-200 contrast-200" />
+                        </a>
                         <p className="text-secondary-foreground opacity-70 leading-relaxed text-sm">
                             Mwenaro Tech Hub is Africa’s premier ecosystem for tech talent and innovation. We bridge the gap between learning and industry excellence.
                         </p>
@@ -18,9 +27,9 @@ export const Footer = () => {
                     <div>
                         <h4 className="text-lg font-bold mb-6 text-white">Ecosystem</h4>
                         <ul className="space-y-4 text-sm font-medium">
-                            <li><a href="/academy" className="text-secondary-foreground opacity-70 hover:opacity-100 hover:text-primary transition-all">Mwenaro Academy</a></li>
-                            <li><a href="/talent" className="text-secondary-foreground opacity-70 hover:opacity-100 hover:text-primary transition-all">Talent Platform</a></li>
-                            <li><a href="/labs" className="text-secondary-foreground opacity-70 hover:opacity-100 hover:text-primary transition-all">Mwenaro Labs</a></li>
+                            <li><a href={urls.academy} className="text-secondary-foreground opacity-70 hover:opacity-100 hover:text-primary transition-all">Mwenaro Academy</a></li>
+                            <li><a href={urls.talent} className="text-secondary-foreground opacity-70 hover:opacity-100 hover:text-primary transition-all">Talent Platform</a></li>
+                            <li><a href={urls.labs} className="text-secondary-foreground opacity-70 hover:opacity-100 hover:text-primary transition-all">Mwenaro Labs</a></li>
                         </ul>
                     </div>
 

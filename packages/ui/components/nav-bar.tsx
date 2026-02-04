@@ -4,17 +4,24 @@ import { Button } from './button';
 import { cn } from '../lib/utils';
 
 export const NavBar = ({ currentApp = 'hub' }: { currentApp?: 'hub' | 'academy' | 'talent' | 'labs' }) => {
+    const urls = {
+        hub: process.env.NEXT_PUBLIC_HUB_URL || '/',
+        academy: process.env.NEXT_PUBLIC_ACADEMY_URL || '/academy',
+        talent: process.env.NEXT_PUBLIC_TALENT_URL || '/talent',
+        labs: process.env.NEXT_PUBLIC_LABS_URL || '/labs',
+    };
+
     const links = [
-        { name: 'Hub', href: '/', active: currentApp === 'hub' },
-        { name: 'Academy', href: '/academy', active: currentApp === 'academy' },
-        { name: 'Talent', href: '/talent', active: currentApp === 'talent' },
-        { name: 'Labs', href: '/labs', active: currentApp === 'labs' },
+        { name: 'Hub', href: urls.hub, active: currentApp === 'hub' },
+        { name: 'Academy', href: urls.academy, active: currentApp === 'academy' },
+        { name: 'Talent', href: urls.talent, active: currentApp === 'talent' },
+        { name: 'Labs', href: urls.labs, active: currentApp === 'labs' },
     ];
 
     return (
         <nav className="fixed top-0 left-0 right-0 z-50 glass-nav">
             <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-                <a href="/" className="hover:opacity-80 transition-opacity">
+                <a href={urls.hub} className="hover:opacity-80 transition-opacity">
                     <BrandLogo />
                 </a>
 
