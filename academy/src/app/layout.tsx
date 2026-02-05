@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { NavBar, Footer } from "@mwenaro/ui";
+import { NavBar } from "@mwenaro/ui";
+import { FooterWrapper } from "@/components/footer-wrapper";
 import { ChatWidget } from "@/components/chat-widget";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -23,7 +24,7 @@ export default function RootLayout({
           <NavBar currentApp="academy" />
           <main className="flex-1">{children}</main>
           <ChatWidget />
-          <Footer />
+          <FooterWrapper />
         </div>
       </body>
     </html>
