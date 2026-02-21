@@ -3,17 +3,20 @@ create table if not exists courses (
   id uuid default gen_random_uuid() primary key,
   title text not null,
   description text,
+  highlight text,
+  color text,
   price numeric,
   original_price numeric,
   image_url text,
+  level text,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
 -- Insert dummy data
-insert into courses (title, description, price, original_price, image_url) values
-('Intro to Web Development', 'Master the foundations of the web: HTML, CSS, and JavaScript.', 16000, 20000, 'https://placehold.co/600x400/png'),
-('Intro to React', 'Build modern, interactive user interfaces with React.', 24000, 30000, 'https://placehold.co/600x400/png'),
-('Fullstack Development', 'Become a complete developer with MERN and Supabase mastery.', 75000, 89000, 'https://placehold.co/600x400/png');
+insert into courses (title, description, highlight, color, price, original_price, image_url, level) values
+('Intro to Web Development', 'Master the foundations of the web: HTML, CSS, and JavaScript.', 'HTML, CSS, JS, Git & GitHub', 'from-blue-500 to-cyan-500', 16000, 20000, 'https://placehold.co/600x400/png', 'Beginner'),
+('Intro to React', 'Build modern, interactive user interfaces with React.', 'Components, Hooks, State', 'from-purple-500 to-pink-500', 24000, 30000, 'https://placehold.co/600x400/png', 'Intermediate'),
+('Fullstack Development', 'Become a complete developer with MERN and Supabase mastery.', 'Full production pipeline', 'from-orange-500 to-red-500', 75000, 89000, 'https://placehold.co/600x400/png', 'Advanced');
 
 -- Create enrollments table
 create table if not exists enrollments (
