@@ -3,20 +3,41 @@ create table if not exists courses (
   id uuid default gen_random_uuid() primary key,
   title text not null,
   description text,
-  highlight text,
-  color text,
   price numeric,
-  original_price numeric,
   image_url text,
-  level text,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
--- Insert dummy data
+-- Ensure all columns exist for course offers and hub unification
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'courses' AND column_name = 'highlight') THEN
+        ALTER TABLE courses ADD COLUMN highlight text;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'courses' AND column_name = 'color') THEN
+        ALTER TABLE courses ADD COLUMN color text;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'courses' AND column_name = 'original_price') THEN
+        ALTER TABLE courses ADD COLUMN original_price numeric;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'courses' AND column_name = 'level') THEN
+        ALTER TABLE courses ADD COLUMN level text;
+    END IF;
+END $$;
+
+-- Insert dummy data (Upsert logic to sync attributes)
 insert into courses (title, description, highlight, color, price, original_price, image_url, level) values
 ('Intro to Web Development', 'Master the foundations of the web: HTML, CSS, and JavaScript.', 'HTML, CSS, JS, Git & GitHub', 'from-blue-500 to-cyan-500', 16000, 20000, 'https://placehold.co/600x400/png', 'Beginner'),
 ('Intro to React', 'Build modern, interactive user interfaces with React.', 'Components, Hooks, State', 'from-purple-500 to-pink-500', 24000, 30000, 'https://placehold.co/600x400/png', 'Intermediate'),
-('Fullstack Development', 'Become a complete developer with MERN and Supabase mastery.', 'Full production pipeline', 'from-orange-500 to-red-500', 75000, 89000, 'https://placehold.co/600x400/png', 'Advanced');
+('Fullstack Development', 'Become a complete developer with MERN and Supabase mastery.', 'Full production pipeline', 'from-orange-500 to-red-500', 75000, 89000, 'https://placehold.co/600x400/png', 'Advanced')
+ON CONFLICT (title) DO UPDATE SET
+  description = EXCLUDED.description,
+  highlight = EXCLUDED.highlight,
+  color = EXCLUDED.color,
+  price = EXCLUDED.price,
+  original_price = EXCLUDED.original_price,
+  image_url = EXCLUDED.image_url,
+  level = EXCLUDED.level;
 
 -- Create enrollments table
 create table if not exists enrollments (
