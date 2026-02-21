@@ -89,6 +89,11 @@ export function CourseCard({ course, progress }: CourseCardProps) {
                         <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-0.5">Enrolled Price</span>
                         <span className="text-2xl font-black text-secondary dark:text-white">
                             KSh {course.price.toLocaleString()}
+                            {course.original_price && course.original_price > course.price && (
+                                <span className="ml-2 text-sm font-bold text-muted-foreground line-through opacity-60">
+                                    KSh {course.original_price.toLocaleString()}
+                                </span>
+                            )}
                         </span>
                     </div>
                     {isPublished ? (
