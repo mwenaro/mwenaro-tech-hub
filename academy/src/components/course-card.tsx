@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { toast } from 'sonner'
-import { Lock } from 'lucide-react'
+import { Lock, CheckCircle2, ArrowRight } from 'lucide-react'
 
 interface CourseCardProps {
     course: Course
@@ -44,14 +44,9 @@ export function CourseCard({ course, progress }: CourseCardProps) {
                             Coming Soon
                         </div>
                     ) : (
-                        <>
-                            <div className="px-3 py-1 backdrop-blur-md bg-primary/90 border border-white/20 rounded-full text-[10px] font-black text-white uppercase tracking-widest shadow-xl">
-                                {course.price > 20000 ? 'Bestseller' : 'New'}
-                            </div>
-                            <div className="px-3 py-1 backdrop-blur-md bg-white/10 border border-white/20 rounded-full text-[10px] font-black text-white uppercase tracking-widest shadow-xl">
-                                {course.level || 'Advanced'}
-                            </div>
-                        </>
+                        <div className="px-3 py-1 backdrop-blur-md bg-primary/90 border border-white/20 rounded-full text-[10px] font-black text-white uppercase tracking-widest shadow-xl">
+                            {course.price > 20000 ? 'Bestseller' : 'New'}
+                        </div>
                     )}
                 </div>
 
@@ -67,49 +62,46 @@ export function CourseCard({ course, progress }: CourseCardProps) {
             </div>
 
             <CardHeader className="p-8 pb-3">
-                <div className="flex items-center gap-2 mb-3">
-                    <div className="flex text-yellow-500 scale-75 origin-left">
-                        {[1, 2, 3, 4, 5].map(i => (
-                            <svg key={i} className="w-5 h-5 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
-                        ))}
+                <div className="flex items-start justify-between gap-4">
+                    <div>
+                        <CardTitle className="text-2xl font-black tracking-tight leading-tight group-hover:text-primary transition-colors duration-300 mb-4">
+                            {course.title}
+                        </CardTitle>
+                        <div className="flex items-center gap-2 text-sm font-bold text-muted-foreground uppercase tracking-widest">
+                            <CheckCircle2 size={14} /> {course.level || 'Advanced'}
+                        </div>
                     </div>
-                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">4.9 (120 reviews)</span>
                 </div>
-                <CardTitle className="text-2xl font-black tracking-tight leading-tight group-hover:text-primary transition-colors duration-300">
-                    {course.title}
-                </CardTitle>
             </CardHeader>
 
-            <CardContent className="px-8 pb-8 flex-1">
-                <p className="line-clamp-2 text-sm text-muted-foreground leading-relaxed font-medium mb-6">
+            <CardContent className="px-8 pb-8 flex-1 flex flex-col">
+                <p className="line-clamp-2 text-sm text-muted-foreground leading-relaxed font-medium mb-8">
                     {course.description}
                 </p>
-                <div className="flex items-center justify-between pt-6 border-t border-border/50">
-                    <div className="flex flex-col">
-                        <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-0.5">Enrolled Price</span>
-                        <span className="text-2xl font-black text-secondary dark:text-white">
-                            KSh {course.price.toLocaleString()}
-                            {course.original_price && course.original_price > course.price && (
-                                <span className="ml-2 text-sm font-bold text-muted-foreground line-through opacity-60">
-                                    KSh {course.original_price.toLocaleString()}
-                                </span>
-                            )}
+
+                <div className="mb-8">
+                    <h3 className="text-3xl lg:text-4xl font-black mb-1 text-secondary dark:text-white">
+                        KSh {course.price.toLocaleString()}
+                    </h3>
+                    {course.original_price && course.original_price > course.price && (
+                        <span className="text-lg lg:text-xl text-muted-foreground font-semibold line-through decoration-2 decoration-destructive/40">
+                            KSh {course.original_price.toLocaleString()}
                         </span>
-                    </div>
+                    )}
+                </div>
+
+                <div className="mt-auto pt-6 border-t border-border/50">
                     {isPublished ? (
-                        <Link href={`/courses/${course.id}`}>
-                            <Button className="font-black bg-primary hover:bg-primary/90 px-6 h-12 rounded-xl shadow-lg shadow-primary/10 transition-all hover:-translate-y-1">
-                                Explore
-                            </Button>
+                        <Link href={`/courses/${course.id}`} className="flex items-center text-primary font-black uppercase tracking-widest transition-transform hover:translate-x-2 w-max">
+                            Explore Course <ArrowRight size={20} className="ml-2 group-hover:translate-x-1 transition-transform" />
                         </Link>
                     ) : (
-                        <Button
+                        <div
                             onClick={handleExploreClick}
-                            variant="secondary"
-                            className="font-black px-6 h-12 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-muted-foreground cursor-not-allowed hover:bg-zinc-200 dark:hover:bg-zinc-700 hover:text-foreground transition-all"
+                            className="flex items-center text-muted-foreground font-black uppercase tracking-widest cursor-not-allowed w-max"
                         >
                             Coming Soon
-                        </Button>
+                        </div>
                     )}
                 </div>
             </CardContent>
