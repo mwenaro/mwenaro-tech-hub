@@ -7,22 +7,22 @@ export default function ExecutiveAcademy() {
     <div className="flex flex-col min-h-screen bg-background">
 
       {/* Hero */}
-      <section className="relative w-full py-32 bg-[#F9FAFB] dark:bg-zinc-950 text-center">
-        <h1 className="text-5xl md:text-7xl font-black mb-6 leading-tight text-secondary dark:text-white">
+      <section className="relative w-full pt-40 pb-32 bg-[#F9FAFB] dark:bg-zinc-950 text-center overflow-hidden">
+        <h1 className="text-6xl md:text-8xl font-black mb-6 leading-[1.1] text-secondary dark:text-white animate-reveal">
           Master Tech Skills with <br />
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-orange-400">Expert Guidance</span>
         </h1>
-        <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-10 font-medium">
+        <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-10 font-medium animate-reveal [animation-delay:200ms]">
           Join a premium learning ecosystem combining structured programs, mentorship, and AI-assisted project feedback.
         </p>
-        <div className="flex flex-wrap justify-center gap-6">
+        <div className="flex flex-wrap justify-center gap-6 animate-reveal [animation-delay:400ms]">
           <Link href="/signup">
-            <Button size="lg" className="px-12 h-14 bg-primary text-white font-black rounded-2xl hover:bg-primary/90">
+            <Button size="lg" className="px-12 h-14 bg-primary text-white font-black rounded-full hover:bg-primary/90 shadow-lg">
               Start Learning Free
             </Button>
           </Link>
           <Link href="#">
-            <Button size="lg" variant="outline" className="px-12 h-14 font-bold rounded-2xl border-zinc-200 hover:bg-zinc-50 dark:border-white/10">
+            <Button size="lg" variant="outline" className="px-12 h-14 font-bold rounded-full border-zinc-200 hover:bg-zinc-50 dark:border-white/10">
               Watch Demo
             </Button>
           </Link>

@@ -1,10 +1,16 @@
 import React from 'react';
 
-export const BrandLogo = ({ className = '' }: { className?: string }) => {
+export const BrandLogo = ({
+  className = '',
+  subtext = 'Innovation Hub'
+}: {
+  className?: string;
+  subtext?: string;
+}) => {
   return (
     <div
       className={`flex items-center gap-3 ${className}`}
-      aria-label="Mwenaro Tech Hub - Innovation Hub"
+      aria-label={`Mwenaro Tech Hub - ${subtext}`}
     >
       <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-orange-600 flex items-center justify-center text-white shadow-xl shadow-primary/20 rotate-3 hover:rotate-0 transition-transform duration-500 logo-animation">
         <svg
@@ -32,7 +38,7 @@ export const BrandLogo = ({ className = '' }: { className?: string }) => {
           Mwenaro<span className="text-primary">.Tech</span>
         </span>
         <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-          Innovation Hub
+          {subtext}
         </span>
       </div>
     </div>

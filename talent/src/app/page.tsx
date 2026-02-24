@@ -27,18 +27,18 @@ export default function Home() {
       <NavBar currentApp="talent" />
 
       {/* HERO */}
-      <section className="relative pt-32 pb-24 px-6 text-center">
+      <section className="relative pt-40 pb-32 px-6 text-center overflow-hidden">
         <div className="max-w-5xl mx-auto">
-          <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full glass-card text-secondary text-xs font-black uppercase tracking-[0.2em] mb-6 shadow-xl border-secondary/10">
+          <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full glass-card text-secondary text-xs font-black uppercase tracking-[0.2em] mb-6 shadow-xl border-secondary/10 animate-reveal">
             <Award size={16} className="text-primary" /> Verified Africa Tech Network
           </div>
-          <h1 className="text-5xl md:text-7xl font-black mb-6 leading-[1.1]">
+          <h1 className="text-6xl md:text-8xl font-black mb-6 leading-[1.1] animate-reveal">
             Connect with <span className="gradient-text">Elite</span> Tech Talent
           </h1>
-          <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto">
+          <p className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-2xl mx-auto animate-reveal [animation-delay:200ms]">
             We showcase only the top 5% of African tech talent ready to contribute to your projects immediately.
           </p>
-          <div className="flex flex-wrap justify-center gap-6">
+          <div className="flex flex-wrap justify-center gap-6 animate-reveal [animation-delay:400ms]">
             <Button size="lg" variant="secondary" className="rounded-full px-10 group">
               Search Talent <Search size={22} className="ml-2" />
             </Button>
