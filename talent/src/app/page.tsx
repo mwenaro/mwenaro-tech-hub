@@ -9,7 +9,7 @@ const statusColorMap: Record<string, string> = {
 };
 
 export default function TalentPage() {
-  const { hero, sampleTalents, finalCTA } = talentContent;
+  const { hero, sampleTalents, metrics, finalCTA } = talentContent;
 
   return (
     <div className="min-h-screen bg-background">
@@ -18,12 +18,8 @@ export default function TalentPage() {
       {/* HERO */}
       <section className="relative pt-40 pb-32 px-6 text-center overflow-hidden">
         <div className="max-w-5xl mx-auto">
-          <h1 className="text-6xl md:text-8xl font-black mb-6 leading-[1.1] animate-reveal">
-            {hero.headline}
-          </h1>
-          <p className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-2xl mx-auto animate-reveal [animation-delay:200ms]">
-            {hero.subtext}
-          </p>
+          <h1 className="text-6xl md:text-8xl font-black mb-6 leading-[1.1] animate-reveal">{hero.headline}</h1>
+          <p className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-2xl mx-auto animate-reveal [animation-delay:200ms]">{hero.subtext}</p>
           <div className="flex flex-wrap justify-center gap-6 animate-reveal [animation-delay:400ms]">
             <Button size="lg" variant="secondary" className="rounded-full px-10 group">
               {hero.primaryCTA.text} <Search size={22} className="ml-2" />
@@ -32,6 +28,18 @@ export default function TalentPage() {
               {hero.secondaryCTA.text}
             </Button>
           </div>
+        </div>
+      </section>
+
+      {/* CREDIBILITY METRICS */}
+      <section className="py-12 bg-secondary/5 border-y border-primary/10">
+        <div className="max-w-7xl mx-auto px-6 flex flex-wrap justify-center gap-12 md:gap-24">
+          {metrics.map((metric, i) => (
+            <div key={i} className="flex flex-col items-center text-center">
+              <div className="text-4xl mb-2">{metric.icon}</div>
+              <span className="font-bold text-muted-foreground">{metric.label}</span>
+            </div>
+          ))}
         </div>
       </section>
 

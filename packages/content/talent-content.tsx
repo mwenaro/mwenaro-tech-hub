@@ -1,35 +1,46 @@
 export const talentContent = {
   hero: {
-    headline: "Hire Developers Who Have Built Real Projects",
-    subtext: "Mwenaro Talent connects you with graduates who have completed structured, project-based training and demonstrated real capabilities.",
-    primaryCTA: { text: "Browse Talent", href: "#" },
-    secondaryCTA: { text: "Post Opportunity", href: "#" }
-  },
-
-  differentiators: [
-    "Verified project portfolios",
-    "Skills mapped to tech stacks",
-    "Practical Git-based workflows",
-    "Soft skills and collaboration training"
-  ],
-
-  hiringFlow: [
-    { step: "01", title: "Browse profiles", desc: "Review candidate portfolios and skills" },
-    { step: "02", title: "Shortlist candidates", desc: "Select developers matching your requirements" },
-    { step: "03", title: "Connect directly", desc: "Schedule interviews or discussions" },
-    { step: "04", title: "Onboard with confidence", desc: "Hire and integrate talent into your team" }
-  ],
-
-  finalCTA: {
-    headline: "Access the Most Vetted Talent in Africa",
-    subtext: "Join forward-thinking companies hiring from Mwenaro Academy.",
-    primaryCTA: { text: "Hire Talent Now", href: "#" },
-    secondaryCTA: { text: "Request Partnership", href: "#" }
+    headline: "Hire Developers Trained Through Structured, Project-Based Learning",
+    subtext: "Every candidate has completed real production-level projects within the Mwenaro ecosystem.",
+    primaryCTA: { text: "Browse Talent", href: "/talent" },
+    secondaryCTA: { text: "Partner With Us", href: "/contact" }
   },
 
   sampleTalents: [
-    { name: "Isaac Mwero", role: "Software Engineer", skills: ["Next.js", "TypeScript", "Go", "PostgreSQL"], status: "Ready to Hire", location: "Nairobi, KE" },
-    { name: "Jane Smith", role: "Frontend Architect", skills: ["React", "Tailwind", "Figma", "Redux"], status: "Project Ready", location: "Lagos, NG" },
-    { name: "Alex Kamau", role: "Product Designer", skills: ["Figma", "Design Systems", "Prototyping"], status: "Available", location: "Kigali, RW" }
-  ]
-}
+    {
+      name: "Isaac Mwero",
+      role: "Software Engineer",
+      skills: ["Next.js", "TypeScript", "Go", "PostgreSQL"],
+      status: "Ready to Hire",
+      location: "Nairobi, KE"
+    },
+    {
+      name: "Jane Smith",
+      role: "Frontend Architect",
+      skills: ["React", "Tailwind", "Figma", "Redux"],
+      status: "Project Ready",
+      location: "Lagos, NG"
+    },
+    {
+      name: "Alex Kamau",
+      role: "Product Designer",
+      skills: ["Figma", "Design Systems", "Prototyping"],
+      status: "Available",
+      location: "Kigali, RW"
+    }
+  ],
+
+  metrics: [
+    { label: "Structured Technical Assessments", icon: "💡" },
+    { label: "Portfolio Review", icon: "📂" },
+    { label: "Git Workflow Proficiency", icon: "🛠️" },
+    { label: "Communication & Collaboration Training", icon: "🤝" }
+  ],
+
+  finalCTA: {
+    headline: "Ready to Boost Your Engineering Team?",
+    subtext: "Access developers who are trained, project-ready, and capable of contributing from day one.",
+    primaryCTA: { text: "Hire Talent Now", href: "/talent" },
+    secondaryCTA: { text: "Request Partnership", href: "/contact" }
+  }
+};
