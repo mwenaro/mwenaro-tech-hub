@@ -15,7 +15,7 @@ export const metadata: Metadata = {
         "enterprise tech R&D",
         "Mwenaro Labs",
         "tech startup builder Africa",
-        "software engineering consulting Nairobi",
+        "software engineering consulting Mombasa",
         "digital innovation agency",
     ],
     authors: [{ name: "Mwenaro Tech Hub" }],

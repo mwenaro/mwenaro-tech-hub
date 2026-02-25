@@ -14,7 +14,7 @@ export const metadata: Metadata = {
         "tech innovation in Kenya",
         "African tech ecosystem",
         "tech startup builder Africa",
-        "technology hub Nairobi",
+        "technology hub Mombasa",
         "Kenya tech talent",
         "Mwenaro",
     ],

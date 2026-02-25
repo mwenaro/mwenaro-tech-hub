@@ -95,7 +95,7 @@ export function ProfileForm({ profile, isInstructor }: ProfileFormProps) {
                                 id="location"
                                 value={formData.location}
                                 onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                                placeholder="Nairobi, Kenya"
+                                placeholder="Mombasa, Kenya"
                             />
                         </div>
                     </div>

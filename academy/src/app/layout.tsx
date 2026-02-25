@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     "software engineering bootcamp Africa",
     "project-based tech education",
     "Mwenaro Tech Academy",
-    "coding classes Nairobi",
+    "coding classes Mombasa",
     "data science course Kenya",
     "web development bootcamp Africa",
   ],

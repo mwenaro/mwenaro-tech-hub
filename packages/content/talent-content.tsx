@@ -12,7 +12,7 @@ export const talentContent = {
       role: "Software Engineer",
       skills: ["Next.js", "TypeScript", "Go", "PostgreSQL"],
       status: "Ready to Hire",
-      location: "Nairobi, KE"
+      location: "Mombasa, KE"
     },
     {
       name: "Jane Smith",

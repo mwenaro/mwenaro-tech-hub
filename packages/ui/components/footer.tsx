@@ -71,7 +71,7 @@ export const Footer: React.FC<FooterProps> = ({ currentApp = 'hub' }) => {
                   hello@mwenaro.co.ke
                 </a>
               </li>
-              <li>Nairobi, Kenya</li>
+              <li>Mombasa, Kenya</li>
               <li>+254 700 123 456</li>
             </ul>
           </div>
