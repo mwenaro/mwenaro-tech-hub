@@ -1,0 +1,10 @@
+{
+    "name": "@mwenaro/config",
+    "version": "0.1.0",
+    "private": true,
+    "main": "./ecosystem.ts",
+    "exports": {
+        ".": "./ecosystem.ts",
+        "./ecosystem": "./ecosystem.ts"
+    }
+}

@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@mwenaro/config": "*",
     "@mwenaro/database": "*",
     "@mwenaro/ui": "*",
     "@radix-ui/react-accordion": "^1.2.12",

@@ -9,6 +9,7 @@
         "lint": "eslint"
     },
     "dependencies": {
+        "@mwenaro/config": "*",
         "@mwenaro/ui": "*",
         "@mwenaro/database": "*",
         "next": "16.1.6",

@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { ecosystem } from '@mwenaro/config/ecosystem'
 
 export async function login(formData: FormData) {
     const supabase = await createClient()
@@ -66,7 +67,7 @@ export async function forgotPassword(formData: FormData) {
     const isDev = process.env.NODE_ENV === 'development'
     const siteUrl = isDev
         ? 'http://localhost:3000'
-        : (process.env.NEXT_PUBLIC_ACADEMY_URL || process.env.NEXT_PUBLIC_SITE_URL || 'https://mwenaro-tech-academy.vercel.app')
+        : ecosystem.academy
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${siteUrl}/auth/callback?next=/auth/update-password`,

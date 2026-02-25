@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { ecosystem } from "@mwenaro/config/ecosystem";
 
 export const metadata: Metadata = {
-    metadataBase: new URL("https://labs.mwenaro.com"), // Verify domain
+    metadataBase: new URL(ecosystem.labs),
     title: {
         default: "Mwenaro Labs | Digital Innovation & R&D",
         template: "%s | Mwenaro Labs",
@@ -15,7 +16,7 @@ export const metadata: Metadata = {
     openGraph: {
         title: "Mwenaro Labs | Digital Innovation & R&D",
         description: "Building the future with cutting-edge technology and research.",
-        url: "https://labs.mwenaro.com",
+        url: ecosystem.labs,
         siteName: "Mwenaro Labs",
         images: [
             {

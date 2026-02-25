@@ -5,11 +5,12 @@ import { NavBar } from "@mwenaro/ui";
 import { FooterWrapper } from "@/components/footer-wrapper";
 import { ChatWidget } from "@/components/chat-widget";
 import { Toaster } from "@/components/ui/sonner"
+import { ecosystem } from "@mwenaro/config/ecosystem";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://academy.mwenaro.com"), // Update with actual domain
+  metadataBase: new URL(ecosystem.academy),
   title: {
     default: "Mwenaro Tech Academy | Master Tech Skills",
     template: "%s | Mwenaro Tech Academy",
@@ -36,7 +37,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Mwenaro Tech Academy | Master Tech Skills",
     description: "Empowering the next generation of tech leaders with practical skills and mentorship.",
-    url: "https://academy.mwenaro.com",
+    url: ecosystem.academy,
     siteName: "Mwenaro Tech Academy",
     images: [
       {
