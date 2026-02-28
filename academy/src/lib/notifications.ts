@@ -111,3 +111,26 @@ export async function markAllAsRead() {
     revalidatePath('/')
     return true
 }
+
+/**
+ * Get count of unread notifications for current user
+ */
+export async function getUnreadNotificationsCount() {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) return 0
+
+    const { count, error } = await supabase
+        .from('notifications')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('is_read', false)
+
+    if (error) {
+        console.error('Error counting unread notifications:', error)
+        return 0
+    }
+
+    return count || 0
+}

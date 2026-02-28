@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { Message, getChatContacts, getMessages, sendMessage, getOrCreateConversation } from '@/lib/chat'
+import { Message, getChatContacts, getMessages, sendMessage, getOrCreateConversation, markMessagesAsRead } from '@/lib/chat'
 import { subscribeToMessages } from '@/lib/chat-client'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -39,6 +39,9 @@ export function MessagingDashboard() {
             setConversationId(id)
             const history = await getMessages(id)
             setMessages(history)
+
+            // Mark as read
+            await markMessagesAsRead(id)
 
             // Subscribe to real-time
             const channel = subscribeToMessages(id, (msg) => {

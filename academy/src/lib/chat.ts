@@ -1,8 +1,10 @@
 'use server'
 
 import { createClient as createServerClient } from './supabase/server'
+import { createAdminClient } from './supabase/admin'
 import { createNotification } from './notifications'
 import { sendNotificationEmail } from './email'
+import { revalidatePath } from 'next/cache'
 
 export interface Message {
     id: string
@@ -26,11 +28,12 @@ export interface Conversation {
  */
 export async function getOrCreateConversation(otherUserId: string, title?: string) {
     const supabase = await createServerClient()
+    const adminSupabase = createAdminClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) throw new Error('Not authenticated')
 
-    // Check if a direct conversation already exists
-    const { data: existing } = await supabase
+    // Use admin client to check for existing conversation to avoid RLS limitations
+    const { data: existing } = await adminSupabase
         .from('conversation_participants')
         .select('conversation_id')
         .eq('user_id', user.id)
@@ -38,7 +41,7 @@ export async function getOrCreateConversation(otherUserId: string, title?: strin
     if (existing && existing.length > 0) {
         const conversationIds = existing.map(e => e.conversation_id)
 
-        const { data: common } = await supabase
+        const { data: common } = await adminSupabase
             .from('conversation_participants')
             .select('conversation_id')
             .in('conversation_id', conversationIds)
@@ -50,8 +53,8 @@ export async function getOrCreateConversation(otherUserId: string, title?: strin
         }
     }
 
-    // Create new conversation
-    const { data: conversation, error: convError } = await supabase
+    // Create new conversation via admin client
+    const { data: conversation, error: convError } = await adminSupabase
         .from('conversations')
         .insert({ title, type: 'direct' })
         .select()
@@ -59,8 +62,8 @@ export async function getOrCreateConversation(otherUserId: string, title?: strin
 
     if (convError) throw convError
 
-    // Add participants
-    const { error: partError } = await supabase
+    // Add participants via admin client
+    const { error: partError } = await adminSupabase
         .from('conversation_participants')
         .insert([
             { conversation_id: conversation.id, user_id: user.id },
@@ -138,59 +141,163 @@ export async function getMessages(conversationId: string) {
 }
 
 /**
- * Get contacts for the current user (Instructors for students, Students for instructors)
+ * Get contacts for the current user
+ * - Students see instructors of their enrolled courses + all admins
+ * - Instructors see students in their cohorts/courses + all admins
+ * - Admins see all users
  */
 export async function getChatContacts() {
     const supabase = await createServerClient()
+    const adminSupabase = createAdminClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return []
 
     const role = user.user_metadata?.role || 'student'
 
+    // Fetch all admins for support (visible to everyone)
+    const { data: admins } = await adminSupabase
+        .from('profiles')
+        .select('id, full_name, email, role')
+        .eq('role', 'admin')
+
+    const adminContacts = (admins || []).filter((a: any) => a.id !== user.id).map((a: any) => ({
+        id: a.id,
+        email: a.email,
+        name: a.full_name || a.email?.split('@')[0] || 'Admin',
+        role: 'admin'
+    }))
+
     if (role === 'student') {
         const { data: enrollments } = await supabase
             .from('enrollments')
-            .select('cohort_id, cohorts(instructor_id)')
+            .select('course_id, courses(instructor_id)')
             .eq('user_id', user.id)
-            .not('cohort_id', 'is', null)
 
-        if (!enrollments) return []
+        const instructorIds = [...new Set((enrollments || []).map((e: any) => e.courses?.instructor_id).filter(Boolean))]
 
-        const instructorIds = [...new Set(enrollments.map((e: any) => e.cohorts?.instructor_id).filter(Boolean))]
-        if (instructorIds.length === 0) return []
+        let instructorContacts: any[] = []
+        if (instructorIds.length > 0) {
+            const { data: instructors } = await adminSupabase
+                .from('profiles')
+                .select('id, full_name, email, role')
+                .in('id', instructorIds)
 
-        const { data: { users } } = await supabase.auth.admin.listUsers()
-        return users?.filter(u => instructorIds.includes(u.id)).map(u => ({
-            id: u.id,
-            email: u.email,
-            name: u.user_metadata?.name || u.email?.split('@')[0],
-            role: 'instructor'
-        })) || []
+            instructorContacts = (instructors || []).map((i: any) => ({
+                id: i.id,
+                email: i.email,
+                name: i.full_name || i.email?.split('@')[0] || 'Instructor',
+                role: 'instructor'
+            }))
+        }
+
+        return [...adminContacts, ...instructorContacts]
     } else if (role === 'instructor') {
         const { data: cohorts } = await supabase
             .from('cohorts')
             .select('id')
             .eq('instructor_id', user.id)
 
-        if (!cohorts || cohorts.length === 0) return []
-        const cohortIds = cohorts.map(c => c.id)
+        const cohortIds = (cohorts || []).map((c: any) => c.id)
 
-        const { data: enrollments } = await supabase
-            .from('enrollments')
-            .select('user_id')
-            .in('cohort_id', cohortIds)
+        let studentContacts: any[] = []
+        if (cohortIds.length > 0) {
+            const { data: enrollments } = await supabase
+                .from('enrollments')
+                .select('user_id')
+                .in('cohort_id', cohortIds)
 
-        if (!enrollments) return []
-        const studentIds = [...new Set(enrollments.map(e => e.user_id))]
+            const studentIds = [...new Set((enrollments || []).map((e: any) => e.user_id))]
 
-        const { data: { users } } = await supabase.auth.admin.listUsers()
-        return users?.filter(u => studentIds.includes(u.id)).map(u => ({
-            id: u.id,
-            email: u.email,
-            name: u.user_metadata?.name || u.email?.split('@')[0],
-            role: 'student'
-        })) || []
+            if (studentIds.length > 0) {
+                const { data: students } = await adminSupabase
+                    .from('profiles')
+                    .select('id, full_name, email, role')
+                    .in('id', studentIds)
+
+                studentContacts = (students || []).map((s: any) => ({
+                    id: s.id,
+                    email: s.email,
+                    name: s.full_name || s.email?.split('@')[0] || 'Student',
+                    role: 'student'
+                }))
+            }
+        }
+
+        return [...adminContacts, ...studentContacts]
+    }
+    else if (role === 'admin') {
+        const { data: allProfiles } = await adminSupabase
+            .from('profiles')
+            .select('id, full_name, email, role')
+            .neq('id', user.id)
+
+        return (allProfiles || []).map((p: any) => ({
+            id: p.id,
+            email: p.email,
+            name: p.full_name || p.email?.split('@')[0] || 'User',
+            role: p.role
+        }))
     }
 
-    return []
+    return adminContacts
+}
+
+/**
+ * Get count of unread messages for current user
+ */
+export async function getUnreadMessageCount() {
+    const supabase = await createServerClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) return 0
+
+    // Get conversations the user is part of
+    const { data: participations } = await supabase
+        .from('conversation_participants')
+        .select('conversation_id')
+        .eq('user_id', user.id)
+
+    if (!participations || participations.length === 0) return 0
+
+    const conversationIds = participations.map(p => p.conversation_id)
+
+    // Count messages in those conversations that are unread and not sent by the user
+    const { count, error } = await supabase
+        .from('messages')
+        .select('*', { count: 'exact', head: true })
+        .in('conversation_id', conversationIds)
+        .neq('sender_id', user.id)
+        .eq('is_read', false)
+
+    if (error) {
+        console.error('Error counting unread messages:', error)
+        return 0
+    }
+
+    return count || 0
+}
+
+/**
+ * Mark all messages in a conversation as read for the current user
+ */
+export async function markMessagesAsRead(conversationId: string) {
+    const supabase = await createServerClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) return false
+
+    const { error } = await supabase
+        .from('messages')
+        .update({ is_read: true })
+        .eq('conversation_id', conversationId)
+        .neq('sender_id', user.id)
+        .eq('is_read', false)
+
+    if (error) {
+        console.error('Error marking messages as read:', error)
+        return false
+    }
+
+    revalidatePath('/')
+    return true
 }
