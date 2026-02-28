@@ -49,7 +49,7 @@ export default async function ImmersiveLessonPage({ params }: LessonPageProps) {
     const canContinue = (progress?.is_completed || canBypass)
 
     return (
-        <div className="max-w-5xl mx-auto px-6 py-10 space-y-12 pb-32">
+        <div className="max-w-5xl mx-auto px-6 pt-32 pb-10 space-y-12 pb-32">
             {/* Top Bar / Metadata */}
             <div className="flex items-center justify-between group">
                 <div className="space-y-1">
