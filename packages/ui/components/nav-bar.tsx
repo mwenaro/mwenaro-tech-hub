@@ -103,7 +103,7 @@ export const NavBar = ({
       {/* Mobile Navigation Menu */}
       <div
         className={cn(
-          "fixed inset-0 top-20 bg-background/95 backdrop-blur-xl border-t border-border/50 transition-all duration-300 ease-in-out md:hidden flex flex-col items-center justify-center p-6",
+          "fixed inset-0 top-20 bg-background backdrop-blur-2xl border-t border-border/50 transition-all duration-300 ease-in-out md:hidden flex flex-col items-center p-6 pt-12 overflow-y-auto",
           isMobileMenuOpen ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none"
         )}
       >
@@ -126,7 +126,7 @@ export const NavBar = ({
           ))}
         </ul>
 
-        <div className="mt-12 w-full max-w-xs">
+        <div className="mt-12 w-full max-w-xs mb-10">
           <Button
             variant={defaultCTA.variant as any}
             size="lg"
