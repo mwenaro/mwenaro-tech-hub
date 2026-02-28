@@ -5,27 +5,29 @@ import { CheckoutForm } from '@/components/checkout/checkout-form'
 import { hasEnrolled } from '@/lib/enrollment'
 
 interface CheckoutPageProps {
-    params: {
+    params: Promise<{
         courseId: string
-    }
+    }>
 }
 
 export default async function CheckoutPage({ params }: CheckoutPageProps) {
+    const { courseId } = await params
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {
-        redirect(`/login?redirect=/checkout/${params.courseId}`)
+        redirect(`/login?redirect=/checkout/${courseId}`)
     }
 
-    const course = await getCourse(params.courseId)
+    const course = await getCourse(courseId)
     if (!course) notFound()
 
     // Check if already enrolled
-    const enrolled = await hasEnrolled(params.courseId)
+    const enrolled = await hasEnrolled(courseId)
     if (enrolled) {
-        redirect(`/learn/${params.courseId}`)
+        redirect(`/learn/${courseId}`)
     }
+
 
     // If free course, just enroll and redirect
     if (course.price === 0) {
