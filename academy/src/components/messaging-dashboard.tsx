@@ -1,12 +1,12 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { Message, getChatContacts, getMessages, sendMessage, getOrCreateConversation } from '@/lib/chat'
+import { Message, getChatContacts, getMessages, sendMessage, getOrCreateConversation, markMessagesAsRead } from '@/lib/chat'
 import { subscribeToMessages } from '@/lib/chat-client'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Send, User, Search, MessageCircle } from 'lucide-react'
+import { Send, User, Search, MessageCircle, Users } from 'lucide-react'
 
 export function MessagingDashboard() {
     const [contacts, setContacts] = useState<any[]>([])
@@ -35,10 +35,19 @@ export function MessagingDashboard() {
     const selectContact = async (contact: any) => {
         setSelectedContact(contact)
         try {
-            const id = await getOrCreateConversation(contact.id)
+            let id: string
+            if (contact.type === 'group') {
+                id = contact.id
+            } else {
+                id = await getOrCreateConversation(contact.id)
+            }
+
             setConversationId(id)
             const history = await getMessages(id)
             setMessages(history)
+
+            // Mark as read
+            await markMessagesAsRead(id)
 
             // Subscribe to real-time
             const channel = subscribeToMessages(id, (msg) => {
@@ -100,7 +109,7 @@ export function MessagingDashboard() {
                             >
                                 <div className={`w-12 h-12 rounded-full flex items-center justify-center ${selectedContact?.id === contact.id ? 'bg-white/20' : 'bg-orange-100 dark:bg-orange-900 text-orange-600'
                                     }`}>
-                                    <User size={24} />
+                                    {contact.type === 'group' ? <Users size={24} /> : <User size={24} />}
                                 </div>
                                 <div className="text-left flex-1 overflow-hidden">
                                     <p className="font-bold truncate">{contact.name}</p>
@@ -121,11 +130,11 @@ export function MessagingDashboard() {
                         <div className="p-6 border-b flex items-center justify-between">
                             <div className="flex items-center gap-4">
                                 <div className="w-12 h-12 rounded-full bg-orange-100 dark:bg-orange-900 flex items-center justify-center text-orange-600">
-                                    <User size={24} />
+                                    {selectedContact.type === 'group' ? <Users size={24} /> : <User size={24} />}
                                 </div>
                                 <div>
                                     <h3 className="font-bold text-lg">{selectedContact.name}</h3>
-                                    <p className="text-sm text-muted-foreground">{selectedContact.email}</p>
+                                    {selectedContact.email && <p className="text-sm text-muted-foreground">{selectedContact.email}</p>}
                                 </div>
                             </div>
                         </div>
@@ -137,6 +146,11 @@ export function MessagingDashboard() {
                                     className={`flex ${msg.sender_id === selectedContact.id ? 'justify-start' : 'justify-end'}`}
                                 >
                                     <div className={`max-w-[70%] space-y-1`}>
+                                        {selectedContact.type === 'group' && msg.sender_id !== selectedContact.id && (
+                                            <p className="text-[10px] font-bold text-muted-foreground px-2">
+                                                {(msg as any).profiles?.full_name || 'User'}
+                                            </p>
+                                        )}
                                         <div
                                             className={`p-4 rounded-2xl text-sm ${msg.sender_id === selectedContact.id
                                                 ? 'bg-white dark:bg-gray-800 border shadow-sm'

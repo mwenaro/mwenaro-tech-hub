@@ -9,9 +9,10 @@ import { Edit2 } from 'lucide-react'
 
 interface EditLessonModalProps {
     lesson: Lesson
+    phases: any[]
 }
 
-export function EditLessonModal({ lesson }: EditLessonModalProps) {
+export function EditLessonModal({ lesson, phases }: EditLessonModalProps) {
     const [isOpen, setIsOpen] = useState(false)
 
     return (
@@ -27,8 +28,9 @@ export function EditLessonModal({ lesson }: EditLessonModalProps) {
                 </DialogHeader>
                 <div className="py-4">
                     <LessonForm
-                        courseId={lesson.course_id}
+                        courseId={lesson.course_id || ""}
                         initialData={lesson}
+                        phases={phases}
                         onSuccess={() => setIsOpen(false)}
                     />
                 </div>

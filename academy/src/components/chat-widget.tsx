@@ -5,7 +5,8 @@ import { MessageCircle, X, Send, User, ChevronLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { getChatContacts, getOrCreateConversation, getMessages, sendMessage, Message } from '@/lib/chat'
+import { createClient } from '@/lib/supabase/client'
+import { getChatContacts, getOrCreateConversation, getMessages, sendMessage, Message, markMessagesAsRead } from '@/lib/chat'
 import { subscribeToMessages } from '@/lib/chat-client'
 
 export function ChatWidget() {
@@ -17,13 +18,21 @@ export function ChatWidget() {
     const [messages, setMessages] = useState<Message[]>([])
     const [newMessage, setNewMessage] = useState('')
     const [isLoading, setIsLoading] = useState(false)
+    const [user, setUser] = useState<any>(null)
     const scrollRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
-        if (isOpen && view === 'contacts') {
+        const supabase = createClient()
+        supabase.auth.getUser().then(({ data: { user } }) => {
+            setUser(user)
+        })
+    }, [])
+
+    useEffect(() => {
+        if (isOpen && view === 'contacts' && user) {
             fetchContacts()
         }
-    }, [isOpen, view])
+    }, [isOpen, view, user])
 
     useEffect(() => {
         if (scrollRef.current) {
@@ -45,6 +54,9 @@ export function ChatWidget() {
             const history = await getMessages(id)
             setMessages(history)
             setView('chat')
+
+            // Mark as read
+            await markMessagesAsRead(id)
 
             // Subscribe to real-time
             const channel = subscribeToMessages(id, (msg) => {
@@ -73,6 +85,8 @@ export function ChatWidget() {
             console.error(error)
         }
     }
+
+    if (!user) return null
 
     if (!isOpen) {
         return (
