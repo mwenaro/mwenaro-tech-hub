@@ -295,10 +295,20 @@ export async function getInstructorStats(instructorId: string) {
         studentsCount = count || 0
     }
 
+    // 4. Total Revenue from courses this instructor is involved in
+    const { data: payments } = await supabase
+        .from('course_payments')
+        .select('amount')
+        .in('course_id', Array.from(allUniqueCourseIds))
+        .eq('status', 'completed')
+
+    const totalRevenue = payments?.reduce((acc, curr) => acc + Number(curr.amount), 0) || 0
+
     return {
         totalCourses: allUniqueCourseIds.size,
         totalStudents: studentsCount,
-        totalCohorts: cohortIds.length
+        totalCohorts: cohortIds.length,
+        totalRevenue
     }
 }
 

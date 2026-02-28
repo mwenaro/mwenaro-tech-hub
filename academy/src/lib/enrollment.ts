@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { Course } from './courses'
 
-export async function enrollUser(courseId: string) {
+export async function enrollUser(courseId: string, paymentIdOrFormData?: string | FormData): Promise<void> {
     const supabase = await createClient()
 
     const {
@@ -13,7 +13,31 @@ export async function enrollUser(courseId: string) {
     } = await supabase.auth.getUser()
 
     if (!user) {
-        redirect('/login')
+        if (typeof paymentIdOrFormData !== 'string') {
+            redirect('/login')
+        }
+        return
+    }
+
+    const paymentId = typeof paymentIdOrFormData === 'string' ? paymentIdOrFormData : undefined
+
+    // Check if already enrolled
+    const isEnrolled = await hasEnrolled(courseId)
+    if (isEnrolled) {
+        if (typeof paymentIdOrFormData !== 'string') {
+            redirect('/dashboard')
+        }
+        return
+    }
+
+    // Verify course is free or payment is provided
+    const { data: course } = await supabase.from('courses').select('price').eq('id', courseId).single()
+    if (course && course.price > 0 && !paymentId) {
+        if (typeof paymentIdOrFormData !== 'string') {
+            // In a real app, we'd handle this with useActionState for UI feedback
+            redirect(`/checkout/${courseId}`)
+        }
+        return
     }
 
     const { error } = await supabase
@@ -25,12 +49,19 @@ export async function enrollUser(courseId: string) {
 
     if (error) {
         console.error('Error enrolling user:', error)
-        throw new Error('Failed to enroll in course')
+        // If it's a webhook, we might want to throw to trigger retry or log
+        if (typeof paymentIdOrFormData === 'string') {
+            throw new Error('Failed to enroll student')
+        }
+        return
     }
 
     revalidatePath(`/courses/${courseId}`)
     revalidatePath('/dashboard')
-    redirect('/dashboard')
+
+    if (typeof paymentIdOrFormData !== 'string') {
+        redirect('/dashboard')
+    }
 }
 
 export async function hasEnrolled(courseId: string): Promise<boolean> {

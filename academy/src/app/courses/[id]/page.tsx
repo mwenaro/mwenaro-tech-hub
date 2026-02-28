@@ -96,11 +96,19 @@ export default async function CoursePage({ params }: CoursePageProps) {
                         {!canPreview ? (
                             <div className="space-y-6">
                                 <p className="text-muted-foreground">Enroll now to access all lessons and track your progress.</p>
-                                <form action={enrollUser.bind(null, course.id)} className="w-full">
-                                    <Button size="lg" className="w-full h-14 text-lg font-bold shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all hover:-translate-y-1">
-                                        Enroll in Course
+                                {course.price > 0 ? (
+                                    <Button size="lg" className="w-full h-14 text-lg font-extrabold shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all hover:-translate-y-1" asChild>
+                                        <Link href={`/checkout/${course.id}`}>
+                                            Enroll Now
+                                        </Link>
                                     </Button>
-                                </form>
+                                ) : (
+                                    <form action={enrollUser.bind(null, course.id)} className="w-full">
+                                        <Button size="lg" className="w-full h-14 text-lg font-bold shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all hover:-translate-y-1">
+                                            Enroll for Free
+                                        </Button>
+                                    </form>
+                                )}
                                 <div className="space-y-4 pt-4 border-t">
                                     {lessons.map((lesson, index) => (
                                         <div key={lesson.id} className="flex items-center gap-4 text-muted-foreground/60">

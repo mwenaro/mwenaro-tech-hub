@@ -5,12 +5,14 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getUserProgress } from '@/lib/progress'
 import { getLearningStreak, isStreakActive } from '@/lib/streaks'
+import { getRecommendedCourses } from '@/lib/ai'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { StatsCards } from '@/components/dashboard/stats-cards'
 import { EnrolledCourseCard } from '@/components/dashboard/enrolled-course-card'
 import { UpcomingSessionCard } from '@/components/dashboard/upcoming-session-card'
-import { ArrowRight, BookOpen, Calendar, Award } from "lucide-react"
+import { ArrowRight, BookOpen, Calendar, Award, ShieldCheck, Sparkles } from "lucide-react"
+import { format } from 'date-fns'
 
 export const revalidate = 0 // Ensure dynamic data
 
@@ -31,11 +33,12 @@ export default async function DashboardPage() {
     }
 
     // Proceed as Learner
-    const [enrolledCourses, upcomingSessions, allProgress, streakData] = await Promise.all([
+    const [enrolledCourses, upcomingSessions, allProgress, streakData, recommendations] = await Promise.all([
         getEnrolledCourses(),
         getStudentSessions(),
         getUserProgress(),
-        getLearningStreak(user.id)
+        getLearningStreak(user.id),
+        getRecommendedCourses(user.id)
     ])
 
     // Calculate current streak (0 if not active)
@@ -43,9 +46,11 @@ export default async function DashboardPage() {
         ? streakData.current_streak
         : 0
 
-    // Fetch lesson counts for ONLY the enrolled courses to avoid any leakage
-    const courseIds = enrolledCourses.map(c => c.id)
+    // Calculate total quizzes attempted across all courses
+    const totalQuizzes = allProgress.reduce((acc, curr) => acc + (curr.quiz_attempts || 0), 0)
 
+    // Prepare enrolled courses with progress
+    const courseIds = enrolledCourses.map(c => c.id)
     let coursesWithProgress: any[] = []
 
     if (courseIds.length > 0) {
@@ -58,15 +63,22 @@ export default async function DashboardPage() {
             const courseLessons = lessonsData?.filter(l => l.course_id === course.id) || []
             const lessonCount = courseLessons.length
 
-            const completedLessons = allProgress.filter(p =>
-                p.is_completed && courseLessons.some(cl => cl.id === p.lesson_id)
-            ).length
+            const courseProgressRecords = allProgress.filter(p =>
+                courseLessons.some(cl => cl.id === p.lesson_id)
+            )
 
+            const completedLessons = courseProgressRecords.filter(p => p.is_completed).length
             const progressPercentage = lessonCount > 0 ? Math.round((completedLessons / lessonCount) * 100) : 0
+
+            // Estimate last accessed as the most recent completion
+            const lastActivity = courseProgressRecords
+                .filter(p => p.completed_at)
+                .sort((a, b) => new Date(b.completed_at!).getTime() - new Date(a.completed_at!).getTime())[0]
 
             return {
                 ...course,
-                progress: progressPercentage
+                progress: progressPercentage,
+                lastAccessedAt: lastActivity?.completed_at
             }
         })
     }
@@ -82,7 +94,11 @@ export default async function DashboardPage() {
                 </p>
             </div>
 
-            <StatsCards courses={coursesWithProgress} streak={currentStreak} />
+            <StatsCards
+                courses={coursesWithProgress}
+                streak={currentStreak}
+                quizzesAttempted={totalQuizzes}
+            />
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Main Content: Enrolled Courses */}
@@ -118,64 +134,100 @@ export default async function DashboardPage() {
                                     key={course.id}
                                     course={course}
                                     progress={course.progress}
+                                    lastAccessed={course.lastAccessedAt ? format(new Date(course.lastAccessedAt), 'MMM d, yyyy') : undefined}
                                 />
                             ))
                         )}
                     </div>
                 </div>
 
-                {/* Sidebar Content: Sessions & Actions */}
-                <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                        <h2 className="text-xl font-semibold text-foreground">
-                            Upcoming Sessions
-                        </h2>
-                        <Button variant="ghost" size="sm" asChild>
-                            <Link href="/dashboard/sessions">
-                                <Calendar className="mr-1 h-4 w-4" />
-                                All
-                            </Link>
-                        </Button>
+                {/* Sidebar: Recommendations & Sessions */}
+                <div className="space-y-6">
+                    {recommendations.length > 0 && (
+                        <Card className="border-primary/20 bg-primary/5 overflow-hidden shadow-sm">
+                            <CardHeader className="pb-2">
+                                <div className="flex items-center gap-2 text-primary">
+                                    <Sparkles className="h-4 w-4" />
+                                    <CardTitle className="text-sm font-bold uppercase tracking-wider">Recommended for You</CardTitle>
+                                </div>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                {recommendations.map((course: any) => (
+                                    <Link
+                                        key={course.id}
+                                        href={`/courses/${course.id}`}
+                                        className="flex gap-3 group items-center"
+                                    >
+                                        <div className="h-12 w-12 rounded-lg bg-muted overflow-hidden flex-shrink-0">
+                                            {course.image_url ? (
+                                                <img src={course.image_url} alt={course.title} className="h-full w-full object-cover transition-transform group-hover:scale-110" />
+                                            ) : (
+                                                <div className="h-full w-full flex items-center justify-center bg-primary/10 text-primary">
+                                                    <BookOpen className="h-5 w-5" />
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-xs font-bold line-clamp-1 group-hover:text-primary transition-colors">{course.title}</p>
+                                            <p className="text-[10px] text-muted-foreground">{course.level || 'All Levels'}</p>
+                                        </div>
+                                    </Link>
+                                ))}
+                            </CardContent>
+                        </Card>
+                    )}
+
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-xl font-semibold text-foreground">
+                                Upcoming Sessions
+                            </h2>
+                            <Button variant="ghost" size="sm" asChild>
+                                <Link href="/dashboard/sessions">
+                                    <Calendar className="mr-1 h-4 w-4" />
+                                    All
+                                </Link>
+                            </Button>
+                        </div>
+
+                        <div className="space-y-3">
+                            {upcomingSessions.length === 0 ? (
+                                <Card className="border-dashed">
+                                    <CardContent className="py-8 text-center">
+                                        <Calendar className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+                                        <p className="text-sm text-muted-foreground">
+                                            No upcoming sessions
+                                        </p>
+                                    </CardContent>
+                                </Card>
+                            ) : (
+                                upcomingSessions.slice(0, 3).map((session) => (
+                                    <UpcomingSessionCard
+                                        key={session.id}
+                                        id={session.id}
+                                        title={session.title}
+                                        courseName={session.cohort?.name}
+                                        scheduledAt={session.start_time}
+                                        durationMinutes={session.duration_minutes}
+                                        meetingUrl={session.meeting_link}
+                                    />
+                                ))
+                            )}
+                        </div>
                     </div>
 
-                    <div className="space-y-3">
-                        {upcomingSessions.length === 0 ? (
-                            <Card className="border-dashed">
-                                <CardContent className="py-8 text-center">
-                                    <Calendar className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-                                    <p className="text-sm text-muted-foreground">
-                                        No upcoming sessions
-                                    </p>
-                                </CardContent>
-                            </Card>
-                        ) : (
-                            upcomingSessions.slice(0, 3).map((session) => (
-                                <UpcomingSessionCard
-                                    key={session.id}
-                                    id={session.id}
-                                    title={session.title}
-                                    courseName={session.cohort?.name}
-                                    scheduledAt={session.start_time}
-                                    durationMinutes={session.duration_minutes}
-                                    meetingUrl={session.meeting_link}
-                                />
-                            ))
-                        )}
-                    </div>
-
-                    {/* Quick Links */}
-                    <Card className="mt-6">
+                    <Card>
                         <CardHeader className="pb-3">
                             <CardTitle className="text-base">Quick Actions</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-2">
-                            <Button variant="outline" className="w-full justify-start" asChild>
+                            <Button variant="outline" className="w-full justify-start rounded-xl" asChild>
                                 <Link href="/courses">
                                     <BookOpen className="mr-2 h-4 w-4" />
                                     Browse Courses
                                 </Link>
                             </Button>
-                            <Button variant="outline" className="w-full justify-start" asChild>
+                            <Button variant="outline" className="w-full justify-start rounded-xl" asChild>
                                 <Link href="/dashboard/certificates">
                                     <Award className="mr-2 h-4 w-4" />
                                     View Certificates
