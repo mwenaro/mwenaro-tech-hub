@@ -8,8 +8,9 @@ import Link from 'next/link'
 import { format } from 'date-fns'
 import { notFound } from 'next/navigation'
 
-export default async function QuizDetailPage({ params }: { params: { id: string } }) {
-    const submission = await getQuizSubmission(params.id)
+export default async function QuizDetailPage({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params
+    const submission = await getQuizSubmission(id)
     if (!submission) notFound()
 
     const questions = await getLessonQuestions(submission.lesson_id)
