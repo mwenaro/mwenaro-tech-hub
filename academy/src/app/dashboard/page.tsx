@@ -79,7 +79,9 @@ export default async function DashboardPage() {
                 ...course,
                 progress: progressPercentage,
                 lastAccessedAt: lastActivity?.completed_at,
-                completedLessons: courseProgressRecords.filter(p => p.is_completed).map(p => p.lesson_id)
+                completedLessonsCount: completedLessons,
+                totalLessonsCount: lessonCount,
+                lessons: courseLessons
             }
         })
     }
@@ -141,14 +143,31 @@ export default async function DashboardPage() {
                                 </CardContent>
                             </Card>
                         ) : (
-                            coursesWithProgress.slice(0, 3).map((course) => (
-                                <EnrolledCourseCard
-                                    key={course.id}
-                                    course={course}
-                                    progress={course.progress}
-                                    lastAccessed={course.lastAccessedAt ? format(new Date(course.lastAccessedAt), 'MMM d, yyyy') : undefined}
-                                />
-                            ))
+                            coursesWithProgress.slice(0, 3).map((course) => {
+                                // Calculate course-specific average quiz score
+                                const courseLessons = course.lessons || []
+                                const progressRecords = allProgress.filter(p =>
+                                    courseLessons.some((cl: any) => cl.id === p.lesson_id)
+                                )
+                                const quizScores = progressRecords
+                                    .map(p => p.highest_quiz_score)
+                                    .filter(s => s > 0)
+                                const avgQuizScore = quizScores.length > 0
+                                    ? Math.round(quizScores.reduce((a, b) => a + b, 0) / quizScores.length)
+                                    : 0
+
+                                return (
+                                    <EnrolledCourseCard
+                                        key={course.id}
+                                        course={course}
+                                        progress={course.progress}
+                                        lastAccessed={course.lastAccessedAt ? format(new Date(course.lastAccessedAt), 'MMM d, yyyy') : undefined}
+                                        completedLessons={progressRecords.filter(p => p.is_completed).length}
+                                        totalLessons={courseLessons.length}
+                                        averageQuizScore={avgQuizScore}
+                                    />
+                                )
+                            })
                         )}
                     </div>
                 </div>
