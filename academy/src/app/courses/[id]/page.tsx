@@ -2,6 +2,7 @@ import { getCourseLessons } from '@/lib/lessons'
 import { getCourse } from '@/lib/courses'
 import { hasEnrolled, enrollUser } from '@/lib/enrollment'
 import { getCourseProgress } from '@/lib/progress'
+import { getCoursePhases } from '@/lib/courses'
 import { createClient } from '@/lib/supabase/server'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
@@ -19,6 +20,7 @@ interface CoursePageProps {
 export default async function CoursePage({ params }: CoursePageProps) {
     const { id } = await params
     const course = await getCourse(id)
+    const phases = await getCoursePhases(id)
     const lessons = await getCourseLessons(id)
 
     const supabase = await createClient()
@@ -62,7 +64,7 @@ export default async function CoursePage({ params }: CoursePageProps) {
                             <h2 className="text-3xl font-bold tracking-tight">About this Course</h2>
                             {!canPreview && (
                                 <div className="text-3xl font-black text-primary drop-shadow-sm">
-                                    ${course.price.toFixed(2)}
+                                    KSh {course.price.toLocaleString()}
                                 </div>
                             )}
                         </div>
@@ -94,11 +96,19 @@ export default async function CoursePage({ params }: CoursePageProps) {
                         {!canPreview ? (
                             <div className="space-y-6">
                                 <p className="text-muted-foreground">Enroll now to access all lessons and track your progress.</p>
-                                <form action={enrollUser.bind(null, course.id)} className="w-full">
-                                    <Button size="lg" className="w-full h-14 text-lg font-bold shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all hover:-translate-y-1">
-                                        Enroll in Course
+                                {course.price > 0 ? (
+                                    <Button size="lg" className="w-full h-14 text-lg font-extrabold shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all hover:-translate-y-1" asChild>
+                                        <Link href={`/checkout/${course.id}`}>
+                                            Enroll Now
+                                        </Link>
                                     </Button>
-                                </form>
+                                ) : (
+                                    <form action={enrollUser.bind(null, course.id)} className="w-full">
+                                        <Button size="lg" className="w-full h-14 text-lg font-bold shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all hover:-translate-y-1">
+                                            Enroll for Free
+                                        </Button>
+                                    </form>
+                                )}
                                 <div className="space-y-4 pt-4 border-t">
                                     {lessons.map((lesson, index) => (
                                         <div key={lesson.id} className="flex items-center gap-4 text-muted-foreground/60">
@@ -118,69 +128,81 @@ export default async function CoursePage({ params }: CoursePageProps) {
                                         </Button>
                                     </Link>
                                 )}
-                                {lessons.map((lesson, index) => {
-                                    const progress = progressRecords.find(p => p.lesson_id === lesson.id)
-                                    const isCompleted = progress?.is_completed || false
-
-                                    // Logic for locking:
-                                    // Lesson 1 is always unlocked.
-                                    // Other lessons are unlocked if the previous lesson is completed.
-                                    const isFirst = index === 0
-                                    const prevLessonId = !isFirst ? lessons[index - 1].id : null
-                                    const prevProgress = prevLessonId ? progressRecords.find(p => p.lesson_id === prevLessonId) : null
-                                    const isUnlocked = isFirst || (prevProgress?.is_completed ?? false) || isAdmin
-
-                                    let statusContent;
-                                    if (isCompleted) {
-                                        statusContent = (
-                                            <div className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 p-1.5 rounded-full">
-                                                <CheckCircle2 size={18} />
-                                            </div>
-                                        )
-                                    } else if (isUnlocked) {
-                                        statusContent = (
-                                            <div className="bg-primary/10 text-primary p-1.5 rounded-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                                                <PlayCircle size={18} />
-                                            </div>
-                                        )
-                                    } else {
-                                        statusContent = (
-                                            <div className="text-muted-foreground/40 p-1.5">
-                                                <Lock size={18} />
-                                            </div>
-                                        )
-                                    }
+                                {phases.map(phase => {
+                                    const phaseLessons = lessons.filter(l => l.phase_id === phase.id)
+                                    if (phaseLessons.length === 0) return null
 
                                     return (
-                                        <div key={lesson.id} className="group">
-                                            {isUnlocked ? (
-                                                <Link
-                                                    href={`/courses/${course.id}/lessons/${lesson.id}`}
-                                                    className={`flex items-center justify-between p-4 rounded-xl border-2 transition-all duration-200 hover:border-primary/40 hover:bg-primary/5 hover:shadow-md ${isCompleted ? 'border-green-100 bg-green-50/30' : 'border-primary/5 bg-muted/30'}`}
-                                                >
-                                                    <div className="flex items-center gap-3">
-                                                        <span className="text-xs font-black text-muted-foreground/40 group-hover:text-primary/40 transition-colors">
-                                                            {(index + 1).toString().padStart(2, '0')}
-                                                        </span>
-                                                        <span className={`font-bold text-sm tracking-tight ${isCompleted ? 'text-green-800 dark:text-green-300' : 'text-foreground/80'}`}>
-                                                            {lesson.title}
-                                                        </span>
-                                                    </div>
-                                                    {statusContent}
-                                                </Link>
-                                            ) : (
-                                                <div className="flex items-center justify-between p-4 rounded-xl border-2 border-dashed border-muted/50 bg-muted/10 opacity-60">
-                                                    <div className="flex items-center gap-3">
-                                                        <span className="text-xs font-black text-muted-foreground/20">
-                                                            {(index + 1).toString().padStart(2, '0')}
-                                                        </span>
-                                                        <span className="font-bold text-sm tracking-tight text-muted-foreground/40">
-                                                            {lesson.title}
-                                                        </span>
-                                                    </div>
-                                                    {statusContent}
-                                                </div>
-                                            )}
+                                        <div key={phase.id} className="pt-4 first:pt-0">
+                                            <h3 className="text-sm font-black text-muted-foreground uppercase tracking-widest mb-3 pl-2">
+                                                {phase.title}
+                                            </h3>
+                                            <div className="space-y-3">
+                                                {phaseLessons.map((lesson, localIndex) => {
+                                                    const index = lessons.findIndex(l => l.id === lesson.id)
+                                                    const progress = progressRecords.find(p => p.lesson_id === lesson.id)
+                                                    const isCompleted = progress?.is_completed || false
+
+                                                    const isFirst = index === 0
+                                                    const prevLessonId = !isFirst ? lessons[index - 1].id : null
+                                                    const prevProgress = prevLessonId ? progressRecords.find(p => p.lesson_id === prevLessonId) : null
+                                                    const isUnlocked = isFirst || (prevProgress?.is_completed ?? false) || isAdmin
+
+                                                    let statusContent;
+                                                    if (isCompleted) {
+                                                        statusContent = (
+                                                            <div className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 p-1.5 rounded-full">
+                                                                <CheckCircle2 size={18} />
+                                                            </div>
+                                                        )
+                                                    } else if (isUnlocked) {
+                                                        statusContent = (
+                                                            <div className="bg-primary/10 text-primary p-1.5 rounded-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                                                                <PlayCircle size={18} />
+                                                            </div>
+                                                        )
+                                                    } else {
+                                                        statusContent = (
+                                                            <div className="text-muted-foreground/40 p-1.5">
+                                                                <Lock size={18} />
+                                                            </div>
+                                                        )
+                                                    }
+
+                                                    return (
+                                                        <div key={lesson.id} className="group">
+                                                            {isUnlocked ? (
+                                                                <Link
+                                                                    href={`/courses/${course.id}/lessons/${lesson.id}`}
+                                                                    className={`flex items-center justify-between p-4 rounded-xl border-2 transition-all duration-200 hover:border-primary/40 hover:bg-primary/5 hover:shadow-md ${isCompleted ? 'border-green-100 bg-green-50/30' : 'border-primary/5 bg-muted/30'}`}
+                                                                >
+                                                                    <div className="flex items-center gap-3">
+                                                                        <span className="text-xs font-black text-muted-foreground/40 group-hover:text-primary/40 transition-colors">
+                                                                            {(index + 1).toString().padStart(2, '0')}
+                                                                        </span>
+                                                                        <span className={`font-bold text-sm tracking-tight ${isCompleted ? 'text-green-800 dark:text-green-300' : 'text-foreground/80'}`}>
+                                                                            {lesson.title}
+                                                                        </span>
+                                                                    </div>
+                                                                    {statusContent}
+                                                                </Link>
+                                                            ) : (
+                                                                <div className="flex items-center justify-between p-4 rounded-xl border-2 border-dashed border-muted/50 bg-muted/10 opacity-60">
+                                                                    <div className="flex items-center gap-3">
+                                                                        <span className="text-xs font-black text-muted-foreground/20">
+                                                                            {(index + 1).toString().padStart(2, '0')}
+                                                                        </span>
+                                                                        <span className="font-bold text-sm tracking-tight text-muted-foreground/40">
+                                                                            {lesson.title}
+                                                                        </span>
+                                                                    </div>
+                                                                    {statusContent}
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    )
+                                                })}
+                                            </div>
                                         </div>
                                     )
                                 })}

@@ -1,13 +1,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { BookOpen, CheckCircle, Clock } from "lucide-react"
+import { BookOpen, CheckCircle, Clock, ShieldCheck } from "lucide-react"
 import type { Course } from "@/lib/courses"
 
 interface StatsCardsProps {
     courses: (Course & { progress: number })[]
     streak?: number
+    quizzesAttempted?: number
 }
 
-export function StatsCards({ courses, streak = 0 }: StatsCardsProps) {
+export function StatsCards({ courses, streak = 0, quizzesAttempted = 0 }: StatsCardsProps) {
     const enrolledCount = courses.length
     const completedCount = courses.filter(c => c.progress === 100).length
 
@@ -50,14 +51,14 @@ export function StatsCards({ courses, streak = 0 }: StatsCardsProps) {
             <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">
-                        Hours Learned
+                        Quizzes Done
                     </CardTitle>
-                    <Clock className="h-4 w-4 text-muted-foreground" />
+                    <ShieldCheck className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                    <div className="text-2xl font-bold">{activeHours}h</div>
+                    <div className="text-2xl font-bold">{quizzesAttempted}</div>
                     <p className="text-xs text-muted-foreground">
-                        Total study time
+                        Total attempts
                     </p>
                 </CardContent>
             </Card>

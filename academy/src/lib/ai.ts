@@ -90,3 +90,48 @@ export async function analyzeProject(lessonId: string, repoLink: string, student
             .eq('lesson_id', lessonId)
     }
 }
+
+export async function getRecommendedCourses(userId: string) {
+    const supabase = await createClient()
+
+    // 1. Get user's enrolled course IDs and their categories
+    const { data: enrollments } = await supabase
+        .from('enrollments')
+        .select(`
+            course_id,
+            courses (
+                category
+            )
+        `)
+        .eq('user_id', userId)
+
+    const enrolledCourseIds = enrollments?.map(e => e.course_id) || []
+    const categories = Array.from(new Set(enrollments?.map(e => (e.courses as any)?.category).filter(Boolean)))
+
+    // 2. Fetch recommendations
+    let query = supabase.from('courses').select('*').eq('is_published', true)
+
+    if (enrolledCourseIds.length > 0) {
+        query = query.not('id', 'in', `(${enrolledCourseIds.join(',')})`)
+    }
+
+    if (categories.length > 0) {
+        query = query.in('category', categories as any[])
+    }
+
+    const { data: recommendations, error } = await query.limit(3)
+
+    if (error || !recommendations || recommendations.length === 0) {
+        // Fallback: 3 random published courses not enrolled
+        const { data: fallback } = await supabase
+            .from('courses')
+            .select('*')
+            .eq('is_published', true)
+            .not('id', 'in', enrolledCourseIds.length > 0 ? `(${enrolledCourseIds.join(',')})` : '(00000000-0000-0000-0000-000000000000)')
+            .limit(3)
+        return fallback || []
+    }
+
+    return recommendations
+}
+

@@ -5,25 +5,25 @@ import { NavBar } from "@mwenaro/ui";
 import { FooterWrapper } from "@/components/footer-wrapper";
 import { ChatWidget } from "@/components/chat-widget";
 import { Toaster } from "@/components/ui/sonner"
+import { ecosystem } from "@mwenaro/config/ecosystem";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://academy.mwenaro.com"), // Update with actual domain
+  metadataBase: new URL(ecosystem.academy),
   title: {
-    default: "Mwenaro Tech Academy | Master Tech Skills",
+    default: "Mwenaro Tech Academy | Software Engineering Bootcamp Africa",
     template: "%s | Mwenaro Tech Academy",
   },
-  description: "Join Mwenaro Tech Academy to master software engineering, data science, and AI. Expert-led courses, hands-on projects, and career mentorship.",
+  description: "Learn coding in Kenya and across Africa. Mwenaro Tech Academy offers project-based tech education, coding bootcamps, and career mentorship in software engineering and data science.",
   keywords: [
-    "Tech Academy",
-    "Software Engineering",
-    "Coding Bootcamp",
-    "Web Development",
-    "Data Science",
-    "Kenya Tech",
-    "Mwenaro",
-    "Programming Courses",
+    "Learn coding in Kenya",
+    "software engineering bootcamp Africa",
+    "project-based tech education",
+    "Mwenaro Tech Academy",
+    "coding classes Mombasa",
+    "data science course Kenya",
+    "web development bootcamp Africa",
   ],
   authors: [{ name: "Mwenaro Tech Hub" }],
   creator: "Mwenaro Tech Hub",
@@ -35,25 +35,25 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "Mwenaro Tech Academy | Master Tech Skills",
-    description: "Empowering the next generation of tech leaders with practical skills and mentorship.",
-    url: "https://academy.mwenaro.com",
+    description: "Launch your career with our software engineering and data science bootcamps in Africa.",
+    url: ecosystem.academy,
     siteName: "Mwenaro Tech Academy",
     images: [
       {
-        url: "/logo-full.svg", // Using the full logo verify if this renders well or if a png is needed
-        width: 800,
-        height: 600,
-        alt: "Mwenaro Tech Academy Logo",
+        url: "/logo-full.svg",
+        width: 1200,
+        height: 630,
+        alt: "Mwenaro Tech Academy - Coding Bootcamp Africa",
       },
     ],
-    locale: "en_US",
+    locale: "en_KE",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: "Mwenaro Tech Academy",
-    description: "Launch your tech career with Mwenaro Tech Academy.",
-    images: ["/logo-full.svg"], // Same here
+    description: "Project-based tech education and coding bootcamps in Africa.",
+    images: ["/logo-full.svg"],
     creator: "@mwenarotech",
   },
   robots: {

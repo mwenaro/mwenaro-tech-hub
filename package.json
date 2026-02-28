@@ -9,7 +9,7 @@
         "packages/*"
     ],
     "scripts": {
-        "dev:academy": "npm run dev -w academy",
+        "dev": "./dev.sh",
         "build:academy": "npm run build -w academy",
         "lint:academy": "npm run lint -w academy",
         "dev:hub": "npm run dev -w hub",

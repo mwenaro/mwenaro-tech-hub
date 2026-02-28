@@ -10,10 +10,14 @@ import {
     ClipboardCheck,
     BookOpen,
     Settings,
-    FileQuestion
+    FileQuestion,
+    Bell
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { getUnreadMessageCount } from "@/lib/chat"
+import { getUnreadNotificationsCount } from "@/lib/notifications"
+import { createClient } from "@/lib/supabase/client"
 
 import {
     Sidebar,
@@ -41,6 +45,40 @@ interface InstructorSidebarProps extends React.ComponentProps<typeof Sidebar> {
 
 export function InstructorSidebar({ user, ...props }: InstructorSidebarProps) {
     const pathname = usePathname()
+    const [unreadMessages, setUnreadMessages] = React.useState(0)
+    const [unreadNotifications, setUnreadNotifications] = React.useState(0)
+
+    React.useEffect(() => {
+        if (!user) return
+
+        const fetchCounts = async () => {
+            const [mCount, nCount] = await Promise.all([
+                getUnreadMessageCount(),
+                getUnreadNotificationsCount()
+            ])
+            setUnreadMessages(mCount)
+            setUnreadNotifications(nCount)
+        }
+
+        fetchCounts()
+
+        // Real-time subscription for counts
+        const supabase = createClient()
+        const messageChannel = supabase
+            .channel('unread-messages-inst')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, fetchCounts)
+            .subscribe()
+
+        const notificationChannel = supabase
+            .channel('unread-notifications-inst')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications' }, fetchCounts)
+            .subscribe()
+
+        return () => {
+            supabase.removeChannel(messageChannel)
+            supabase.removeChannel(notificationChannel)
+        }
+    }, [user])
 
     const navItems = [
         {
@@ -72,6 +110,13 @@ export function InstructorSidebar({ user, ...props }: InstructorSidebarProps) {
             title: "Messages",
             url: "/instructor/messages",
             icon: MessageSquare,
+            badge: unreadMessages > 0 ? unreadMessages : null
+        },
+        {
+            title: "Notifications",
+            url: "/instructor/notifications",
+            icon: Bell,
+            badge: unreadNotifications > 0 ? unreadNotifications : null
         },
         {
             title: "Payments",
@@ -107,6 +152,11 @@ export function InstructorSidebar({ user, ...props }: InstructorSidebarProps) {
                                 <Link href={item.url}>
                                     <item.icon />
                                     <span>{item.title}</span>
+                                    {item.badge && (
+                                        <span className="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-orange-600 text-[10px] font-bold text-white">
+                                            {item.badge}
+                                        </span>
+                                    )}
                                 </Link>
                             </SidebarMenuButton>
                         </SidebarMenuItem>

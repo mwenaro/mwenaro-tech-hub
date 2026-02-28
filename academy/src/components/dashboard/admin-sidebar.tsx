@@ -10,10 +10,14 @@ import {
     MessageSquare,
     UsersRound,
     Settings,
-    FileQuestion
+    FileQuestion,
+    Bell
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { getUnreadMessageCount } from "@/lib/chat"
+import { getUnreadNotificationsCount } from "@/lib/notifications"
+import { createClient } from "@/lib/supabase/client"
 
 import {
     Sidebar,
@@ -41,6 +45,40 @@ interface AdminSidebarProps extends React.ComponentProps<typeof Sidebar> {
 
 export function AdminSidebar({ user, ...props }: AdminSidebarProps) {
     const pathname = usePathname()
+    const [unreadMessages, setUnreadMessages] = React.useState(0)
+    const [unreadNotifications, setUnreadNotifications] = React.useState(0)
+
+    React.useEffect(() => {
+        if (!user) return
+
+        const fetchCounts = async () => {
+            const [mCount, nCount] = await Promise.all([
+                getUnreadMessageCount(),
+                getUnreadNotificationsCount()
+            ])
+            setUnreadMessages(mCount)
+            setUnreadNotifications(nCount)
+        }
+
+        fetchCounts()
+
+        // Real-time subscription for counts
+        const supabase = createClient()
+        const messageChannel = supabase
+            .channel('unread-messages-admin')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, fetchCounts)
+            .subscribe()
+
+        const notificationChannel = supabase
+            .channel('unread-notifications-admin')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications' }, fetchCounts)
+            .subscribe()
+
+        return () => {
+            supabase.removeChannel(messageChannel)
+            supabase.removeChannel(notificationChannel)
+        }
+    }, [user])
 
     const navItems = [
         {
@@ -77,6 +115,13 @@ export function AdminSidebar({ user, ...props }: AdminSidebarProps) {
             title: "Messages",
             url: "/admin/messages",
             icon: MessageSquare,
+            badge: unreadMessages > 0 ? unreadMessages : null
+        },
+        {
+            title: "Notifications",
+            url: "/admin/notifications",
+            icon: Bell,
+            badge: unreadNotifications > 0 ? unreadNotifications : null
         },
     ]
 
@@ -107,6 +152,11 @@ export function AdminSidebar({ user, ...props }: AdminSidebarProps) {
                                 <Link href={item.url}>
                                     <item.icon />
                                     <span>{item.title}</span>
+                                    {item.badge && (
+                                        <span className="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-orange-600 text-[10px] font-bold text-white">
+                                            {item.badge}
+                                        </span>
+                                    )}
                                 </Link>
                             </SidebarMenuButton>
                         </SidebarMenuItem>
