@@ -38,7 +38,7 @@ export default async function CoursePage({ params }: CoursePageProps) {
     const progressPercentage = lessons.length > 0 ? Math.round((completedCount / lessons.length) * 100) : 0
 
     return (
-        <div className="container py-12 px-4 max-w-6xl mx-auto">
+        <div className="container pt-32 pb-12 px-4 max-w-6xl mx-auto">
             <Link href="/courses" className="text-muted-foreground hover:text-primary mb-6 flex items-center gap-2 transition-colors">
                 <span className="text-xl">&larr;</span> Back to Courses
             </Link>

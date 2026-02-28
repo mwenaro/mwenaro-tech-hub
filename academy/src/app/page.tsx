@@ -75,7 +75,7 @@ export default function ExecutiveAcademy() {
       </section>
 
       {/* FOOTER */}
-      <footer className="py-12 border-t border-border dark:border-white/5 bg-zinc-50 dark:bg-zinc-950 text-center">
+      {/* <footer className="py-12 border-t border-border dark:border-white/5 bg-zinc-50 dark:bg-zinc-950 text-center">
         <p className="font-black text-2xl text-secondary dark:text-white mb-4">{footer.name}</p>
         <div className="flex justify-center gap-8 text-sm font-bold text-muted-foreground uppercase tracking-widest mb-4">
           {footer.links.map((link, i) => (
@@ -83,7 +83,7 @@ export default function ExecutiveAcademy() {
           ))}
         </div>
         <p className="text-sm text-muted-foreground">{footer.copyright}</p>
-      </footer>
+      </footer> */}
     </div>
   )
 }
