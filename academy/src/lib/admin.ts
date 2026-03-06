@@ -246,13 +246,21 @@ export async function getAnalyticsData() {
         ? ((gradedSubmissions.filter(s => Math.abs((s.project_rating || 0) - (s.ai_rating || 0)) <= 10).length / gradedSubmissions.length) * 100).toFixed(1)
         : '100'
 
+    // Additional live data
+    const { count: pendingReviews } = await supabase
+        .from('lesson_progress')
+        .select('*', { count: 'exact', head: true })
+        .not('project_repo_link', 'is', null)
+        .eq('project_reviewed', false)
+
     return {
         enrollmentData: enrollmentData || [],
         auditLogs: formattedAuditLogs,
         stats: [
             { label: 'Avg AI Rating', value: `${avgAiRating}%`, color: 'text-blue-500', trend: '+1.2%' },
             { label: 'Grading Accuracy', value: `${accuracy}%`, color: 'text-green-500', trend: '+0.2%' },
-            { label: 'System Uptime', value: '99.9%', color: 'text-orange-500', trend: 'Stable' },
+            { label: 'Pending Reviews', value: pendingReviews || 0, color: 'text-orange-500', trend: 'Critical' },
+            { label: 'Neural Uptime', value: '99.9%', color: 'text-purple-500', trend: 'Stable' },
         ]
     }
 }

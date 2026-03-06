@@ -151,3 +151,35 @@ export function isStreakActive(lastActivityDate: string | null): boolean {
 
     return lastActivityDate === today || lastActivityDate === yesterday;
 }
+
+/**
+ * Get top streaks for leaderboard
+ */
+export async function getTopStreaks(limit = 5) {
+    try {
+        const supabase = createClient();
+        const { data, error } = await supabase
+            .from("learning_streaks")
+            .select(`
+                current_streak,
+                user_id,
+                profiles:user_id (
+                    full_name,
+                    avatar_url
+                )
+            `)
+            .gt("current_streak", 0)
+            .order("current_streak", { ascending: false })
+            .limit(limit);
+
+        if (error) {
+            console.error("Error fetching top streaks:", error);
+            return [];
+        }
+
+        return data;
+    } catch (error) {
+        console.error("Error in getTopStreaks:", error);
+        return [];
+    }
+}

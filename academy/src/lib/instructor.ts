@@ -453,3 +453,110 @@ export async function getInstructorStudents(instructorId: string): Promise<Enrol
 
     return students
 }
+
+/**
+ * Get instructor payment history
+ */
+export async function getInstructorPayments(instructorId: string) {
+    const supabase = await createClient()
+
+    const { data, error } = await supabase
+        .from('instructor_payments')
+        .select('*')
+        .eq('instructor_id', instructorId)
+        .order('created_at', { ascending: false })
+
+    if (error) {
+        console.error('Error fetching payments:', error)
+        return []
+    }
+
+    return data
+}
+
+export interface SessionWithCohort {
+    id: string
+    title: string
+    description: string | null
+    start_time: string
+    duration_minutes: number
+    meeting_link: string | null
+    created_at: string
+    cohort_id: string
+    cohort_name: string
+}
+
+/**
+ * Get all sessions for cohorts lead by this instructor
+ */
+export async function getInstructorSessions(instructorId: string): Promise<SessionWithCohort[]> {
+    const supabase = await createClient()
+
+    // 1. Get cohorts for this instructor
+    const { data: cohorts } = await supabase
+        .from('cohorts')
+        .select('id, name')
+        .eq('instructor_id', instructorId)
+
+    if (!cohorts || cohorts.length === 0) return []
+
+    const cohortIds = cohorts.map(c => c.id)
+    const cohortNames = new Map(cohorts.map(c => [c.id, c.name]))
+
+    // 2. Get sessions for these cohorts
+    const { data: sessions, error } = await supabase
+        .from('sessions')
+        .select('*')
+        .in('cohort_id', cohortIds)
+        .order('start_time', { ascending: true })
+
+    if (error) {
+        console.error('Error fetching sessions:', error)
+        return []
+    }
+
+    return sessions.map(s => ({
+        ...s,
+        cohort_name: cohortNames.get(s.cohort_id) || 'Unknown'
+    }))
+}
+
+/**
+ * Get simple list of cohorts for an instructor
+ */
+export async function getInstructorCohorts(instructorId: string) {
+    const supabase = await createClient()
+    const { data, error } = await supabase
+        .from('cohorts')
+        .select('id, name')
+        .eq('instructor_id', instructorId)
+    
+    if (error) throw error
+    return data
+}
+
+/**
+ * Create a new live session
+ */
+export async function createSession(data: {
+    cohort_id: string
+    title: string
+    description?: string
+    start_time: string
+    duration_minutes: number
+    meeting_link?: string
+}) {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('Unauthorized')
+
+    const { error } = await supabase.from('sessions').insert({
+        ...data,
+        created_by: user.id
+    })
+
+    if (error) throw error
+    
+    // Revalidate session paths if needed
+    // revalidatePath('/instructor/sessions')
+}

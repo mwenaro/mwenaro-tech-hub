@@ -9,8 +9,8 @@ import type { Question } from '@/lib/lessons'
 import { submitQuiz } from '@/lib/progress'
 
 import { useRouter } from 'next/navigation'
-import { CheckCircle2, XCircle } from 'lucide-react'
 import { QuizReview } from './quiz-review'
+import { StreakCelebration } from './streak-celebration'
 
 interface QuizModalProps {
     lessonId: string
@@ -29,6 +29,7 @@ export function QuizModal({ lessonId, questions, initialProgress }: QuizModalPro
     const [result, setResult] = useState<{ passed: boolean; score: number; message: string } | null>(null)
     const [correctAnswers, setCorrectAnswers] = useState<number[] | null>(null)
     const [showReview, setShowReview] = useState(false)
+    const [celebrateStreak, setCelebrateStreak] = useState<{ milestone: number; streak: number } | null>(null)
 
     const hasTaken = (initialProgress?.quiz_attempts || 0) > 0
     const highestScore = initialProgress?.highest_quiz_score || 0
@@ -47,8 +48,15 @@ export function QuizModal({ lessonId, questions, initialProgress }: QuizModalPro
                 setCorrectAnswers(res.correctAnswers)
             }
             if (res.passed) {
+                if (res.streakData?.is_milestone) {
+                    setCelebrateStreak({ 
+                        milestone: res.streakData.milestone_value, 
+                        streak: res.streakData.current_streak 
+                    })
+                }
+
                 setTimeout(() => {
-                    if (!showReview) {
+                    if (!showReview && !res.streakData?.is_milestone) {
                         setIsOpen(false)
                         router.refresh()
                     }
@@ -151,6 +159,17 @@ export function QuizModal({ lessonId, questions, initialProgress }: QuizModalPro
                     </div>
                 )}
             </DialogContent>
+            {celebrateStreak && (
+                <StreakCelebration
+                    streak={celebrateStreak.streak}
+                    open={!!celebrateStreak}
+                    onClose={() => {
+                        setCelebrateStreak(null)
+                        setIsOpen(false)
+                        router.refresh()
+                    }}
+                />
+            )}
         </Dialog>
     )
 }
