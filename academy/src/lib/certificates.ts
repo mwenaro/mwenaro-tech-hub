@@ -10,6 +10,7 @@ export interface Certificate {
     full_name: string
     course_title: string
     issued_at: string
+    verification_id?: string
 }
 
 export async function getCertificates(): Promise<Certificate[]> {

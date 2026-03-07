@@ -11,7 +11,8 @@ import {
     GraduationCap,
     FileQuestion,
     MessageSquare,
-    Bell
+    Bell,
+    Receipt
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -123,6 +124,11 @@ export function DashboardSidebar({ user, ...props }: DashboardSidebarProps) {
             title: "Settings",
             url: "/settings",
             icon: Settings,
+        },
+        {
+            title: "Billing & Receipts",
+            url: "/dashboard/receipts",
+            icon: Receipt,
         },
     ]
 
