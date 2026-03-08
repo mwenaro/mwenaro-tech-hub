@@ -2,7 +2,7 @@
     "title": "Environment Setup",
     "has_project": false,
     "video_url": "https://www.youtube.com/watch?v=9S_YJ_n2C7Y",
-    "content": "## 🛠️ Building Your Professional Development Environment\n\nA well-configured development environment makes you significantly more productive. Professional developers don't just install random tools — they have an intentional, repeatable setup. This lesson teaches you exactly what to install, why, and how to configure it.\n\n---\n\n## 1️⃣ VS Code — The Industry Standard Editor\n\n**Visual Studio Code** (VS Code) is the most popular code editor in the world for web development. It's free, extensible, and deeply integrated with JavaScript tooling.\n\n**Essential Extensions to Install:**\n\n| Extension | Purpose |\n|---|---|\n| **ESLint** | Catches JavaScript errors and enforces code quality rules |\n| **Prettier** | Auto-formats code on save for consistent style |\n| **Live Server** | Launches a local server with instant browser reload on file changes |\n| **Auto Rename Tag** | Automatically updates the closing HTML tag when you rename the opening one |\n| **Tailwind CSS IntelliSense** | Autocomplete for Tailwind classes |\n| **GitLens** | Advanced Git blame, history, and comparison |\n| **ES7+ React Snippets** | Shortcuts like `rafce` to generate React components |\n\n**Pro Settings (settings.json):**\n```json\n{\n  \"editor.formatOnSave\": true,\n  \"editor.defaultFormatter\": \"esbenp.prettier-vscode\",\n  \"editor.fontFamily\": \"Fira Code, monospace\",\n  \"editor.fontLigatures\": true,\n  \"editor.tabSize\": 2\n}\n```\n\n---\n\n## 2️⃣ Node.js — JavaScript Outside the Browser\n\n**Node.js** is a JavaScript runtime built on Chrome's V8 engine. It allows you to run JavaScript on the server (our backend), and it powers all the dev tools we'll use (npm, webpack, Next.js, etc.).\n\n- **LTS (Long Term Support)**: Always install the LTS version — it's stable and supported for years. Avoid \"Current\" versions in production.\n- **Verify installation:** `node -v` and `npm -v`\n\n---\n\n## 3️⃣ NVM — Node Version Manager\n\nDifferent projects require different Node.js versions. **NVM** lets you install and switch between them:\n\n```bash\nnvm install 20        # install Node 20\nnvm use 20            # switch to Node 20\nnvm alias default 20  # set as default\nnvm list              # see installed versions\n```\n\nThis is essential when working on multiple projects.\n\n---\n\n## 4️⃣ npm — The Package Manager\n\n**npm (Node Package Manager)** comes bundled with Node.js. It downloads third-party libraries:\n\n```bash\nnpm install react          # install a package\nnpm install -D eslint      # install as dev dependency\nnpm uninstall lodash       # remove a package\nnpm run dev                # run a script from package.json\n```\n\n**Alternative:** `pnpm` is faster and more disk-efficient than npm.\n\n---\n\n## 5️⃣ ESLint — Code Quality Enforcer\n\nA **linter** analyzes code for potential errors, bad patterns, and style issues — **before you even run it**.\n\n```bash\nnpx eslint src/app.js\n# Output: warning 'user' is defined but never used\n```\n\nCommon ESLint rules: no `console.log` in production, no unused variables, prefer `const` over `let` when possible.\n\n---\n\n## 6️⃣ Prettier — Automatic Code Formatter\n\n**Prettier** removes the need to debate code formatting in team settings. It enforces a single, consistent style automatically:\n\n- Converts 4-space indents to 2-space\n- Adds/removes semicolons consistently\n- Wraps long lines at 80/100 characters\n- Formats on save (`editor.formatOnSave: true`)\n\n---\n\n## 7️⃣ WSL2 for Windows Users\n\n**WSL2 (Windows Subsystem for Linux)** gives Windows developers a genuine Linux environment inside Windows — essential since most servers run Linux. With WSL2:\n- Use Linux commands (`ls`, `grep`, `curl`) natively\n- Install tools via `apt`\n- Run Docker without issues\n- Use VS Code with the Remote-WSL extension\n\n---\n\n## 8️⃣ Chrome DevTools\n\n**Google Chrome** has the best developer tools for web development:\n- **Elements**: Inspect and modify HTML/CSS in real-time\n- **Console**: Run JavaScript, see errors\n- **Network**: See every HTTP request and response\n- **Performance**: Profile rendering and runtime issues\n- **Application**: Inspect cookies, localStorage, service workers\n\n---\n\n## 9️⃣ Git — Version Control\n\nGit must be installed globally. Verify with `git --version`. Configure your identity:\n\n```bash\ngit config --global user.name \"Your Name\"\ngit config --global user.email \"you@email.com\"\ngit config --global core.editor \"code --wait\" # Use VS Code for commit messages\n```\n\n---\n\n## 💡 Summary Table\n\n| Tool | Purpose | Verify |\n|---|---|---|\n| **VS Code** | Code editor | Open in terminal: `code .` |\n| **Node.js (LTS)** | JS runtime + npm | `node -v` |\n| **NVM** | Manage Node versions | `nvm list` |\n| **ESLint** | Catch code errors | `npx eslint .` |\n| **Prettier** | Auto-format code | Format on Save |\n| **Live Server** | Local dev with hot reload | VS Code extension |\n| **WSL2** | Linux on Windows | `wsl --list` |\n| **Chrome** | Browser + DevTools | F12 |\n| **Git** | Version control | `git --version` |",
+    "content": "## \ud83d\udee0\ufe0f Building Your Professional Development Environment\n\nA well-configured development environment makes you significantly more productive. Professional developers don't just install random tools \u2014 they have an intentional, repeatable setup. This lesson teaches you exactly what to install, why, and how to configure it.\n\n---\n\n## 1\ufe0f\u20e3 VS Code \u2014 The Industry Standard Editor\n\n**Visual Studio Code** (VS Code) is the most popular code editor in the world for web development. It's free, extensible, and deeply integrated with JavaScript tooling.\n\n**Essential Extensions to Install:**\n\n| Extension | Purpose |\n|---|---|\n| **ESLint** | Catches JavaScript errors and enforces code quality rules |\n| **Prettier** | Auto-formats code on save for consistent style |\n| **Live Server** | Launches a local server with instant browser reload on file changes |\n| **Auto Rename Tag** | Automatically updates the closing HTML tag when you rename the opening one |\n| **Tailwind CSS IntelliSense** | Autocomplete for Tailwind classes |\n| **GitLens** | Advanced Git blame, history, and comparison |\n| **ES7+ React Snippets** | Shortcuts like `rafce` to generate React components |\n\n**Pro Settings (settings.json):**\n```json\n{\n  \"editor.formatOnSave\": true,\n  \"editor.defaultFormatter\": \"esbenp.prettier-vscode\",\n  \"editor.fontFamily\": \"Fira Code, monospace\",\n  \"editor.fontLigatures\": true,\n  \"editor.tabSize\": 2\n}\n```\n\n---\n\n## 2\ufe0f\u20e3 Node.js \u2014 JavaScript Outside the Browser\n\n**Node.js** is a JavaScript runtime built on Chrome's V8 engine. It allows you to run JavaScript on the server (our backend), and it powers all the dev tools we'll use (npm, webpack, Next.js, etc.).\n\n- **LTS (Long Term Support)**: Always install the LTS version \u2014 it's stable and supported for years. Avoid \"Current\" versions in production.\n- **Verify installation:** `node -v` and `npm -v`\n\n---\n\n## 3\ufe0f\u20e3 NVM \u2014 Node Version Manager\n\nDifferent projects require different Node.js versions. **NVM** lets you install and switch between them:\n\n```bash\nnvm install 20        # install Node 20\nnvm use 20            # switch to Node 20\nnvm alias default 20  # set as default\nnvm list              # see installed versions\n```\n\nThis is essential when working on multiple projects.\n\n---\n\n## 4\ufe0f\u20e3 npm \u2014 The Package Manager\n\n**npm (Node Package Manager)** comes bundled with Node.js. It downloads third-party libraries:\n\n```bash\nnpm install react          # install a package\nnpm install -D eslint      # install as dev dependency\nnpm uninstall lodash       # remove a package\nnpm run dev                # run a script from package.json\n```\n\n**Alternative:** `pnpm` is faster and more disk-efficient than npm.\n\n---\n\n## 5\ufe0f\u20e3 ESLint \u2014 Code Quality Enforcer\n\nA **linter** analyzes code for potential errors, bad patterns, and style issues \u2014 **before you even run it**.\n\n```bash\nnpx eslint src/app.js\n# Output: warning 'user' is defined but never used\n```\n\nCommon ESLint rules: no `console.log` in production, no unused variables, prefer `const` over `let` when possible.\n\n---\n\n## 6\ufe0f\u20e3 Prettier \u2014 Automatic Code Formatter\n\n**Prettier** removes the need to debate code formatting in team settings. It enforces a single, consistent style automatically:\n\n- Converts 4-space indents to 2-space\n- Adds/removes semicolons consistently\n- Wraps long lines at 80/100 characters\n- Formats on save (`editor.formatOnSave: true`)\n\n---\n\n## 7\ufe0f\u20e3 WSL2 for Windows Users\n\n**WSL2 (Windows Subsystem for Linux)** gives Windows developers a genuine Linux environment inside Windows \u2014 essential since most servers run Linux. With WSL2:\n- Use Linux commands (`ls`, `grep`, `curl`) natively\n- Install tools via `apt`\n- Run Docker without issues\n- Use VS Code with the Remote-WSL extension\n\n---\n\n## 8\ufe0f\u20e3 Chrome DevTools\n\n**Google Chrome** has the best developer tools for web development:\n- **Elements**: Inspect and modify HTML/CSS in real-time\n- **Console**: Run JavaScript, see errors\n- **Network**: See every HTTP request and response\n- **Performance**: Profile rendering and runtime issues\n- **Application**: Inspect cookies, localStorage, service workers\n\n---\n\n## 9\ufe0f\u20e3 Git \u2014 Version Control\n\nGit must be installed globally. Verify with `git --version`. Configure your identity:\n\n```bash\ngit config --global user.name \"Your Name\"\ngit config --global user.email \"you@email.com\"\ngit config --global core.editor \"code --wait\" # Use VS Code for commit messages\n```\n\n---\n\n## \ud83d\udca1 Summary Table\n\n| Tool | Purpose | Verify |\n|---|---|---|\n| **VS Code** | Code editor | Open in terminal: `code .` |\n| **Node.js (LTS)** | JS runtime + npm | `node -v` |\n| **NVM** | Manage Node versions | `nvm list` |\n| **ESLint** | Catch code errors | `npx eslint .` |\n| **Prettier** | Auto-format code | Format on Save |\n| **Live Server** | Local dev with hot reload | VS Code extension |\n| **WSL2** | Linux on Windows | `wsl --list` |\n| **Chrome** | Browser + DevTools | F12 |\n| **Git** | Version control | `git --version` |",
     "questions": [
         {
             "question_text": "What is the primary purpose of a 'Linter' like ESLint?",
@@ -58,6 +58,116 @@
             ],
             "correct_answer": 1,
             "explanation": "NVM allows you to switch between different Node.js versions for different projects seamlessly."
+        },
+        {
+            "question_text": "What is the primary function of Prettier in a development environment?",
+            "options": [
+                "To compile JavaScript code into machine code.",
+                "To automatically format code to ensure a consistent style.",
+                "To check code for logical errors and bugs.",
+                "To manage project dependencies."
+            ],
+            "correct_answer": 1,
+            "explanation": "Prettier is an opinionated code formatter that enforces a consistent code style across your entire project by parsing your code and re-printing it with its own rules."
+        },
+        {
+            "question_text": "Which of the following best describes the role of ESLint?",
+            "options": [
+                "It analyzes code to quickly find and fix problems (linting).",
+                "It packages the application for production.",
+                "It runs local development servers.",
+                "It formats code indentation."
+            ],
+            "correct_answer": 0,
+            "explanation": "ESLint statically analyzes your code to quickly find problems, enforce coding standards, and prevent common bugs."
+        },
+        {
+            "question_text": "Why is it recommended to use NVM (Node Version Manager)?",
+            "options": [
+                "It makes Node.js run faster.",
+                "It allows you to easily install and switch between different versions of Node.js on the same machine.",
+                "It replaces the need for npm.",
+                "It provides a graphical interface for Node.js."
+            ],
+            "correct_answer": 1,
+            "explanation": "NVM allows developers to manage multiple active Node.js versions, enabling them to switch environments easily depending on project requirements."
+        },
+        {
+            "question_text": "What does WSL2 (Windows Subsystem for Linux) allow developers to do?",
+            "options": [
+                "Run macOS applications natively on Windows.",
+                "Replace the Windows operating system entirely.",
+                "Run a Linux environment directly on Windows without the overhead of a traditional virtual machine.",
+                "Accelerate graphics processing for web games."
+            ],
+            "correct_answer": 2,
+            "explanation": "WSL2 allows developers to run a GNU/Linux environment natively on Windows, providing the performance and compatibility of Linux on a Windows machine."
+        },
+        {
+            "question_text": "In VS Code, what is the 'Command Palette' used for?",
+            "options": [
+                "Writing raw HTML.",
+                "Accessing all available commands based on your current context.",
+                "Changing the color theme of the website you are building.",
+                "Connecting to a remote database."
+            ],
+            "correct_answer": 1,
+            "explanation": "The Command Palette (Ctrl+Shift+P / Cmd+Shift+P) provides access to all functionality in VS Code, including extensions, settings, and editor commands."
+        },
+        {
+            "question_text": "What is the primary use of the Chrome DevTools 'Elements' panel?",
+            "options": [
+                "To write Node.js backend code.",
+                "To inspect and edit the DOM and CSS of a web page in real-time.",
+                "To measure network request times.",
+                "To track memory leaks in JavaScript."
+            ],
+            "correct_answer": 1,
+            "explanation": "The Elements panel lets you inspect and tweak the DOM (HTML) and CSS of a page, showing exactly how the browser understands and renders the page."
+        },
+        {
+            "question_text": "What does 'LTS' stand for when downloading Node.js?",
+            "options": [
+                "Latest Technical Standard",
+                "Long Term Support",
+                "Local Testing Server",
+                "Lightweight Terminal Shell"
+            ],
+            "correct_answer": 1,
+            "explanation": "LTS stands for Long Term Support. LTS versions of Node.js are recommended for most users because they guarantee stability and security updates for an extended period."
+        },
+        {
+            "question_text": "Which terminal command is used to initialize a new Node.js project and create a package.json file?",
+            "options": [
+                "node init",
+                "npm start",
+                "npm init",
+                "npx create"
+            ],
+            "correct_answer": 2,
+            "explanation": "The 'npm init' command creates a package.json file, which is necessary for managing dependencies and scripts in a Node.js project. 'npm init -y' skips the prompts."
+        },
+        {
+            "question_text": "What is the purpose of the 'Live Server' extension in VS Code?",
+            "options": [
+                "To host your website publicly on the internet.",
+                "To launch a local development server with a live reload feature for static and dynamic pages.",
+                "To compile React applications.",
+                "To auto-save files when you close them."
+            ],
+            "correct_answer": 1,
+            "explanation": "Live Server creates a local web server and automatically reloads the browser whenever you save a change to an HTML, CSS, or JS file."
+        },
+        {
+            "question_text": "Why do developers prefer using Zsh (often with Oh My Zsh) over the default Bash shell?",
+            "options": [
+                "It executes commands significantly faster.",
+                "It comes with better autocompletion, theme support, and powerful plugins out of the box.",
+                "It is the only shell that supports Git.",
+                "It does not require text commands, relying on a GUI instead."
+            ],
+            "correct_answer": 1,
+            "explanation": "Zsh, especially when augmented with Oh My Zsh, provides a vastly improved developer experience with advanced autocompletion, visual themes (like agnoster), and numerous plugins."
         }
     ]
 }

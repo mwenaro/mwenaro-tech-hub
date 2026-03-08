@@ -2,7 +2,7 @@
     "title": "HTML5 Mastery",
     "has_project": false,
     "video_url": "https://www.youtube.com/watch?v=kUMe1FH4CHE",
-    "content": "## 🏗️ HTML5: The Skeleton of the Web\n\nHTML (HyperText Markup Language) provides the **structure** of a webpage. HTML5 is the current standard and focuses heavily on **semantic meaning** — using elements that describe WHAT content is, not just HOW it looks.\n\n---\n\n## 1️⃣ Document Structure\n\nEvery valid HTML5 document starts with this boilerplate:\n\n```html\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <meta name=\"description\" content=\"A description of this page\">\n  <title>My Page Title</title>\n  <link rel=\"stylesheet\" href=\"styles.css\">\n</head>\n<body>\n  <!-- Content goes here -->\n  <script src=\"app.js\" defer></script>\n</body>\n</html>\n```\n\n- `<!DOCTYPE html>`: Tells the browser it's HTML5.\n- `<head>`: Metadata, styles, and script links.\n- `<body>`: Everything visible on the page.\n\n---\n\n## 2️⃣ Semantic HTML5 Tags\n\nSemantic tags tell the browser (and web crawlers) what role content plays:\n\n| Tag | Purpose |\n|-----|---------|\n| `<header>` | Top of page or section (logo, nav) |\n| `<nav>` | Navigation links |\n| `<main>` | The primary content of the page (unique, only one per page) |\n| `<section>` | A thematic grouping of content |\n| `<article>` | A self-contained piece of content (blog post, news item) |\n| `<aside>` | Sidebar, related links |\n| `<footer>` | Bottom of page or section |\n| `<figure>` + `<figcaption>` | An image/diagram with a caption |\n\n**Why semantics matter:**\n- **SEO**: Search engines rank semantically correct pages higher.\n- **Accessibility**: Screen readers navigate by semantic tags.\n- **Maintainability**: Code is easier for humans to understand.\n\n---\n\n## 3️⃣ Headings: The Hierarchy\n\nHeadings (`<h1>` - `<h6>`) create a document outline:\n- **Rule**: Only ONE `<h1>` per page (the main topic).\n- Use headings in order (`h1` → `h2` → `h3`) — don't skip levels.\n\n```html\n<h1>MERN Fullstack Bootcamp</h1>\n  <h2>Phase 1: Web Foundations</h2>\n    <h3>Lesson 6: HTML5 Mastery</h3>\n```\n\nScreen readers and SEO tools read this hierarchy.\n\n---\n\n## 4️⃣ Links and Images\n\n```html\n<!-- Link: opens in same tab -->\n<a href=\"/about\">About Us</a>\n\n<!-- Link: opens in NEW tab -->\n<a href=\"https://google.com\" target=\"_blank\" rel=\"noopener noreferrer\">Google</a>\n\n<!-- Image: alt text is MANDATORY for accessibility -->\n<img src=\"profile.jpg\" alt=\"Mwero Abdalla profile photo\" width=\"300\">\n```\n\n`rel=\"noopener noreferrer\"` prevents security vulnerabilities when opening links in a new tab.\n\n---\n\n## 5️⃣ Lists\n\n```html\n<!-- Unordered (bullet points) -->\n<ul>\n  <li>HTML</li>\n  <li>CSS</li>\n</ul>\n\n<!-- Ordered (numbered) -->\n<ol>\n  <li>First, write HTML</li>\n  <li>Then, style with CSS</li>\n</ol>\n\n<!-- Definition list -->\n<dl>\n  <dt>API</dt>\n  <dd>Application Programming Interface</dd>\n</dl>\n```\n\n---\n\n## 6️⃣ Forms and User Input\n\nForms are essential for collecting user data:\n\n```html\n<form method=\"POST\" action=\"/submit\">\n  <label for=\"email\">Email:</label>\n  <input type=\"email\" id=\"email\" name=\"email\" required placeholder=\"you@example.com\">\n\n  <label for=\"password\">Password:</label>\n  <input type=\"password\" id=\"password\" name=\"password\" minlength=\"8\" required>\n\n  <label for=\"country\">Country:</label>\n  <select id=\"country\" name=\"country\">\n    <option value=\"ke\">Kenya</option>\n    <option value=\"ug\">Uganda</option>\n  </select>\n\n  <label for=\"bio\">Bio:</label>\n  <textarea id=\"bio\" name=\"bio\" rows=\"4\"></textarea>\n\n  <button type=\"submit\">Submit</button>\n</form>\n```\n\n**Input types:** `text`, `email`, `password`, `number`, `date`, `checkbox`, `radio`, `file`, `range`, `color`.\n\n**Validation attributes:** `required`, `minlength`, `maxlength`, `pattern`, `min`, `max`.\n\n---\n\n## 7️⃣ Media\n\n```html\n<video src=\"intro.mp4\" controls autoplay muted loop>\n  Your browser doesn't support video.\n</video>\n\n<audio src=\"podcast.mp3\" controls>\n  Your browser doesn't support audio.\n</audio>\n\n<!-- Embed external content -->\n<iframe width=\"560\" height=\"315\" \n  src=\"https://www.youtube.com/embed/abc123\"\n  title=\"YouTube video player\"\n  allowfullscreen>\n</iframe>\n```\n\n---\n\n## 8️⃣ Tables\n\n```html\n<table>\n  <thead>\n    <tr>\n      <th>Name</th>\n      <th>Score</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <td>Mwero</td>\n      <td>95%</td>\n    </tr>\n  </tbody>\n</table>\n```\n\n---\n\n## 9️⃣ Data Attributes\n\nCustom HTML attributes for storing extra data:\n\n```html\n<button data-user-id=\"123\" data-action=\"delete\">Delete User</button>\n```\n\n```javascript\nconst btn = document.querySelector('button')\nconsole.log(btn.dataset.userId)   // \"123\"\nconsole.log(btn.dataset.action)   // \"delete\"\n```\n\n---\n\n## �� Key Rules\n\n| Rule | Why It Matters |\n|------|---------------|\n| Only one `<h1>` per page | SEO and accessibility |\n| Always include `alt` on images | Accessibility and SEO |\n| Use semantic tags | Readability, SEO, accessibility |\n| Match every `<label>` to an `<input>` via `for`/`id` | Accessibility (clicking label focuses input) |\n| Use `rel=\"noopener\"` on external links | Security |",
+    "content": "## \ud83c\udfd7\ufe0f HTML5: The Skeleton of the Web\n\nHTML (HyperText Markup Language) provides the **structure** of a webpage. HTML5 is the current standard and focuses heavily on **semantic meaning** \u2014 using elements that describe WHAT content is, not just HOW it looks.\n\n---\n\n## 1\ufe0f\u20e3 Document Structure\n\nEvery valid HTML5 document starts with this boilerplate:\n\n```html\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <meta name=\"description\" content=\"A description of this page\">\n  <title>My Page Title</title>\n  <link rel=\"stylesheet\" href=\"styles.css\">\n</head>\n<body>\n  <!-- Content goes here -->\n  <script src=\"app.js\" defer></script>\n</body>\n</html>\n```\n\n- `<!DOCTYPE html>`: Tells the browser it's HTML5.\n- `<head>`: Metadata, styles, and script links.\n- `<body>`: Everything visible on the page.\n\n---\n\n## 2\ufe0f\u20e3 Semantic HTML5 Tags\n\nSemantic tags tell the browser (and web crawlers) what role content plays:\n\n| Tag | Purpose |\n|-----|---------|\n| `<header>` | Top of page or section (logo, nav) |\n| `<nav>` | Navigation links |\n| `<main>` | The primary content of the page (unique, only one per page) |\n| `<section>` | A thematic grouping of content |\n| `<article>` | A self-contained piece of content (blog post, news item) |\n| `<aside>` | Sidebar, related links |\n| `<footer>` | Bottom of page or section |\n| `<figure>` + `<figcaption>` | An image/diagram with a caption |\n\n**Why semantics matter:**\n- **SEO**: Search engines rank semantically correct pages higher.\n- **Accessibility**: Screen readers navigate by semantic tags.\n- **Maintainability**: Code is easier for humans to understand.\n\n---\n\n## 3\ufe0f\u20e3 Headings: The Hierarchy\n\nHeadings (`<h1>` - `<h6>`) create a document outline:\n- **Rule**: Only ONE `<h1>` per page (the main topic).\n- Use headings in order (`h1` \u2192 `h2` \u2192 `h3`) \u2014 don't skip levels.\n\n```html\n<h1>MERN Fullstack Bootcamp</h1>\n  <h2>Phase 1: Web Foundations</h2>\n    <h3>Lesson 6: HTML5 Mastery</h3>\n```\n\nScreen readers and SEO tools read this hierarchy.\n\n---\n\n## 4\ufe0f\u20e3 Links and Images\n\n```html\n<!-- Link: opens in same tab -->\n<a href=\"/about\">About Us</a>\n\n<!-- Link: opens in NEW tab -->\n<a href=\"https://google.com\" target=\"_blank\" rel=\"noopener noreferrer\">Google</a>\n\n<!-- Image: alt text is MANDATORY for accessibility -->\n<img src=\"profile.jpg\" alt=\"Mwero Abdalla profile photo\" width=\"300\">\n```\n\n`rel=\"noopener noreferrer\"` prevents security vulnerabilities when opening links in a new tab.\n\n---\n\n## 5\ufe0f\u20e3 Lists\n\n```html\n<!-- Unordered (bullet points) -->\n<ul>\n  <li>HTML</li>\n  <li>CSS</li>\n</ul>\n\n<!-- Ordered (numbered) -->\n<ol>\n  <li>First, write HTML</li>\n  <li>Then, style with CSS</li>\n</ol>\n\n<!-- Definition list -->\n<dl>\n  <dt>API</dt>\n  <dd>Application Programming Interface</dd>\n</dl>\n```\n\n---\n\n## 6\ufe0f\u20e3 Forms and User Input\n\nForms are essential for collecting user data:\n\n```html\n<form method=\"POST\" action=\"/submit\">\n  <label for=\"email\">Email:</label>\n  <input type=\"email\" id=\"email\" name=\"email\" required placeholder=\"you@example.com\">\n\n  <label for=\"password\">Password:</label>\n  <input type=\"password\" id=\"password\" name=\"password\" minlength=\"8\" required>\n\n  <label for=\"country\">Country:</label>\n  <select id=\"country\" name=\"country\">\n    <option value=\"ke\">Kenya</option>\n    <option value=\"ug\">Uganda</option>\n  </select>\n\n  <label for=\"bio\">Bio:</label>\n  <textarea id=\"bio\" name=\"bio\" rows=\"4\"></textarea>\n\n  <button type=\"submit\">Submit</button>\n</form>\n```\n\n**Input types:** `text`, `email`, `password`, `number`, `date`, `checkbox`, `radio`, `file`, `range`, `color`.\n\n**Validation attributes:** `required`, `minlength`, `maxlength`, `pattern`, `min`, `max`.\n\n---\n\n## 7\ufe0f\u20e3 Media\n\n```html\n<video src=\"intro.mp4\" controls autoplay muted loop>\n  Your browser doesn't support video.\n</video>\n\n<audio src=\"podcast.mp3\" controls>\n  Your browser doesn't support audio.\n</audio>\n\n<!-- Embed external content -->\n<iframe width=\"560\" height=\"315\" \n  src=\"https://www.youtube.com/embed/abc123\"\n  title=\"YouTube video player\"\n  allowfullscreen>\n</iframe>\n```\n\n---\n\n## 8\ufe0f\u20e3 Tables\n\n```html\n<table>\n  <thead>\n    <tr>\n      <th>Name</th>\n      <th>Score</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <td>Mwero</td>\n      <td>95%</td>\n    </tr>\n  </tbody>\n</table>\n```\n\n---\n\n## 9\ufe0f\u20e3 Data Attributes\n\nCustom HTML attributes for storing extra data:\n\n```html\n<button data-user-id=\"123\" data-action=\"delete\">Delete User</button>\n```\n\n```javascript\nconst btn = document.querySelector('button')\nconsole.log(btn.dataset.userId)   // \"123\"\nconsole.log(btn.dataset.action)   // \"delete\"\n```\n\n---\n\n## \ufffd\ufffd Key Rules\n\n| Rule | Why It Matters |\n|------|---------------|\n| Only one `<h1>` per page | SEO and accessibility |\n| Always include `alt` on images | Accessibility and SEO |\n| Use semantic tags | Readability, SEO, accessibility |\n| Match every `<label>` to an `<input>` via `for`/`id` | Accessibility (clicking label focuses input) |\n| Use `rel=\"noopener\"` on external links | Security |",
     "questions": [
         {
             "question_text": "Which HTML5 element is used to specify a footer for a document or section?",
@@ -58,6 +58,336 @@
             ],
             "correct_answer": 2,
             "explanation": "<ul> stands for Unordered List, typically displayed with bullet points."
+        },
+        {
+            "question_text": "Which HTML5 tag is most appropriate for a standalone, distributable piece of content like a blog post or news story?",
+            "options": [
+                "<article>",
+                "<section>",
+                "<div>",
+                "<aside>"
+            ],
+            "correct_answer": 0,
+            "explanation": "The <article> tag specifies independent, self-contained content that could be distributed independently, like a blog post or news story."
+        },
+        {
+            "question_text": "What is the purpose of the <aside> element in HTML5?",
+            "options": [
+                "To define the main content of a page.",
+                "To display content that is tangentially related to the content around it (like a sidebar).",
+                "To create a navigation menu.",
+                "To embed a video."
+            ],
+            "correct_answer": 1,
+            "explanation": "The <aside> element is used to represent content that is indirectly related to the main content, such as sidebars or call-out boxes."
+        },
+        {
+            "question_text": "Which HTML attribute specifies that an input field must be filled out before submitting the form?",
+            "options": [
+                "mandatory",
+                "required",
+                "validate",
+                "important"
+            ],
+            "correct_answer": 1,
+            "explanation": "The 'required' attribute ensures the browser will prevent form submission if the associated input field is left empty."
+        },
+        {
+            "question_text": "Which element provides a sensible wrapper for a piece of media (like an image) and its caption?",
+            "options": [
+                "<media> & <text>",
+                "<picture> & <caption>",
+                "<figure> & <figcaption>",
+                "<div> & <p>"
+            ],
+            "correct_answer": 2,
+            "explanation": "The <figure> tag encapsulates media, and the <figcaption> provides a semantic caption for it."
+        },
+        {
+            "question_text": "In HTML tables, what purpose does the <th> element serve?",
+            "options": [
+                "Table Header: It defines a header cell, usually rendered bold and centered.",
+                "Table Hover: It adds hover effects to rows.",
+                "Table Horizontal: It creates a horizontal line.",
+                "Table Height: It sets vertical spacing."
+            ],
+            "correct_answer": 0,
+            "explanation": "The <th> tag stands for 'table header' and semantically marks the cell as a header for a column or row."
+        },
+        {
+            "question_text": "Which input type is new in HTML5 specifically for entering a color?",
+            "options": [
+                "<input type='hex'>",
+                "<input type='paint'>",
+                "<input type='color'>",
+                "<input type='rgb'>"
+            ],
+            "correct_answer": 2,
+            "explanation": "HTML5 introduced <input type='color'>, which typically renders a color picker widget in modern browsers."
+        },
+        {
+            "question_text": "What does the 'action' attribute on a <form> element specify?",
+            "options": [
+                "The JavaScript function to run on submission.",
+                "The URL or endpoint where the form data should be sent.",
+                "The HTTP method (GET or POST) to use.",
+                "The validation rules for the form fields."
+            ],
+            "correct_answer": 1,
+            "explanation": "The 'action' attribute determines the destination URL where the browser will send the form data upon submission."
+        },
+        {
+            "question_text": "Which tag encapsulates the introductory content or navigation links at the top of a document or section?",
+            "options": [
+                "<nav>",
+                "<body>",
+                "<top>",
+                "<header>"
+            ],
+            "correct_answer": 3,
+            "explanation": "The <header> element represents introductory content, typically containing a logo, heading, or navigation links."
+        },
+        {
+            "question_text": "How do you embed audio in an HTML5 page?",
+            "options": [
+                "<music src='song.mp3'>",
+                "<sound file='song.mp3'>",
+                "<audio src='song.mp3' controls>",
+                "<embed type='audio' src='song'>"
+            ],
+            "correct_answer": 2,
+            "explanation": "The <audio> tag is standard in HTML5 for embedding sound, and the 'controls' attribute provides play/pause buttons."
+        },
+        {
+            "question_text": "What is the function of the `data-*` attributes in HTML5?",
+            "options": [
+                "To style the element automatically based on the data.",
+                "To store custom data private to the page or application, accessible via JavaScript.",
+                "To send hidden inputs in a form submission automatically.",
+                "To link to an external database directly from HTML."
+            ],
+            "correct_answer": 1,
+            "explanation": "Data attributes (like data-id or data-role) allow developers to embed custom metadata within standard HTML elements for use in JavaScript."
+        },
+        {
+            "question_text": "Which HTML5 tag is most appropriate for a standalone, distributable piece of content like a blog post or news story?",
+            "options": [
+                "<article>",
+                "<section>",
+                "<div>",
+                "<aside>"
+            ],
+            "correct_answer": 0,
+            "explanation": "The <article> tag specifies independent, self-contained content that could be distributed independently, like a blog post or news story."
+        },
+        {
+            "question_text": "What is the purpose of the <aside> element in HTML5?",
+            "options": [
+                "To define the main content of a page.",
+                "To display content that is tangentially related to the content around it (like a sidebar).",
+                "To create a navigation menu.",
+                "To embed a video."
+            ],
+            "correct_answer": 1,
+            "explanation": "The <aside> element is used to represent content that is indirectly related to the main content, such as sidebars or call-out boxes."
+        },
+        {
+            "question_text": "Which HTML attribute specifies that an input field must be filled out before submitting the form?",
+            "options": [
+                "mandatory",
+                "required",
+                "validate",
+                "important"
+            ],
+            "correct_answer": 1,
+            "explanation": "The 'required' attribute ensures the browser will prevent form submission if the associated input field is left empty."
+        },
+        {
+            "question_text": "Which element provides a sensible wrapper for a piece of media (like an image) and its caption?",
+            "options": [
+                "<media> & <text>",
+                "<picture> & <caption>",
+                "<figure> & <figcaption>",
+                "<div> & <p>"
+            ],
+            "correct_answer": 2,
+            "explanation": "The <figure> tag encapsulates media, and the <figcaption> provides a semantic caption for it."
+        },
+        {
+            "question_text": "In HTML tables, what purpose does the <th> element serve?",
+            "options": [
+                "Table Header: It defines a header cell, usually rendered bold and centered.",
+                "Table Hover: It adds hover effects to rows.",
+                "Table Horizontal: It creates a horizontal line.",
+                "Table Height: It sets vertical spacing."
+            ],
+            "correct_answer": 0,
+            "explanation": "The <th> tag stands for 'table header' and semantically marks the cell as a header for a column or row."
+        },
+        {
+            "question_text": "Which input type is new in HTML5 specifically for entering a color?",
+            "options": [
+                "<input type='hex'>",
+                "<input type='paint'>",
+                "<input type='color'>",
+                "<input type='rgb'>"
+            ],
+            "correct_answer": 2,
+            "explanation": "HTML5 introduced <input type='color'>, which typically renders a color picker widget in modern browsers."
+        },
+        {
+            "question_text": "What does the 'action' attribute on a <form> element specify?",
+            "options": [
+                "The JavaScript function to run on submission.",
+                "The URL or endpoint where the form data should be sent.",
+                "The HTTP method (GET or POST) to use.",
+                "The validation rules for the form fields."
+            ],
+            "correct_answer": 1,
+            "explanation": "The 'action' attribute determines the destination URL where the browser will send the form data upon submission."
+        },
+        {
+            "question_text": "Which tag encapsulates the introductory content or navigation links at the top of a document or section?",
+            "options": [
+                "<nav>",
+                "<body>",
+                "<top>",
+                "<header>"
+            ],
+            "correct_answer": 3,
+            "explanation": "The <header> element represents introductory content, typically containing a logo, heading, or navigation links."
+        },
+        {
+            "question_text": "How do you embed audio in an HTML5 page?",
+            "options": [
+                "<music src='song.mp3'>",
+                "<sound file='song.mp3'>",
+                "<audio src='song.mp3' controls>",
+                "<embed type='audio' src='song'>"
+            ],
+            "correct_answer": 2,
+            "explanation": "The <audio> tag is standard in HTML5 for embedding sound, and the 'controls' attribute provides play/pause buttons."
+        },
+        {
+            "question_text": "What is the function of the data-* attributes in HTML5?",
+            "options": [
+                "To style the element automatically based on the data.",
+                "To store custom data private to the page or application, accessible via JavaScript.",
+                "To send hidden inputs in a form submission automatically.",
+                "To link to an external database directly from HTML."
+            ],
+            "correct_answer": 1,
+            "explanation": "Data attributes (like data-id or data-role) allow developers to embed custom metadata within standard HTML elements for use in JavaScript."
+        },
+        {
+            "question_text": "Which HTML5 tag is most appropriate for a standalone, distributable piece of content like a blog post or news story?",
+            "options": [
+                "<article>",
+                "<section>",
+                "<div>",
+                "<aside>"
+            ],
+            "correct_answer": 0,
+            "explanation": "The <article> tag specifies independent, self-contained content that could be distributed independently, like a blog post or news story."
+        },
+        {
+            "question_text": "What is the purpose of the <aside> element in HTML5?",
+            "options": [
+                "To define the main content of a page.",
+                "To display content that is tangentially related to the content around it (like a sidebar).",
+                "To create a navigation menu.",
+                "To embed a video."
+            ],
+            "correct_answer": 1,
+            "explanation": "The <aside> element is used to represent content that is indirectly related to the main content, such as sidebars or call-out boxes."
+        },
+        {
+            "question_text": "Which HTML attribute specifies that an input field must be filled out before submitting the form?",
+            "options": [
+                "mandatory",
+                "required",
+                "validate",
+                "important"
+            ],
+            "correct_answer": 1,
+            "explanation": "The 'required' attribute ensures the browser will prevent form submission if the associated input field is left empty."
+        },
+        {
+            "question_text": "Which element provides a sensible wrapper for a piece of media (like an image) and its caption?",
+            "options": [
+                "<media> & <text>",
+                "<picture> & <caption>",
+                "<figure> & <figcaption>",
+                "<div> & <p>"
+            ],
+            "correct_answer": 2,
+            "explanation": "The <figure> tag encapsulates media, and the <figcaption> provides a semantic caption for it."
+        },
+        {
+            "question_text": "In HTML tables, what purpose does the <th> element serve?",
+            "options": [
+                "Table Header: It defines a header cell, usually rendered bold and centered.",
+                "Table Hover: It adds hover effects to rows.",
+                "Table Horizontal: It creates a horizontal line.",
+                "Table Height: It sets vertical spacing."
+            ],
+            "correct_answer": 0,
+            "explanation": "The <th> tag stands for 'table header' and semantically marks the cell as a header for a column or row."
+        },
+        {
+            "question_text": "Which input type is new in HTML5 specifically for entering a color?",
+            "options": [
+                "<input type='hex'>",
+                "<input type='paint'>",
+                "<input type='color'>",
+                "<input type='rgb'>"
+            ],
+            "correct_answer": 2,
+            "explanation": "HTML5 introduced <input type='color'>, which typically renders a color picker widget in modern browsers."
+        },
+        {
+            "question_text": "What does the 'action' attribute on a <form> element specify?",
+            "options": [
+                "The JavaScript function to run on submission.",
+                "The URL or endpoint where the form data should be sent.",
+                "The HTTP method (GET or POST) to use.",
+                "The validation rules for the form fields."
+            ],
+            "correct_answer": 1,
+            "explanation": "The 'action' attribute determines the destination URL where the browser will send the form data upon submission."
+        },
+        {
+            "question_text": "Which tag encapsulates the introductory content or navigation links at the top of a document or section?",
+            "options": [
+                "<nav>",
+                "<body>",
+                "<top>",
+                "<header>"
+            ],
+            "correct_answer": 3,
+            "explanation": "The <header> element represents introductory content, typically containing a logo, heading, or navigation links."
+        },
+        {
+            "question_text": "How do you embed audio in an HTML5 page?",
+            "options": [
+                "<music src='song.mp3'>",
+                "<sound file='song.mp3'>",
+                "<audio src='song.mp3' controls>",
+                "<embed type='audio' src='song'>"
+            ],
+            "correct_answer": 2,
+            "explanation": "The <audio> tag is standard in HTML5 for embedding sound, and the 'controls' attribute provides play/pause buttons."
+        },
+        {
+            "question_text": "What is the function of the data-* attributes in HTML5?",
+            "options": [
+                "To style the element automatically based on the data.",
+                "To store custom data private to the page or application, accessible via JavaScript.",
+                "To send hidden inputs in a form submission automatically.",
+                "To link to an external database directly from HTML."
+            ],
+            "correct_answer": 1,
+            "explanation": "Data attributes (like data-id or data-role) allow developers to embed custom metadata within standard HTML elements for use in JavaScript."
         }
     ]
 }
