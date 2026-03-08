@@ -11,7 +11,8 @@ import {
     UsersRound,
     Settings,
     FileQuestion,
-    Bell
+    Bell,
+    Award
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -122,6 +123,11 @@ export function AdminSidebar({ user, ...props }: AdminSidebarProps) {
             url: "/admin/notifications",
             icon: Bell,
             badge: unreadNotifications > 0 ? unreadNotifications : null
+        },
+        {
+            title: "Certificates",
+            url: "/admin/settings/certificates",
+            icon: Award,
         },
     ]
 
