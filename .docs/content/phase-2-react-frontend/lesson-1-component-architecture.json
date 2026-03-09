@@ -1,0 +1,182 @@
+{
+    "title": "Component Architecture",
+    "has_project": false,
+    "video_url": "https://www.youtube.com/watch?v=y6Dsz8U3oH0",
+    "content": "# ⚛️ React Basics: Components, Props, and JSX\n\nModern web applications are incredibly complex. If you try to build Facebook using pure HTML and `document.createElement`, your codebase will collapse into an unmaintainable nightmare within weeks.\n\n**React.js**, developed by Facebook, revolutionized the industry by introducing two core concepts: **Components** (breaking the UI into reusable Lego blocks) and a **Declarative Paradigm** (telling React *what* you want the UI to look like, rather than *how* to build it step-by-step).\n\n---\n\n## 1️⃣ Component-Based Architecture\n\nBefore React, developers built web pages as single, massive files (`index.html`).\nReact forces you to think of your user interface as a collection of independent, isolated **Components**.\n\n```mermaid\ngraph TD\n    A[App Component] --> B[Navbar Component]\n    A --> C[Feed Component]\n    A --> D[Sidebar Component]\n    C --> E[Post Component]\n    C --> F[Post Component]\n```\n\n### What is a Component?\nA React Component is mathematically just a regular JavaScript function that returns HTML.\n\n```javascript\n// A valid React Component\nfunction WelcomeMessage() {\n    return <h1>Hello, Mwero!</h1>;\n}\n\n// Rendering it somewhere else\nfunction App() {\n    return (\n        <div>\n            <WelcomeMessage />\n            <WelcomeMessage />\n        </div>\n    );\n}\n```\nNotice that by creating `<WelcomeMessage />`, you essentially invented a brand new custom HTML tag that you can reuse infinitely.\n\n---\n\n## 2️⃣ JSX: JavaScript XML\n\nIn the code above, we returned `<h1>` tags directly inside a JavaScript function. Historically, this was illegal. JavaScript cannot understand HTML tags.\n\n**JSX (JavaScript XML)** is a syntactic extension. It allows us to write HTML-like code inside JS files. Under the hood, a compiler (like Babel) intercepts the JSX and translates it into massive `React.createElement()` function calls before it reaches the browser.\n\n### The 3 Rules of JSX\n**1. You must return a single root element.**\n```javascript\n// ❌ INVALID: Returning two sibling elements\nreturn (\n    <h1>Title</h1>\n    <p>Subtitle</p>\n);\n\n// ✅ VALID: Wrapping them in a Fragment (which renders no HTML node)\nreturn (\n    <>\n        <h1>Title</h1>\n        <p>Subtitle</p>\n    </>\n);\n```\n\n**2. You MUST close all tags.**\nIn HTML, `<img src=\"a.jpg\">` and `<input>` are fine. In JSX, they will crash your app. They must be self-closing: `<img />` and `<input />`.\n\n**3. CamelCase for Attributes.**\nHTML attributes like `class` and `onclick` become `className` and `onClick`.\n```javascript\n// ❌ HTML\n<button class=\"btn\" onclick=\"sayHi()\">Click</button>\n\n// ✅ JSX\n<button className=\"btn\" onClick={sayHi}>Click</button>\n```\n\n---\n\n## 3️⃣ Interpolation: Injecting JavaScript into JSX\n\nJSX allows you to escape out of HTML mode and back into JavaScript mode by dropping curly braces `{}` anywhere.\n\n```javascript\nfunction UserProfile() {\n    const username = \"Admin\";\n    const age = 30;\n    const isVerified = true;\n\n    return (\n        <div className=\"card\">\n            {/* Injecting raw variables */}\n            <h1>{username}</h1>\n            <p>Age in 5 years: {age + 5}</p>\n            \n            {/* Conditional Rendering (The Ternary Operator) */}\n            {isVerified ? <span className=\"badge\">Verified</span> : null}\n            \n            {/* Conditional Rendering (The && Operator) */}\n            {isVerified && <p>Thank you for verifying!</p>}\n        </div>\n    );\n}\n```\n\n---\n\n## 4️⃣ Props: Passing Data Downward\n\nComponents are isolated. The `<Post />` component knows nothing about the `<App />` component. How do we pass the username from the App down into the Post?\n\nWe use **Props** (Properties). Props are how data flows downwards in React.\n\n```javascript\n// 1. Passing the props\nfunction App() {\n    return (\n        <div className=\"dashboard\">\n            <UserBadge name=\"Alice\" role=\"Admin\" />\n            <UserBadge name=\"Bob\" role=\"User\" />\n        </div>\n    );\n}\n\n// 2. Receiving the props (Props is just a massive Object)\nfunction UserBadge(props) {\n    return (\n        <div className=\"badge\">\n            <h2>{props.name}</h2>\n            <p>Role: {props.role}</p>\n        </div>\n    );\n}\n```\n\n### The Professional Way: Destructuring Props\nTyping `props.` 100 times per file is exhausting. Professionals immediately destructure the object in the function parameters.\n\n```javascript\n/* ✅ Destructured Props */\nfunction UserBadge({ name, role }) {\n    return (\n        <div className=\"badge\">\n            <h2>{name}</h2>\n            <p>Role: {role}</p>\n        </div>\n    );\n}\n```\n\n---\n\n## 5️⃣ Rendering Lists (`.map`)\n\nWhen fetching 100 products from a database, you cannot manually write 100 `<ProductCard />` tags. You must loop over the data array.\nIn React, we use the `Array.map()` method to transform an array of data into an array of JSX elements.\n\n```javascript\nfunction ShoppingCart() {\n    const items = [\"Apples\", \"Bananas\", \"Milk\"];\n\n    return (\n        <ul>\n            {items.map((item, index) => {\n                // Warning: Every item in a mapped list MUST have a unique 'key' prop!\n                return <li key={index}>{item}</li>\n            })}\n        </ul>\n    );\n}\n```\n*Note: Using the array `index` as a key is frowned upon in dynamic lists that delete items. Always try to use a unique database ID like `key={item.id}`.*\n\n---\n\n## 💡 Summary Checklist\n\n- [ ] I understand that a Component is just a JavaScript function returning JSX.\n- [ ] I always wrap multiple sibling elements in a `<> Fragment </>`.\n- [ ] I use `className` instead of `class` in React.\n- [ ] I use `{}` curlies to inject JS variables and logic into JSX.\n- [ ] I know that Props flow one direction: Downward from Parent to Child.\n- [ ] I destructure my `{ props }` for cleaner code.\n- [ ] I always provide a unique `key` prop when rendering lists with `.map()`.\n",
+    "questions": [
+        {
+            "question_text": "What is the primary way to pass data from a parent component to a child component in React?",
+            "options": [
+                "State",
+                "Props",
+                "Context",
+                "Events"
+            ],
+            "correct_answer": 1,
+            "explanation": "Props (short for properties) are the standard way to pass data down the component tree."
+        },
+        {
+            "question_text": "What is the primary benefit of 'Component-Based Architecture'?",
+            "options": [
+                "It makes the code run faster",
+                "It allows you to build complex UIs by composing small, isolated, and reusable pieces of code",
+                "It eliminates the need for CSS",
+                "It only works with databases"
+            ],
+            "correct_answer": 1,
+            "explanation": "Components promote reusability and make large codebases easier to maintain."
+        },
+        {
+            "question_text": "In React, what are 'Props'?",
+            "options": [
+                "Internal variables inside a component",
+                "External inputs passed to a component from its parent",
+                "A way to store data in a database",
+                "The CSS styles applied to a component"
+            ],
+            "correct_answer": 1,
+            "explanation": "Props are read-only to the child component and allow parent-to-child communication."
+        },
+        {
+            "question_text": "What is 'JSX'?",
+            "options": [
+                "A type of CSS library",
+                "A syntax extension for JavaScript that looks like HTML",
+                "A database query language",
+                "A new version of Java"
+            ],
+            "correct_answer": 1,
+            "explanation": "JSX allows you to write the UI structure directly within your JavaScript code."
+        },
+        {
+            "question_text": "Which rule is mandatory for React component names?",
+            "options": [
+                "They must start with an underscore",
+                "They must be in lowercase",
+                "They must start with an Uppercase letter",
+                "They must be shorter than 10 characters"
+            ],
+            "correct_answer": 2,
+            "explanation": "React uses the uppercase first letter to distinguish between custom components and standard HTML tags."
+        },
+        {
+            "question_text": "What is the 'Virtual DOM'?",
+            "options": [
+                "A 3D representation of the website",
+                "A lightweight, in-memory copy of the real DOM used by React for performance optimization",
+                "A separate server for images",
+                "A browser plugin"
+            ],
+            "correct_answer": 1,
+            "explanation": "React compares the Virtual DOM with the real DOM and only updates the parts that changed (Reconciliation)."
+        },
+        {
+            "question_text": "How do you pass a value named 'title' into a component named 'Header'?",
+            "options": [
+                "<Header title='My Website' />",
+                "<Header {title: 'My Website'} />",
+                "<Header @title='My Website' />",
+                "<Header TITLE='My Website' />"
+            ],
+            "correct_answer": 0,
+            "explanation": "Props are passed like HTML attributes."
+        },
+        {
+            "question_text": "What does it mean that React data flow is 'Unidirectional'?",
+            "options": [
+                "Data can only be changed by the user",
+                "Data flows only from parent to child via props",
+                "Data can only move horizontally between siblings",
+                "Data never changes"
+            ],
+            "correct_answer": 1,
+            "explanation": "This makes behavior more predictable and easier to debug."
+        },
+        {
+            "question_text": "What is 'Lifting State Up'?",
+            "options": [
+                "Moving state from a parent to a child",
+                "Moving state from a child to its nearest common ancestor so multiple children can share it",
+                "Deleting state to save memory",
+                "Sending state to a server"
+            ],
+            "correct_answer": 1,
+            "explanation": "This is the standard way to share data between sibling components in React."
+        },
+        {
+            "question_text": "In JSX, how do you embed a variable named 'username'?",
+            "options": [
+                "<span>${username}</span>",
+                "<span>(username)</span>",
+                "<span>{username}</span>",
+                "<span>[[username]]</span>"
+            ],
+            "correct_answer": 2,
+            "explanation": "Curly braces {} are used to execute JavaScript logic inside JSX."
+        },
+        {
+            "question_text": "What is the purpose of 'Fragments' (<>...</>)?",
+            "options": [
+                "To speed up the app",
+                "To group multiple elements without adding an extra unnecessary <div> to the DOM",
+                "To create animations",
+                "To hide elements"
+            ],
+            "correct_answer": 1,
+            "explanation": "Fragments keep the DOM tree cleaner."
+        },
+        {
+            "question_text": "True or False: A React component can return multiple sibling elements without a wrapper.",
+            "options": [
+                "True",
+                "False"
+            ],
+            "correct_answer": 1,
+            "explanation": "A component must return a single root element (or a Fragment)."
+        },
+        {
+            "question_text": "What is 'Composition' in React?",
+            "options": [
+                "Writing music with code",
+                "Using 'children' or specific props to pass components into other components",
+                "Merging two files together",
+                "A type of CSS layout"
+            ],
+            "correct_answer": 1,
+            "explanation": "Composition is preferred over inheritance for building flexible UI components."
+        },
+        {
+            "question_text": "How do you access the content between the opening and closing tags of a component?",
+            "options": [
+                "props.content",
+                "props.children",
+                "props.inner",
+                "props.body"
+            ],
+            "correct_answer": 1,
+            "explanation": "The 'children' prop is automatically populated with nested content."
+        },
+        {
+            "question_text": "Which of these is a functional component?",
+            "options": [
+                "class MyComp extends React.Component { ... }",
+                "function MyComp() { return <h1>Hi</h1>; }",
+                "const MyComp = <h1>Hi</h1>;",
+                "new React.Component()"
+            ],
+            "correct_answer": 1,
+            "explanation": "Functional components are now the standard in modern React development."
+        },
+        {
+            "question_text": "What is the difference between a Component and an Element in React?",
+            "options": [
+                "They are the same",
+                "A Component is a blueprint (function); an Element is a specific instance (returned object)",
+                "Components are in HTML, Elements are in JS",
+                "Elements are only for the backend"
+            ],
+            "correct_answer": 1,
+            "explanation": "Calling a component function produces a React element."
+        }
+    ]
+}

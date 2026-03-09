@@ -1,0 +1,184 @@
+{
+    "title": "DOM Manipulation",
+    "has_project": false,
+    "video_url": "https://www.youtube.com/watch?v=0ikeXp790p4",
+    "content": "# 🎯 DOM Manipulation: Bringing HTML to Life\n\nYour browser's engine does something incredibly complex when it reads an HTML file. It translates the raw text (`<h1>Title</h1>`) into an enormous JavaScript Object called the **DOM (Document Object Model)**. \n\nIf HTML is a physical building, the DOM is the blueprint inside the architect's computer. By using JavaScript to alter the blueprint in real-time, the building instantly morphs and changes its shape.\n\n---\n\n## 1️⃣ What is the DOM?\n\n```mermaid\ngraph TD\n    A[window (The Browser itself)] --> B[document (The HTML Page)]\n    B --> C[html]\n    C --> D[head]\n    C --> E[body]\n    E --> F[h1 'Welcome']\n    E --> G[div class='container']\n    G --> H[button 'Click Me']\n```\n\nThe `document` object is injected into your global scope by the browser. Through `document`, you have God-like power over the entire webpage.\n\n---\n\n## 2️⃣ Selecting Elements (Querying the DOM)\n\nBefore you can change a button's color to red, you have to mathematically target and select that specific button.\n\n**The Old APIs (Do not use these):**\n- `document.getElementById('save-btn')`\n- `document.getElementsByClassName('card')` (Returns a frustrating, hard-to-use HTMLCollection, not a real Array).\n\n**The Modern API (Use this exclusively):**\nThe `querySelector` methods allow you to pass exact CSS selectors directly into JavaScript.\n\n```javascript\n// Selects the FIRST element that matches the CSS class\nconst saveButton = document.querySelector('.btn-save');\n\n// Selects ALL elements that match, returning a NodeList (which behaves like an Array)\nconst allCards = document.querySelectorAll('.product-card');\n\nallCards.forEach(card => {\n    console.log(\"Found a card!\");\n});\n```\n\n---\n\n## 3️⃣ Manipulating Elements (Changing the Blueprint)\n\nOnce you grab an element, you can modify its text, its styling, or its structural classes.\n\n```html\n<h1 id=\"title\" class=\"text-gray\">Old Title</h1>\n```\n\n```javascript\nconst titleElement = document.querySelector('#title');\n\n// 1. Changing Text Content\ntitleElement.textContent = \"New Dynamic Title!\";\n\n// 2. Modifying Classes\n// Never use titleElement.className = \"text-red\", it aggressively deletes all old classes.\ntitleElement.classList.remove('text-gray');\ntitleElement.classList.add('text-red');\n\n// Toggle acts like a lightswitch. If it has the class, remove it. If it doesn't, add it.\ntitleElement.classList.toggle('is-hidden'); \n\n// 3. Modifying Inline Styles Directly (Use sparingly, classes are better)\ntitleElement.style.backgroundColor = \"blue\";\ntitleElement.style.padding = \"20px\"; // Notice CSS 'padding-top' becomes camelCase 'paddingTop' in JS.\n```\n\n---\n\n## 4️⃣ Event Listeners (Reacting to the User)\n\nA website that doesn't react to mouse clicks or keyboard typing is dead. **Events** are signals fired by the browser when something happens. We use `addEventListener` to tell JavaScript: \"Wait here, and execute this function specifically when the event happens.\"\n\n```javascript\nconst submitBtn = document.querySelector('.submit-btn');\n\nsubmitBtn.addEventListener('click', function(event) {\n    // This code only runs WHEN the user clicks the button\n    console.log(\"Button was heavily clicked!\");\n    \n    // The 'event' object contains massive amounts of data:\n    console.log(\"Mouse X coordinates:\", event.clientX);\n});\n```\n\n### The Default Behavior Problem\nMany HTML elements have deep-rooted default behaviors.\n- Clicking a `<a href=\"\">` instantly abandons the current page to navigate.\n- Clicking `<button type=\"submit\">` inside a form instantly triggers a hard page refresh, wiping out the DOM.\n\nAs Single Page Application developers, we must violently stop these default actions.\n\n```javascript\nconst form = document.querySelector('#login-form');\n\nform.addEventListener('submit', function(event) {\n    // 🛑 Stops the browser from refreshing the page!\n    event.preventDefault(); \n    \n    console.log(\"Form intercepted. Handing data to API locally instead.\");\n});\n```\n\n---\n\n## 5️⃣ Creating and Destroying Elements\n\nYou can conjure brand new HTML out of thin air using JavaScript and forcefully inject it into the page. This is the underlying mechanism of how React.js creates whole applications.\n\n```javascript\nconst container = document.querySelector('.list-container');\n\n// 1. Create a brand new, empty <li> floating in memory (not on the screen yet)\nconst newListItem = document.createElement('li');\n\n// 2. Modify it\nnewListItem.textContent = \"Purchased Milk\";\nnewListItem.classList.add('completed-task');\n\n// 3. Inject it into the DOM so the user can see it\ncontainer.appendChild(newListItem);\n\n// 4. Destroy an existing element forever\nconst oldItem = document.querySelector('.deprecated-task');\noldItem.remove();\n```\n\n---\n\n## 6️⃣ The DOM is Slow (Why React Changed the Game)\n\nWhile manipulating the DOM is powerful, it is computationally expensive. Every time you run `document.createElement`, the browser halts, recalculates all CSS rules, repaints pixels on the monitor, and struggles for milliseconds. Doing this 1,000 times in a loop will physically freeze the user's browser tab.\n\nThis slowness birthed tools like React.js. React uses a Virtual DOM—it does all the math in raw memory (which is blazing fast), figures out the absolute minimum number of DOM updates needed, and executes them instantly.\n\n---\n\n## 💡 Summary API Dictionary\n\n| Operation | The Modern JS Approach |\n|---|---|\n| **Find One Item** | `document.querySelector('#my-id')` |\n| **Find Many Items** | `document.querySelectorAll('.my-class')` |\n| **Change Text** | `element.textContent = \"Hello\"` |\n| **Manage CSS** | `element.classList.add()`, `element.classList.remove()` |\n| **Listen to Clicks** | `element.addEventListener('click', fn)` |\n| **Stop Refreshing** | `event.preventDefault()` |\n| **Delete Item** | `element.remove()` |\n",
+    "questions": [
+        {
+            "question_text": "What is the modern way to attach a click event to an element in JS?",
+            "options": [
+                "<button onclick='...'>",
+                "button.click(function() { ... })",
+                "button.addEventListener('click', () => { ... })",
+                "document.click(button)"
+            ],
+            "correct_answer": 2,
+            "explanation": "addEventListener is the modern standard, keeping your HTML clean and allowing multiple listeners on one element."
+        },
+        {
+            "question_text": "What does DOM stand for?",
+            "options": [
+                "Data Object Management",
+                "Document Object Model",
+                "Digital Optical Map",
+                "Desktop Oriented Media"
+            ],
+            "correct_answer": 1,
+            "explanation": "The DOM is a programming interface for HTML and XML documents."
+        },
+        {
+            "question_text": "Which method is the most efficient way to select a single element by its ID?",
+            "options": [
+                "document.getElementsByClassName()",
+                "document.querySelector()",
+                "document.getElementById()",
+                "document.tags()"
+            ],
+            "correct_answer": 2,
+            "explanation": "getElementById is highly optimized as IDs must be unique in a document."
+        },
+        {
+            "question_text": "How do you change the text content of an element?",
+            "options": [
+                "element.text = 'hello'",
+                "element.innerHTML = 'hello'",
+                "element.textContent = 'hello'",
+                "Both B and C"
+            ],
+            "correct_answer": 3,
+            "explanation": "textContent is safer for plain text, while innerHTML allows HTML tags."
+        },
+        {
+            "question_text": "Which method is used to listen for a user clicking a button?",
+            "options": [
+                "button.on('click')",
+                "button.addEventListener('click', callback)",
+                "button.watch('click')",
+                "button.click()"
+            ],
+            "correct_answer": 1,
+            "explanation": "addEventListener is the standard way to attach event handlers."
+        },
+        {
+            "question_text": "How do you add a CSS class 'active' to an element?",
+            "options": [
+                "element.class = 'active'",
+                "element.classList.add('active')",
+                "element.className += 'active'",
+                "element.style.add('active')"
+            ],
+            "correct_answer": 1,
+            "explanation": "classList provides convenient methods like add, remove, and toggle."
+        },
+        {
+            "question_text": "What is 'Event Bubbling'?",
+            "options": [
+                "When an event disappears after being called",
+                "When an event fires on a child element and then moves up to its parents",
+                "When an event happens multiple times a second",
+                "When the browser reloads after an event"
+            ],
+            "correct_answer": 1,
+            "explanation": "Events propagate from the inner-most target up through the DOM tree."
+        },
+        {
+            "question_text": "Which property would you use to change the background color of an element directly in JS?",
+            "options": [
+                "element.background = 'blue'",
+                "element.style.backgroundColor = 'blue'",
+                "element.css('background-color', 'blue')",
+                "element.style('color', 'blue')"
+            ],
+            "correct_answer": 1,
+            "explanation": "JS uses camelCase for CSS properties when using the .style object."
+        },
+        {
+            "question_text": "How do you create a completely new <div> element using JS?",
+            "options": [
+                "document.new('div')",
+                "document.createElement('div')",
+                "new Div()",
+                "document.makeElement('div')"
+            ],
+            "correct_answer": 1,
+            "explanation": "This creates the element in memory; you then need to append it to the DOM."
+        },
+        {
+            "question_text": "Which method adds a node as the last child of a parent element?",
+            "options": [
+                "parent.add(child)",
+                "parent.append(child)",
+                "parent.appendChild(child)",
+                "Both B and C"
+            ],
+            "correct_answer": 3,
+            "explanation": "appendChild is older; append is more modern and can handle multiple nodes or strings."
+        },
+        {
+            "question_text": "How do you prevent a form from submitting (reloading the page) after a click?",
+            "options": [
+                "event.stop()",
+                "event.preventDefault()",
+                "form.noSubmit()",
+                "return false"
+            ],
+            "correct_answer": 1,
+            "explanation": "preventDefault stops the browser's default behavior for that event."
+        },
+        {
+            "question_text": "What does a 'NodeList' returned by querySelectorAll differ from a normal 'Array'?",
+            "options": [
+                "It's not different at all",
+                "It's a collection of nodes that doesn't have all array methods like map() or filter() natively (though it has forEach)",
+                "It only contains text",
+                "It can only be used in CSS"
+            ],
+            "correct_answer": 1,
+            "explanation": "You often need to convert it to an array using Array.from() to use advanced methods."
+        },
+        {
+            "question_text": "Which property refers to the parent of the current element?",
+            "options": [
+                "element.parent",
+                "element.parentNode",
+                "element.parentElement",
+                "Both B and C"
+            ],
+            "correct_answer": 3,
+            "explanation": "Both parentNode and parentElement traverse up the tree."
+        },
+        {
+            "question_text": "How do you remove an element from the DOM?",
+            "options": [
+                "element.delete()",
+                "element.remove()",
+                "element.hide()",
+                "document.removeElement(element)"
+            ],
+            "correct_answer": 1,
+            "explanation": "The modern .remove() method is the easiest way to delete an element."
+        },
+        {
+            "question_text": "What does the 'value' property do on an <input> element?",
+            "options": [
+                "Sets the font weight",
+                "Gets or sets the current text typed by the user",
+                "Sets the price of the item",
+                "Shows a popup with the text"
+            ],
+            "correct_answer": 1,
+            "explanation": "Accessing .value is how you process user input in forms."
+        },
+        {
+            "question_text": "Which event fires when the entire HTML document has been fully loaded and parsed?",
+            "options": [
+                "click",
+                "load",
+                "DOMContentLoaded",
+                "ready"
+            ],
+            "correct_answer": 2,
+            "explanation": "DOMContentLoaded is the best time to start running JS that interacts with the DOM."
+        }
+    ]
+}

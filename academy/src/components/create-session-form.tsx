@@ -6,6 +6,15 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { useRouter } from 'next/navigation'
+import { 
+    Calendar, 
+    Clock, 
+    Link as LinkIcon, 
+    Type, 
+    AlignLeft, 
+    Users,
+    Sparkles
+} from 'lucide-react'
 
 interface CreateSessionFormProps {
     cohorts: { id: string; name: string }[]
@@ -45,59 +54,146 @@ export function CreateSessionForm({ cohorts }: CreateSessionFormProps) {
 
     if (cohorts.length === 0) {
         return (
-            <div className="text-sm text-red-600 bg-red-50 p-3 rounded-lg">
-                You are not assigned to any cohorts.
+            <div className="text-sm font-bold text-red-500 bg-red-500/5 p-4 rounded-2xl border border-red-500/10 flex items-center gap-3">
+                <Info className="w-5 h-5" />
+                No active cohorts lead by you.
             </div>
         )
     }
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-                <label className="text-sm font-medium mb-1 block">Cohort</label>
-                <select
-                    name="cohort_id"
-                    required
-                    className="w-full flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                    {cohorts.map(c => (
-                        <option key={c.id} value={c.id}>{c.name}</option>
-                    ))}
-                </select>
-            </div>
+        <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-4">
+                <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400 ml-1 flex items-center gap-2">
+                        <Users className="w-3 h-3" />
+                        Target Cohort
+                    </label>
+                    <select
+                        name="cohort_id"
+                        required
+                        className="w-full h-12 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-4 py-2 text-sm font-bold focus:ring-2 focus:ring-primary/20 outline-none transition-all appearance-none"
+                    >
+                        {cohorts.map(c => (
+                            <option key={c.id} value={c.id}>{c.name}</option>
+                        ))}
+                    </select>
+                </div>
 
-            <div>
-                <label className="text-sm font-medium mb-1 block">Title</label>
-                <Input name="title" required placeholder="e.g. React Hooks Deep Dive" />
-            </div>
+                <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400 ml-1 flex items-center gap-2">
+                        <Type className="w-3 h-3" />
+                        Session Title
+                    </label>
+                    <Input 
+                        name="title" 
+                        required 
+                        placeholder="e.g. Masterclass: Advanced State Management" 
+                        className="h-12 rounded-xl border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-4 font-bold placeholder:font-medium"
+                    />
+                </div>
 
-            <div>
-                <label className="text-sm font-medium mb-1 block">Start Time</label>
-                <Input type="datetime-local" name="start_time" required />
-            </div>
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400 ml-1 flex items-center gap-2">
+                            <Calendar className="w-3 h-3" />
+                            Date & Time
+                        </label>
+                        <Input 
+                            type="datetime-local" 
+                            name="start_time" 
+                            required 
+                            className="h-12 rounded-xl border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-4 font-bold"
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400 ml-1 flex items-center gap-2">
+                            <Clock className="w-3 h-3" />
+                            Min.
+                        </label>
+                        <Input 
+                            type="number" 
+                            name="duration_minutes" 
+                            defaultValue={60} 
+                            min={15} 
+                            required 
+                            className="h-12 rounded-xl border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-4 font-bold"
+                        />
+                    </div>
+                </div>
 
-            <div className="grid grid-cols-2 gap-4">
-                <div>
-                    <label className="text-sm font-medium mb-1 block">Duration (mins)</label>
-                    <Input type="number" name="duration_minutes" defaultValue={60} min={15} required />
+                <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400 ml-1 flex items-center gap-2">
+                        <LinkIcon className="w-3 h-3" />
+                        Meeting Link
+                    </label>
+                    <Input 
+                        type="url" 
+                        name="meeting_link" 
+                        placeholder="https://meet.google.com/..." 
+                        className="h-12 rounded-xl border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-4 font-bold placeholder:font-medium"
+                    />
+                </div>
+
+                <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400 ml-1 flex items-center gap-2">
+                        <AlignLeft className="w-3 h-3" />
+                        Agenda / Description
+                    </label>
+                    <Textarea 
+                        name="description" 
+                        placeholder="What will we cover? (Optional)" 
+                        className="min-h-[100px] rounded-2xl border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-4 font-medium resize-none"
+                    />
                 </div>
             </div>
 
-            <div>
-                <label className="text-sm font-medium mb-1 block">Meeting Link</label>
-                <Input type="url" name="meeting_link" placeholder="https://meet.google.com/..." />
-            </div>
+            {error && (
+                <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-xs font-bold animate-shake">
+                    {error}
+                </div>
+            )}
 
-            <div>
-                <label className="text-sm font-medium mb-1 block">Description</label>
-                <Textarea name="description" placeholder="Optional details..." />
-            </div>
-
-            {error && <p className="text-sm text-red-600">{error}</p>}
-
-            <Button type="submit" disabled={isSubmitting} className="w-full">
-                {isSubmitting ? 'Scheduling...' : 'Schedule Session'}
+            <Button 
+                type="submit" 
+                disabled={isSubmitting} 
+                className="w-full h-14 rounded-2xl bg-zinc-900 dark:bg-white text-white dark:text-black font-black text-lg hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-zinc-200 dark:shadow-none relative overflow-hidden group"
+            >
+                <span className="relative z-10 flex items-center justify-center gap-2">
+                    {isSubmitting ? (
+                        <>Broadcasting...</>
+                    ) : (
+                        <>
+                            Schedule Session
+                            <Sparkles className="w-4 h-4" />
+                        </>
+                    )}
+                </span>
+                {isSubmitting && (
+                    <div className="absolute inset-0 bg-primary/20 animate-pulse" />
+                )}
             </Button>
         </form>
+    )
+}
+
+function Info(props: any) {
+    return (
+        <svg
+            {...props}
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        >
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 16v-4" />
+            <path d="M12 8h.01" />
+        </svg>
     )
 }

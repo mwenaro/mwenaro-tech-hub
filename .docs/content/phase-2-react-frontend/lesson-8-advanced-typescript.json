@@ -1,0 +1,184 @@
+{
+    "title": "Advanced TypeScript: Interfaces & Generics",
+    "has_project": false,
+    "video_url": "https://www.youtube.com/watch?v=d56mG7DezGs",
+    "content": "# 🧠 Advanced TypeScript: Generics and Utilities\n\nUnderstanding `string`, `number`, and `interface` allows you to write safe TypeScript. However, Professional TypeScript involves building dynamic, reusable architectures specifically for large codebases. \n\nIn this lesson, we cover Advanced Types, Union operations, and the legendary Generics engine.\n\n---\n\n## 1️⃣ Union and Intersection Types\n\nSometimes a variable can legitimately be more than one thing. \n\n### Union Types (`|`)\nThe \"OR\" operator.\n```typescript\n// The payment ID can come from a database (number) or a Stripe API (string).\nlet paymentId: string | number;\n\npaymentId = 40192;     // ✅ Valid\npaymentId = \"ch_1234\"; // ✅ Valid\npaymentId = true;      // ❌ Error!\n```\n\n**Literal Types:** You can lock a variable not just to a type, but to specific *values*.\n```typescript\nlet userRole: \"Admin\" | \"Moderator\" | \"User\";\n\nuserRole = \"Admin\"; // ✅ \nuserRole = \"Hacker\"; // ❌ Error: Type '\"Hacker\"' is not assignable...\n```\n\n### Intersection Types (`&`)\nThe \"AND\" operator. It forcibly glues two blueprints together into a massive super-blueprint.\n\n```typescript\ninterface HasName { name: string; }\ninterface HasAge { age: number; }\n\n// A Person must mathematically fulfill BOTH contracts simultaneously.\ntype Person = HasName & HasAge;\n\nconst myFriend: Person = {\n    name: \"Alex\",\n    age: 28\n};\n```\n\n---\n\n## 2️⃣ Type Guards and Narrowing\n\nWhen using a Union type (`string | number`), TypeScript restricts you from doing anything dangerous.\n\n```typescript\nfunction processId(id: string | number) {\n    // ❌ ERROR! You can't use .toUpperCase() because what if 'id' is a number?\n    return id.toUpperCase(); \n}\n```\n\nTo fix this, you must explicitly **Narrow** the type using an `if` statement. TypeScript is smart enough to read the `if` logic and lift the restriction inside that block. This is called a **Type Guard**.\n\n```typescript\nfunction processId(id: string | number) {\n    if (typeof id === \"string\") {\n        // TypeScript KNOWS for a mathematical fact that 'id' is a string here!\n        return id.toUpperCase(); // ✅ Perfectly legal\n    } else {\n        // TypeScript KNOWS it must be a number here!\n        return id.toFixed(2);    // ✅ Perfectly legal\n    }\n}\n```\n\n---\n\n## 3️⃣ Generics: Variables for Types\n\n**Generics** are the hardest concept in TypeScript, but they are absolutely essential.\n\nImagine building a reusable Box that can temporarily hold anything.\n```typescript\n// ❌ The terrible way: using 'any' defeats the entire purpose of TypeScript\nclass Box {\n    contents: any;\n    getContents(): any { return this.contents; }\n}\n```\n\n**What is a Generic?**\nA Generic is a *temporary variable specifically for a Type*. It is visually represented by angle brackets `<T>`. \nInstead of hardcoding `string` or `number`, you tell TypeScript: \"When the developer uses this Box, *they* will pass a Type into `<T>`, and you will lock the Box to that Type.\"\n\n```typescript\n// The <TypeParameter> is waiting for input when the function is called!\nfunction createBox<T>(item: T): T {\n    return item;\n}\n\n// Pass 'string' into <T>. Everywhere in the function that says T instantly becomes 'string'.\nconst stringBox = createBox<string>(\"Hello\");\n\n// Pass 'number' into <T>.\nconst numberBox = createBox<number>(100);\n\n// Pass a complex interface!\ninterface Dog { bark: boolean; }\nconst dogBox = createBox<Dog>({ bark: true });\n```\nThis is the foundational logic used by React's `useState`. When you write `useState<string>(\"\")`, you are passing `string` into the `T` Generic of the Hook!\n\n---\n\n## 4️⃣ Enums (Enumerated Types)\n\nAn **Enum** allows you to declare a set of named constants. It makes your code highly readable instead of using random \"magic numbers\" or easily-misspelled strings across 10 files.\n\n```typescript\n// 1. Define the Options\nenum OrderStatus {\n    PENDING = 1,\n    PROCESSING = 2,\n    SHIPPED = 3,\n    DELIVERED = 4\n}\n\n// 2. Use them explicitly \nconst myOrder = {\n    id: 994,\n    status: OrderStatus.SHIPPED // Much safer than writing status: 3\n};\n\nif (myOrder.status === OrderStatus.DELIVERED) {\n    sendEmail();\n}\n```\n\n---\n\n## 5️⃣ Global Utility Types\n\nTypeScript gives you dozens of built-in operations to rapidly mutate architectures without writing them from scratch.\n\nImagine we have our core User interface:\n```typescript\ninterface User {\n    id: string;\n    email: string;\n    username: string;\n    avatarUrl: string;\n}\n```\n\n### `Partial<T>`\nMakes every single property inside `<T>` optional. Perfect for \"Update Profile\" forms where a user might only send 1 or 2 fields.\n```typescript\n// You want to update JUST the username. Partial makes id/email/avatar optional.\nconst updateData: Partial<User> = { username: \"NewName\" }; \n```\n\n### `Pick<T, Keys>`\nExtracts a handful of specific properties into a new mini-interface.\n```typescript\n// We only need the Name and Avatar for the top right corner of the Navbar\ntype NavbarUser = Pick<User, \"username\" | \"avatarUrl\">;\n```\n\n### `Omit<T, Keys>`\nThe opposite of Pick. Discards specific properties.\n```typescript\n// Copy everything, but strip out the confidential email info!\ntype PublicUser = Omit<User, \"email\">; \n```\n\n---\n\n## 💡 Summary Checklist for Advanced TS\n\n- [ ] I actively avoid using `any`. I use Generics `<T>` to keep reusable logic strongly typed.\n- [ ] I understand how to use `|` (Union) to grant multiple options, and `&` (Intersection) to merge blueprints.\n- [ ] I always use `typeof` Type Guards to safely narrow Unions.\n- [ ] I use `Partial`, `Pick`, and `Omit` to effortlessly derive DTOs (Data Transfer Objects) instead of copying and pasting the main Interface.\n",
+    "questions": [
+        {
+            "question_text": "Which TypeScript feature allows a function to work with multiple data types while maintaining strict type safety?",
+            "options": [
+                "Any type",
+                "Interfaces",
+                "Generics",
+                "Unions"
+            ],
+            "correct_answer": 2,
+            "explanation": "Generics allow you to create reusable components that work with a variety of types rather than a single one."
+        },
+        {
+            "question_text": "What are 'Generics' (<T>) in TypeScript?",
+            "options": [
+                "A type of CSS variable",
+                "A way to create reusable components/functions that work with different types while maintaining safety",
+                "A library for numbers",
+                "A new way to write loops"
+            ],
+            "correct_answer": 1,
+            "explanation": "Think of Generics as 'passing a type as an argument' to a function or class."
+        },
+        {
+            "question_text": "What does the 'Partial<T>' utility type do?",
+            "options": [
+                "Deletes half of the type",
+                "Returns a new type where all properties of T are optional",
+                "Allows only part of the functions to run",
+                "Makes the code run partial-ly"
+            ],
+            "correct_answer": 1,
+            "explanation": "Extremely useful for update functions where you only send changed fields."
+        },
+        {
+            "question_text": "What does the 'Readonly<T>' utility type do?",
+            "options": [
+                "Makes the screen brighter",
+                "Prevents the properties of an object from being modified after creation",
+                "Makes the code readable",
+                "Hides the code"
+            ],
+            "correct_answer": 1,
+            "explanation": "It helps enforce immutability."
+        },
+        {
+            "question_text": "What is 'Type Casting' (or Type Assertion)?",
+            "options": [
+                "Changing a variable from string to number",
+                "Telling the TS compiler 'I know more than you' about the type of a value (using 'as')",
+                "Deleting a type",
+                "Writing code in a cast"
+            ],
+            "correct_answer": 1,
+            "explanation": "Example: `const input = document.getElementById('my') as HTMLInputElement;`."
+        },
+        {
+            "question_text": "What is an 'Intersection Type' (&)?",
+            "options": [
+                "A type for heavy traffic",
+                "A type that combines multiple types into one, requiring all properties from both",
+                "Choosing one of two types",
+                "A type that is shared between many files"
+            ],
+            "correct_answer": 1,
+            "explanation": "Used to merge interfaces or types together."
+        },
+        {
+            "question_text": "What is a 'Literal Type'?",
+            "options": [
+                "A type for books",
+                "A type that is a specific, exact value (like 'red' | 'blue' instead of any string)",
+                "A type that is very long",
+                "A type that is only text"
+            ],
+            "correct_answer": 1,
+            "explanation": "Literals provide extreme precision."
+        },
+        {
+            "question_text": "What does the 'unknown' type represent?",
+            "options": [
+                "A bug",
+                "A safer alternative to 'any' for values whose type we don't know yet (requires a check before use)",
+                "A hidden variable",
+                "A type for the future"
+            ],
+            "correct_answer": 1,
+            "explanation": "You must check the type (narrowing) before you can call methods on an 'unknown' variable."
+        },
+        {
+            "question_text": "What does 'Record<K, T>' do?",
+            "options": [
+                "Records the user's audio",
+                "Constructs an object type with specific set of keys K and values of type T",
+                "Saves a record to the database",
+                "A tool for historians"
+            ],
+            "correct_answer": 1,
+            "explanation": "Ideal for mapping IDs to specific objects."
+        },
+        {
+            "question_text": "What is 'Discriminated Unions'?",
+            "options": [
+                "A group of workers",
+                "Using a common property (a 'tag' or 'kind') to narrow down which specific type in a union is being used",
+                "Choosing types randomly",
+                "Deleting types that are the same"
+            ],
+            "correct_answer": 1,
+            "explanation": "Essential for pattern matching in state management logic."
+        },
+        {
+            "question_text": "What is the 'keyof' operator?",
+            "options": [
+                "Finds the key to a house",
+                "Returns a union of the keys (property names) of an object type",
+                "Opens a locked file",
+                "A type of piano"
+            ],
+            "correct_answer": 1,
+            "explanation": "Example: If `User` has `name` and `age`, `keyof User` is `'name' | 'age'`."
+        },
+        {
+            "question_text": "What does the 'Pick<T, K>' utility do?",
+            "options": [
+                "Allows the user to pick a color",
+                "Creates a new type by choosing (picking) specific keys K from an existing type T",
+                "Deletes keys",
+                "A tool for gardening"
+            ],
+            "correct_answer": 1,
+            "explanation": "Allows you to reuse parts of a larger interface."
+        },
+        {
+            "question_text": "What does 'Omit<T, K>' do?",
+            "options": [
+                "Adds properties",
+                "Creates a new type by REMOVING specific keys K from an existing type T",
+                "Changes the value of K",
+                "Stops the code from running"
+            ],
+            "correct_answer": 1,
+            "explanation": "The opposite of 'Pick'."
+        },
+        {
+            "question_text": "What is 'Tuple' in TypeScript?",
+            "options": [
+                "A type of dessert",
+                "An array with a fixed number of elements where each element has a specific type",
+                "A 3-dimensional array",
+                "A variable that can only be 2"
+            ],
+            "correct_answer": 1,
+            "explanation": "Example: `let point: [number, number] = [10, 20];`."
+        },
+        {
+            "question_text": "How do you constrain a Generic so it MUST have a specific property (like .length)?",
+            "options": [
+                "<T includes length>",
+                "<T extends { length: number }>",
+                "<T has length>",
+                "You can't"
+            ],
+            "correct_answer": 1,
+            "explanation": "The 'extends' keyword targets specific structure requirements for the generic."
+        },
+        {
+            "question_text": "What is 'Tuple Destructuring' in TS?",
+            "options": [
+                "Breaking a tuple apart into variables",
+                "Merging tuple together",
+                "Deleting a tuple",
+                "A tool for maps"
+            ],
+            "correct_answer": 0,
+            "explanation": "Works just like JS array destructuring but with type safety for each position."
+        }
+    ]
+}

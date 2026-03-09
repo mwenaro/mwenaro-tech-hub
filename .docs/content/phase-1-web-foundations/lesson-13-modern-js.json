@@ -1,0 +1,184 @@
+{
+    "title": "Modern JS (ES6-ES11)",
+    "has_project": false,
+    "video_url": "https://www.youtube.com/watch?v=nZ1DMMsyVyI",
+    "content": "# 🚀 Modern JavaScript (ES6+): The React Prerequisites\n\nIn 2015, JavaScript underwent the massive **ECMAScript 6 (ES6)** update, drastically modernizing the language. The syntax introduced in this era is entirely mandatory if you write React.js; old JS paradigms will fundamentally fail when scaled up. \n\nIf you do not master these specific concepts, learning React will feel confusing and impossible.\n\n---\n\n## 1️⃣ Let and Const (The End of Var)\n\nBefore ES6, developers were forced to use `var`, which had deeply flawed \"hoisting\" mechanics and function-level scoping. This caused variables to accidentally overwrite each other globally.\n\n```javascript\nvar password = \"123\";  // Legacy. \nlet score = 0;         // Modern. Reassignable, locally scoped.\nconst apiKey = \"456\";  // Modern. Immutable, locally scoped.\n```\n\n**Rule 1**: Default to `const`. If you realize a calculation literally requires the variable to mutate, downgrade it to `let`.\n\n---\n\n## 2️⃣ Arrow Functions (`=>`)\n\nTraditional functions require writing the heavy `function` keyword and explicitly returning values. They also have an incredibly messy relationship with the `this` keyword.\n\n**Arrow Functions** solve this with an elegant, concise syntax.\n\n```javascript\n// ❌ Traditional Function\nconst multiply = function(a, b) {\n    return a * b;\n};\n\n// ✅ Modern Arrow Function\nconst multiplyModern = (a, b) => {\n    return a * b;\n};\n\n// 🎯 Implicit Return (The React Standard)\n// If the logic fits on one line, remove the {} brackets and the 'return' word.\n// It automatically ejects the math right side of the arrow.\nconst fastMultiply = (a, b) => a * b;\n```\n\n---\n\n## 3️⃣ Template Literals (String Interpolation)\n\nHistorically, inserting variables into a sentence required horrifying \"string concatenation\" using `+` symbols.\n\n```javascript\nconst name = \"Mwero\";\nconst age = 25;\n\n// ❌ The old, error-prone way\nconst greeting = \"Hello, my name is \" + name + \" and I am \" + age + \" years old.\";\n```\n\n**Template Literals** use Backticks (`` ` ``) instead of quotes, allowing you to inject raw JavaScript mathematics and variables straight into the string using `${ }`.\n\n```javascript\n// ✅ The Modern Way\nconst modernGreeting = `Hello, my name is ${name} and I am ${age + 5} years old.`;\n```\n\n---\n\n## 4️⃣ Destructuring Assignments\n\nReact explicitly requires grabbing specific pieces of data out of massive objects instantly. **Destructuring** unpacks properties into tiny local variables without writing 5 lines of code.\n\n### Object Destructuring\n```javascript\nconst user = {\n    username: \"john_doe\",\n    email: \"john@example.com\",\n    isAdmin: false\n};\n\n// ❌ The Old Way\nconst username = user.username;\nconst email = user.email;\n\n// ✅ The Destructuring Way\n// Reaches into the 'user' object, finds the keys 'username' and 'isAdmin', \n// and conjures two local variables carrying those exact values.\nconst { username, isAdmin } = user;\nconsole.log(username); // \"john_doe\"\n```\n\n### Array Destructuring\nUnlike objects (which match by the key's name), arrays map strictly by *order*.\n\n```javascript\nconst rgb = [255, 0, 100];\n\n// The first bracket maps to [0], the second maps to [1]\nconst [red, green, blue] = rgb;\nconsole.log(red); // 255\n```\n\n---\n\n## 5️⃣ Spread and Rest Operators (`...`)\n\nThe three dots (`...`) are the Swiss Army knife of modern JS.\n\n**1. The Spread Operator (Cloning & Merging)**\nIn JavaScript, Objects and Arrays are Reference Types. If you set `array_two = array_one`, changing Two permanently breaks One. To safely copy data, you \"spread\" it.\n\n```javascript\nconst oldCart = [\"Apples\", \"Bananas\"];\n\n// Spreads out the elements of oldCart into a BRAND NEW array in RAM, while adding \"Milk\"\nconst updatedCart = [...oldCart, \"Milk\"]; \n\nconst userAuth = { id: 1, name: \"Alice\" };\n// Clones userAuth into a new object, and forcibly overrides the name key\nconst upgradedAuth = { ...userAuth, name: \"Admin_Alice\" };\n```\n\n**2. The Rest Operator (Gathering)**\nWhen creating a function, the rest parameter swallows an infinite number of matching arguments into a single Array.\n\n```javascript\nconst sumNumbers = (...allNumbers) => {\n    console.log(allNumbers); // Output: [1, 2, 3, 4]\n};\nsumNumbers(1, 2, 3, 4);\n```\n\n---\n\n## 6️⃣ Modules: Import and Export (The Webpack Era)\n\nA 50,000-line `app.js` file is impossible to read or debug. Modern JS allows you to break your logic into hundreds of tiny files (Modules) and stitch them together. React relies on this completely.\n\n**1. Creating a Utility (math.js)**\n```javascript\n// We flag this exact function as public to the app\nexport const add = (a, b) => a + b;\nexport const subtract = (a, b) => a - b;\n\n// We export a \"default\" fallback piece of data\nconst PI = 3.14;\nexport default PI;\n```\n\n**2. Assembling the App (index.js)**\n```javascript\n// Importing named exports requires exact matching { } brackets.\nimport { add, subtract } from './math.js';\n\n// Importing the default export does NOT use brackets, and you can name it anything.\nimport MathPie from './math.js';\n\nconsole.log(add(10, 5));\n```\n\n---\n\n## 💡 Summary Lexicon\n\n| Feature | ES5 Syntax | ES6+ Modern Syntax | Use Case |\n|---|---|---|---|\n| **Variables** | `var` | `let` and `const` | Local, block-scoped data. |\n| **Functions** | `function() { return 1; }` | `() => 1` | Inline callbacks and React components. |\n| **Strings** | `\"Hi \" + name` | `` `Hi ${name}` `` | Dynamic paragraph generation. |\n| **Object Pull** | `x = obj.x` | `const { x } = obj;` | Reading props in React. |\n| **Array Copying** | `.slice()` | `[...arr]` | Making safe immutable clones of State. |\n| **Architecture** | Massive 10k line files | `import { x }` | Component-based development. |\n",
+    "questions": [
+        {
+            "question_text": "What does the spread operator (...) do for an array?",
+            "options": [
+                "Deletes the array",
+                "Creates a deep copy of the array",
+                "Spreads the elements of the array into a new context",
+                "Compares two arrays"
+            ],
+            "correct_answer": 2,
+            "explanation": "The spread operator expands the elements of an array (or object) into a new array or object."
+        },
+        {
+            "question_text": "What is 'Template Literals' in ES6?",
+            "options": [
+                "A way to write HTML in JS",
+                "Using backticks (`) to allow multi-line strings and variable interpolation with ${}",
+                "A library for templates",
+                "A new way to write comments"
+            ],
+            "correct_answer": 1,
+            "explanation": "Template literals make string concatenation much cleaner and easier to read."
+        },
+        {
+            "question_text": "What is the benefit of 'Arrow Functions'?",
+            "options": [
+                "They are always faster",
+                "They provide a shorter syntax and have lexical 'this' binding",
+                "They automatically return values without the 'return' keyword",
+                "They only work in React"
+            ],
+            "correct_answer": 1,
+            "explanation": "Arrow functions are great for callbacks and don't rebind 'this' incorrectly."
+        },
+        {
+            "question_text": "What does 'Destructuring' do?",
+            "options": [
+                "Deletes an object",
+                "Extracts values from arrays or properties from objects into distinct variables in one line",
+                "Changes the structure of the DOM",
+                "Breaks the code into smaller files"
+            ],
+            "correct_answer": 1,
+            "explanation": "obj = {x:1}; const {x} = obj; is much cleaner than const x = obj.x;."
+        },
+        {
+            "question_text": "What is the 'Spread Operator' (...)?",
+            "options": [
+                "It adds three dots to a string",
+                "It allows an iterable to be expanded in places where multiple arguments/elements are expected",
+                "It spreads the code across multiple files",
+                "It is a way to handle errors"
+            ],
+            "correct_answer": 1,
+            "explanation": "Use it to copy arrays, merge objects, or pass arrays as arguments."
+        },
+        {
+            "question_text": "What is the purpose of the 'Rest Parameter' (...args)?",
+            "options": [
+                "To let the CPU rest",
+                "To collect multiple arguments into a single array inside a function",
+                "To stop a function from running",
+                "To copy an object"
+            ],
+            "correct_answer": 1,
+            "explanation": "It replaces the old 'arguments' object with a real array."
+        },
+        {
+            "question_text": "Which array method creates a NEW array with the results of calling a function on every element?",
+            "options": [
+                "forEach()",
+                "filter()",
+                "map()",
+                "reduce()"
+            ],
+            "correct_answer": 2,
+            "explanation": "map() is fundamental for transforming data in modern frontend frameworks."
+        },
+        {
+            "question_text": "Which array method returns only the elements that pass a specific condition?",
+            "options": [
+                "find()",
+                "filter()",
+                "every()",
+                "some()"
+            ],
+            "correct_answer": 1,
+            "explanation": "filter() always returns an array, even if only one item matches."
+        },
+        {
+            "question_text": "What does the 'Modules' (import/export) system allow?",
+            "options": [
+                "Connecting to a database",
+                "Breaking code into reusable files and managing dependencies",
+                "Running code in the terminal",
+                "Hiding variables from other developers"
+            ],
+            "correct_answer": 1,
+            "explanation": "Modern JS development uses ES Modules to keep codebases organized."
+        },
+        {
+            "question_text": "What is 'Classes' in JS (introduced in ES6)?",
+            "options": [
+                "A way to organize students",
+                "Syntactic sugar over JS's existing prototype-based inheritance",
+                "A replacement for functions",
+                "A library for CSS"
+            ],
+            "correct_answer": 1,
+            "explanation": "Classes make object-oriented programming in JS look more familiar to developers of other languages."
+        },
+        {
+            "question_text": "Which ES6 feature allows you to set a value if an argument is missing?",
+            "options": [
+                "Optional chaining",
+                "Nullish coalescing",
+                "Default Parameters",
+                "Logical OR"
+            ],
+            "correct_answer": 2,
+            "explanation": "Example: function greet(name = 'Guest') { ... }."
+        },
+        {
+            "question_text": "What does the 'Optional Chaining' operator (?.) do?",
+            "options": [
+                "Makes the code run faster",
+                "Safely accesses nested object properties even if an intermediate property is null or undefined",
+                "Lets you skip code",
+                "Asks the user for permission"
+            ],
+            "correct_answer": 1,
+            "explanation": "It prevents 'Cannot read property X of undefined' errors."
+        },
+        {
+            "question_text": "What is the 'Nullish Coalescing' operator (??)?",
+            "options": [
+                "Checks if a value is false",
+                "Returns the right-hand side if the left-hand side is null or undefined (but NOT if it's 0 or '')",
+                "Merges two objects",
+                "Deletes null variables"
+            ],
+            "correct_answer": 1,
+            "explanation": "It's safer than using || when you want to allow 0 or empty strings as valid values."
+        },
+        {
+            "question_text": "What is the 'const' keyword used for?",
+            "options": [
+                "Declaring a variable that can never be changed",
+                "Declaring a variable that cannot be reassigned (but its contents, like an object, can still be modified)",
+                "Making the code run on a server",
+                "Declaring a global variable"
+            ],
+            "correct_answer": 1,
+            "explanation": "90% of your variables in modern JS should be const."
+        },
+        {
+            "question_text": "Which array method checks if at least ONE element in an array passes a test?",
+            "options": [
+                "every()",
+                "some()",
+                "includes()",
+                "find()"
+            ],
+            "correct_answer": 1,
+            "explanation": "some() returns a boolean."
+        },
+        {
+            "question_text": "What is an 'Async Function' (ES2017)?",
+            "options": [
+                "A function that runs instantly",
+                "A function that returns a Promise and allows the use of 'await'",
+                "A function that doesn't have a name",
+                "A function used only for CSS"
+            ],
+            "correct_answer": 1,
+            "explanation": "Async/await is the modern way to handle asynchronous code in a linear, readable style."
+        }
+    ]
+}

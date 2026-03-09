@@ -1,0 +1,173 @@
+{
+    "title": "Database Design (MongoDB)",
+    "has_project": false,
+    "video_url": "https://www.youtube.com/watch?v=EE8ZT0J9S2M",
+    "content": "# 💾 Database Design: SQL vs NoSQL\n\nIf Express is the brain routing incoming traffic, the Database is the long-term memory. Without a database, every time your Node.js server restarts overnight, you lose 100% of your user data because RAM is wiped clean.\n\nChoosing between a **Relational (SQL)** and **Non-Relational (NoSQL)** database is the absolute most critical architectural decision a Backend Engineer makes on day one. \n\n---\n\n## 1️⃣ SQL: The Relational Architecture\n\nSQL (Structured Query Language) databases like PostgreSQL, MySQL, and SQLite organize data strictly into mathematically defined Tables with Rows and Columns (like a highly advanced Excel Spreadsheet).\n\n### The Schema\nSQL requires a strict **Schema** (Blueprint). If the `users` table demands an `age (INTEGER)`, you physically cannot push a user into the database without defining their age as an integer. It will throw a fatal error.\n\n```sql\n-- Creating the strict blueprint\nCREATE TABLE users (\n    id SERIAL PRIMARY KEY,\n    username VARCHAR(50) UNIQUE NOT NULL,\n    email VARCHAR(255) UNIQUE NOT NULL,\n    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n);\n\n-- Inserting Data\nINSERT INTO users (username, email) VALUES ('MweroA', 'mwero@example.com');\n```\n\n### Relationships and Constraints\nSQL databases are \"Relational\". A `post` doesn't contain a user object; it just holds a `user_id` pointing to the `users` table.\n\n```sql\nCREATE TABLE posts (\n    id SERIAL PRIMARY KEY,\n    title VARCHAR(255) NOT NULL,\n    -- The Foreign Key logically links this row to a row in the users table\n    author_id INTEGER REFERENCES users(id) ON DELETE CASCADE\n);\n```\nSQL databases enforce **ACID Compliance** (Atomicity, Consistency, Isolation, Durability). \nMeaning: If you transfer $50 from Alice to Bob, the database mathematically guarantees that if Node.js crashes in the middle of the second step, the entire transaction rolls back. Alice will never lose $50 without Bob receiving it.\n\n*When to use SQL: E-commerce, Banking, CMS platforms, anywhere data integrity is paramount.*\n\n---\n\n## 2️⃣ NoSQL: The Document Architecture\n\nNoSQL databases (like MongoDB and Firebase) threw away the strict SQL tables and replaced them with massive JSON documents. \n\n### Schema-less Flexibility\nNoSQL does not require a blueprint. You can push `{ name: \"Mwero\" }` into the `users` collection, and 5 minutes later push `{ dogName: \"Rex\", breed: \"Husky\" }` into the exact same collection. The database accepts both happily.\n\n```javascript\n// A MongoDB Document\nconst userDoc = {\n    _id: ObjectId(\"5099803df3f4948bd2f98391\"),\n    username: \"MweroA\",\n    friends: [\"Alice\", \"Bob\"], // Arrays are supported natively!\n    address: {                 // Deeply nested objects are supported natively!\n        city: \"Nairobi\",\n        zip: 10100\n    }\n};\n```\n\n### Embedding vs Referencing\nIn SQL, you must use complex `JOIN` math to stitch the `users` and `posts` tables together when querying.\nIn NoSQL, because documents support arrays and objects, you can simply **embed** the data directly.\n\n```javascript\n// Embedded Data (One massive disk read, incredibly fast)\nconst blogPost = {\n    title: \"Learning Node.js\",\n    author: { name: \"MweroA\", email: \"mwero@example.com\" }, // Embedded\n    comments: [                                             // Array of Comments\n        { user: \"Alice\", text: \"Great post!\" },\n        { user: \"Bob\", text: \"Thanks!\" }\n    ]\n}\n```\n\n*When to use NoSQL: IoT sensor data, massive catalogues with changing shapes, rapid prototyping, and real-time chat apps.*\n\n---\n\n## 3️⃣ ORMs: bridging Node.js to the Database\n\nWriting raw SQL strings inside your Node.js code (`db.query('SELECT * FROM users')`) is dangerous and tedious. It exposes you to SQL Injection attacks if you aren't perfectly careful.\n\nModern backend engineers use an **ORM (Object-Relational Mapper)** like **Prisma** or **Sequelize**. \n\nAn ORM translates standard JavaScript/TypeScript code directly into secure, optimized SQL under the hood.\n\n**Example using Prisma (The modern TS standard):**\n```typescript\n// 1. You write regular JS syntax\nconst newUser = await prisma.user.create({\n    data: {\n        username: \"MweroA\",\n        email: \"mwero@test.com\"\n    }\n});\n\n// 2. Prisma automatically parses this into:\n// INSERT INTO users (username, email) VALUES ('MweroA', 'mwero@test.com')\n\n// 3. Fetching Data with relationships\nconst allPosts = await prisma.post.findMany({\n    where: { published: true },\n    include: { author: true } // Prisma handles the complex SQL JOIN automatically!\n});\n```\n\n---\n\n## 4️⃣ Connecting Express to a Database\n\nEvery database interaction requires a network request from the Express server to the DB Server (often on a different port or AWS machine). Therefore, database calls are incredibly slow relative to CPU math. **They must be handled Asynchronously.**\n\n```javascript\nimport express from 'express';\nimport { PrismaClient } from '@prisma/client';\n\nconst app = express();\nconst prisma = new PrismaClient(); // Connect to the DB\n\napp.get('/api/users', async (req, res) => {\n    try {\n        // Asynchronously pause execution until the Database replies\n        const users = await prisma.user.findMany(); \n        \n        // Return the JSON data to Postman or the React App\n        res.status(200).json(users);\n    } catch (error) {\n        // If the database is offline or the query failed\n        console.error(error);\n        res.status(500).json({ error: \"Internal Server Error\" });\n    }\n});\n```\n\n---\n\n## 💡 Summary Lexicon\n\n| Feature | SQL (PostgreSQL, MySQL) | NoSQL (MongoDB, Firebase) |\n|---|---|---|\n| **Data Shape** | Tables, Rows, Columns | Collections, JSON Documents |\n| **Schema** | Rigid and mathematically strict. | Flexible, dynamic, schema-less. |\n| **Relationships** | `JOIN` commands tying Tables together. | Embedding objects directly inside other objects. |\n| **Integrity** | ACID Compliant (Banking grade). | Eventual Consistency (High speed grade). |\n| **Scaling** | Vertically (Buying a stronger $50k server CPU). | Horizontally (Adding 10 cheap $50 servers in parallel). |\n",
+    "questions": [
+        {
+            "question_text": "What is the main difference between SQL and NoSQL databases?",
+            "options": [
+                "SQL is for web, NoSQL is for mobile",
+                "SQL is relational (structured, tables); NoSQL is non-relational (document, key-value)",
+                "NoSQL is faster for everything",
+                "SQL only works with Java"
+            ],
+            "correct_answer": 1,
+            "explanation": "Relational databases use predefined schemas; NoSQL is schema-less/flexible."
+        },
+        {
+            "question_text": "What is MongoDB?",
+            "options": [
+                "A relational database",
+                "A document-oriented NoSQL database",
+                "A new coding language",
+                "A search engine"
+            ],
+            "correct_answer": 1,
+            "explanation": "MongoDB stores data in JSON-like documents."
+        },
+        {
+            "question_text": "In relational databases, what is a 'Primary Key'?",
+            "options": [
+                "The password for the DB",
+                "A unique identifier for each record in a table",
+                "A column that stores text",
+                "The first column"
+            ],
+            "correct_answer": 1,
+            "explanation": "IDs are typically primary keys."
+        },
+        {
+            "question_text": "What is a 'Foreign Key'?",
+            "options": [
+                "A key from another country",
+                "A field in one table that links to the Primary Key of another table (creating a relationship)",
+                "A secret key",
+                "A key used for encryption"
+            ],
+            "correct_answer": 1,
+            "explanation": "This establishes relationships like 'User HAS MANY Posts'."
+        },
+        {
+            "question_text": "What does CRUD stand for?",
+            "options": [
+                "Create, Read, Update, Delete",
+                "Calculate, Reset, Use, Debug",
+                "Connect, Run, Upload, Deploy",
+                "Careful, Rapid, Universal, Design"
+            ],
+            "correct_answer": 0,
+            "explanation": "The four basic operations of persistent storage."
+        },
+        {
+            "question_text": "In MongoDB, what is a 'Collection' equivalent to in SQL?",
+            "options": [
+                "A database",
+                "A table",
+                "A row",
+                "A column"
+            ],
+            "correct_answer": 1,
+            "explanation": "Documents live inside collections; rows live inside tables."
+        },
+        {
+            "question_text": "What is 'Normalization' in database design?",
+            "options": [
+                "Making the data look normal",
+                "Optimizing the structure to reduce data redundancy and improve integrity",
+                "Deleting old data",
+                "Enabling search"
+            ],
+            "correct_answer": 1,
+            "explanation": "Normalization helps avoid data duplication across multiple tables."
+        },
+        {
+            "question_text": "What is an 'Index' in a database?",
+            "options": [
+                "A table of contents",
+                "A data structure that improves the speed of data retrieval (at the cost of slower writes)",
+                "A list of all users",
+                "An external backup"
+            ],
+            "correct_answer": 1,
+            "explanation": "Indices are essential for performance on large datasets."
+        },
+        {
+            "question_text": "What is an 'Acid' transaction?",
+            "options": [
+                "A dangerous chemical",
+                "A set of properties (Atomicity, Consistency, Isolation, Durability) that guarantee database reliability",
+                "A fast way to delete data",
+                "A type of encryption"
+            ],
+            "correct_answer": 1,
+            "explanation": "Transactions ensure that either all steps succeed or none do."
+        },
+        {
+            "question_text": "What is an 'ORM' or 'ODM'?",
+            "options": [
+                "Old Data Management",
+                "Object-Relational/Document Mapper; a tool to interact with the DB using your programming language objects instead of raw queries",
+                "A type of computer server",
+                "A security protocol"
+            ],
+            "correct_answer": 1,
+            "explanation": "Mongoose (ODM) and Prisma (ORM) are popular choices."
+        },
+        {
+            "question_text": "What is a 'Schema'?",
+            "options": [
+                "A plan to hack the DB",
+                "The formal definition of the structure of the data (fields, types, constraints)",
+                "The actual data itself",
+                "A backup file"
+            ],
+            "correct_answer": 1,
+            "explanation": "Think of it as a 'blueprint' for your data."
+        },
+        {
+            "question_text": "What is a 'One-to-Many' relationship?",
+            "options": [
+                "One person has many accounts",
+                "Many people have one account",
+                "One person has one account",
+                "Everyone has everything"
+            ],
+            "correct_answer": 0,
+            "explanation": "A common example: One Author has many Books."
+        },
+        {
+            "question_text": "What is 'Denormalization'?",
+            "options": [
+                "A mistake in design",
+                "Purposefully adding redundant data to improve read performance (often used in NoSQL)",
+                "Deleting the schema",
+                "Changing the DB name"
+            ],
+            "correct_answer": 1,
+            "explanation": "It trades space for speed in specific use cases."
+        },
+        {
+            "question_text": "Which property ensures a field must be filled in?",
+            "options": [
+                "unique",
+                "required",
+                "default",
+                "indexed"
+            ],
+            "correct_answer": 1,
+            "explanation": "Setting 'required: true' prevents saving incomplete data."
+        },
+        {
+            "question_text": "What is a 'Database Migration'?",
+            "options": [
+                "Moving the DB to a new city",
+                "Controlled version management of the database schema (updating tables/columns safely)",
+                "Backing up data",
+                "Deleting the DB"
+            ],
+            "correct_answer": 1,
+            "explanation": "Migrations track how your DB structure changes over time."
+        }
+    ]
+}

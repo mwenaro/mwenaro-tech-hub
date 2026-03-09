@@ -246,13 +246,21 @@ export async function getAnalyticsData() {
         ? ((gradedSubmissions.filter(s => Math.abs((s.project_rating || 0) - (s.ai_rating || 0)) <= 10).length / gradedSubmissions.length) * 100).toFixed(1)
         : '100'
 
+    // Additional live data
+    const { count: pendingReviews } = await supabase
+        .from('lesson_progress')
+        .select('*', { count: 'exact', head: true })
+        .not('project_repo_link', 'is', null)
+        .eq('project_reviewed', false)
+
     return {
         enrollmentData: enrollmentData || [],
         auditLogs: formattedAuditLogs,
         stats: [
             { label: 'Avg AI Rating', value: `${avgAiRating}%`, color: 'text-blue-500', trend: '+1.2%' },
             { label: 'Grading Accuracy', value: `${accuracy}%`, color: 'text-green-500', trend: '+0.2%' },
-            { label: 'System Uptime', value: '99.9%', color: 'text-orange-500', trend: 'Stable' },
+            { label: 'Pending Reviews', value: pendingReviews || 0, color: 'text-orange-500', trend: 'Critical' },
+            { label: 'Neural Uptime', value: '99.9%', color: 'text-purple-500', trend: 'Stable' },
         ]
     }
 }
@@ -609,3 +617,69 @@ export async function reorderPhases(courseId: string, phaseIds: string[]) {
     revalidatePath(`/admin/courses/${courseId}/lessons`)
     revalidatePath(`/courses/${courseId}`)
 }
+
+// --- Payment Management ---
+
+export async function recordManualPayment(data: {
+    user_id: string,
+    course_id: string,
+    amount: number,
+    currency?: string,
+    provider_reference: string,
+    description?: string,
+    created_at?: string
+}) {
+    if (!await isAdmin()) throw new Error('Unauthorized')
+    const supabase = await createClient()
+
+    const paymentData = {
+        user_id: data.user_id,
+        course_id: data.course_id,
+        amount: data.amount,
+        currency: data.currency || 'KES',
+        status: 'paid',
+        provider: 'manual',
+        provider_reference: data.provider_reference,
+        description: data.description || null,
+        created_at: data.created_at || new Date().toISOString()
+    }
+
+    const { data: result, error } = await supabase
+        .from('course_payments')
+        .insert(paymentData)
+        .select()
+        .single()
+
+    if (error) throw new Error(error.message)
+    
+    // Attempt to also grant course access if not already enrolled/active
+    try {
+        const { data: enrollment } = await supabase
+            .from('enrollments')
+            .select('*')
+            .eq('user_id', data.user_id)
+            .eq('course_id', data.course_id)
+            .single()
+
+        if (enrollment) {
+            if (enrollment.status !== 'active') {
+                await supabase.from('enrollments').update({ status: 'active' }).eq('user_id', data.user_id).eq('course_id', data.course_id)
+            }
+        } else {
+            // Need to insert into enrollments
+            await supabase.from('enrollments').insert({
+                user_id: data.user_id,
+                course_id: data.course_id,
+                status: 'active'
+            })
+        }
+    } catch (e) {
+        console.error("Failed to update enrollment after payment", e)
+    }
+
+    revalidatePath('/admin/dashboard/payments')
+    revalidatePath('/dashboard/payments')
+
+    return result
+}
+

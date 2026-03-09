@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { submitProject } from '@/lib/progress'
+import { StreakCelebration } from './streak-celebration'
+import { useRouter } from 'next/navigation'
 
 interface ProjectSubmissionProps {
     lessonId: string
@@ -29,6 +31,8 @@ export function ProjectSubmission({
     const [repoLink, setRepoLink] = useState(existingLink || '')
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const [celebrateStreak, setCelebrateStreak] = useState<{ streak: number } | null>(null)
+    const router = useRouter()
 
     const isLocked = quizRequired && !quizPassed
     const hasSubmitted = !!existingLink
@@ -40,8 +44,12 @@ export function ProjectSubmission({
         setIsSubmitting(true)
         setError(null)
         try {
-            await submitProject(lessonId, repoLink)
-            // Redirect or refresh is handled by the page revalidation
+            const res = await submitProject(lessonId, repoLink)
+            if (res.streakData?.is_milestone) {
+                setCelebrateStreak({ streak: res.streakData.current_streak })
+            } else {
+                router.refresh()
+            }
         } catch (e: any) {
             console.error(e)
             setError(e.message || 'Failed to submit project')
@@ -151,6 +159,16 @@ export function ProjectSubmission({
                     <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
                 )}
             </form>
+            {celebrateStreak && (
+                <StreakCelebration
+                    streak={celebrateStreak.streak}
+                    open={!!celebrateStreak}
+                    onClose={() => {
+                        setCelebrateStreak(null)
+                        router.refresh()
+                    }}
+                />
+            )}
         </div>
     )
 }

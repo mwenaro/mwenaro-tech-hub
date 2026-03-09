@@ -1,0 +1,182 @@
+{
+    "title": "State Management (Basic)",
+    "has_project": false,
+    "video_url": "https://www.youtube.com/watch?v=4pO-HcG2igk",
+    "content": "# 🔄 State Management: The Pulse of React\n\nIf Props are the DNA a component receives from its parent (unchangeable), **State** is the local memory of the component. State makes a static user interface highly interactive by allowing it to \"remember\" things—like whether a modal is open, or what text is typed into an input field.\n\nWhen State changes, React magically triggers a **Re-render**, automatically updating the DOM to reflect the new reality.\n\n---\n\n## 1️⃣ The `useState` Hook\n\nBefore Hooks were introduced in 2018, handling State required writing complex JavaScript Classes. Today, we use the `useState` hook, which is vastly simpler and more functional.\n\n```javascript\nimport { useState } from 'react'; // Mandatory import\n\nfunction Counter() {\n    // Array Destructuring:\n    // [The current value, The function that updates the value] = useState(Internal starting value)\n    const [count, setCount] = useState(0);\n\n    return (\n        <div>\n            <h1>Current Count: {count}</h1>\n            \n            {/* Warning: We pass an arrow function so it doesn't execute instantly on load! */}\n            <button onClick={() => setCount(count + 1)}>\n                Increment\n            </button>\n        </div>\n    );\n}\n```\n\n### 🛑 The Golden Rule of State: IMMUTABILITY\nYou cannot directly mutate (change) a state variable.\n\n```javascript\n// ❌ ILLEGAL: This will absolutely crash your React app's rendering cycle.\n// React will not notice the change and the screen will not update.\ncount = count + 1; \n\n// ✅ LEGAL: You MUST use the designated setter function.\n// This notifies the React Engine to update the DOM.\nsetCount(count + 1);\n```\n\n---\n\n## 2️⃣ Updating State Based on Previous State\n\nWhat happens if you click a button twice extremely fast?\n\n```javascript\n// Buggy implementation\nfunction upgradeTwice() {\n    // If count is 0, both of these functions read \"0\", calculate \"0 + 1\", and set it to 1.\n    setCount(count + 1); \n    setCount(count + 1); \n    // The final count is 1, not 2!\n}\n```\n\nIf your next state mathematically depends on what the state was *one millisecond ago*, you must use the **Callback/Updater Function** inside the setter. This guarantees React uses the absolute latest version of the state.\n\n```javascript\n// Bulletproof implementation\nfunction upgradeTwice() {\n    // Instead of passing a raw value, pass a function that takes the PREVIOUS state.\n    setCount((prevCount) => prevCount + 1); \n    setCount((prevCount) => prevCount + 1); \n    // The final count is reliably 2.\n}\n```\n\n---\n\n## 3️⃣ Handling Complex State (Objects & Arrays)\n\nState isn't just for numbers and booleans. It governs complex arrays and objects. But because of the Immutability rule, updating them is tricky. You cannot use `.push()` or change object properties directly. You must completely clone them using the Spread Operator (`...`).\n\n### Updating an Object\n```javascript\nconst [user, setUser] = useState({ name: \"Mwero\", age: 25 });\n\nconst celebrateBirthday = () => {\n    // ❌ ILLEGAL: Direct mutation. React will ignore this.\n    // user.age = 26; \n\n    // ✅ LEGAL: Clone the whole object, then violently overwrite the 'age' property.\n    setUser({ ...user, age: user.age + 1 });\n};\n```\n\n### Updating an Array\n```javascript\nconst [todos, setTodos] = useState([\"Eat\", \"Sleep\"]);\n\nconst addTodo = (newTodo) => {\n    // ❌ ILLEGAL: Direct mutation.\n    // todos.push(newTodo);\n\n    // ✅ LEGAL: Clone the existing array and append the new item into a brand new array.\n    setTodos([...todos, newTodo]);\n};\n```\n\n---\n\n## 4️⃣ Two-Way Data Binding (Controlled Inputs)\n\nBy default, an HTML `<input>` manages its own internal state on the screen. In React, we must hijack that input to ensure React is always fully aware of what the user is typing. This is called a **Controlled Component**.\n\n```javascript\nfunction SearchBar() {\n    const [query, setQuery] = useState(\"\");\n\n    const handleTyping = (event) => {\n        // event.target.value is whatever the user just aggressively smashed on the keyboard\n        setQuery(event.target.value);\n    };\n\n    return (\n        <div>\n            {/* The flow: Input fires onChange -> updates State -> State forces Input value -> Repeat */}\n            <input \n                type=\"text\" \n                value={query} \n                onChange={handleTyping} \n                placeholder=\"Search...\"\n            />\n            <p>Currently searching for: {query}</p>\n        </div>\n    );\n}\n```\n\n---\n\n## 5️⃣ Lifting State Up (Shared State Architecture)\n\nIf `<Sidebar />` needs to know if the user is authenticated, and `<Navbar />` needs to show the user's avatar, where does the `user` State live?\n\nState only flows downward. Therefore, if two sibling components need access to the same piece of data, you must **Lift the State Up** to their nearest common ancestor.\n\n```mermaid\ngraph TD\n    A[App: Holds state 'const [user, setUser] = useState()'] --> B[Navbar: Receives 'user' as prop]\n    A --> C[DashboardContainer]\n    C --> D[Sidebar: Receives 'user' as prop]\n    C --> E[Feed]\n```\n\n```javascript\nfunction App() {\n    const [isAuthenticated, setIsAuthenticated] = useState(false);\n\n    return (\n        <div>\n            <Navbar authStatus={isAuthenticated} />\n            \n            {/* We pass down the STATE, and also pass down the SETTER FUNCTION so the Login \n                box can update the parent's state from deep down below! */}\n            <LoginBox \n                authStatus={isAuthenticated} \n                updateAuth={setIsAuthenticated} \n            />\n        </div>\n    );\n}\n```\n\n---\n\n## 💡 Summary Rules of the State Universe\n\n- [ ] State makes a component dynamic. Props make it reusable.\n- [ ] Never directly mutate state (`arr.push()` or `obj.key = x`). Always use the setter function.\n- [ ] If updating state based on the previous stroke of state, use the updater callback `(prev => prev + 1)`.\n- [ ] For Arrays and Objects, always clone them first using the Spread Operator `[...]` or `{...}`.\n- [ ] Tie all form inputs strictly to state variables via `value` and `onChange`.\n- [ ] If two separate components need the same data, lift the state up to their parent.\n",
+    "questions": [
+        {
+            "question_text": "Why shouldn't you modify state variables directly in React?",
+            "options": [
+                "It causes a syntax error",
+                "It won't trigger a re-render of the component",
+                "It is deprecated in newer versions",
+                "It makes the code unreadable"
+            ],
+            "correct_answer": 1,
+            "explanation": "React only knows to update the UI when the setter function from useState is called."
+        },
+        {
+            "question_text": "What is 'State' in React?",
+            "options": [
+                "A global variable for the whole website",
+                "An object that holds information that may change over the lifetime of a specific component",
+                "The current URL path",
+                "The configuration of the server"
+            ],
+            "correct_answer": 1,
+            "explanation": "When state changes, the component automatically re-renders to reflect the new data."
+        },
+        {
+            "question_text": "Which Hook is used to manage state in a functional component?",
+            "options": [
+                "useEffect",
+                "useContext",
+                "useState",
+                "useRef"
+            ],
+            "correct_answer": 2,
+            "explanation": "useState returns a state variable and a function to update it."
+        },
+        {
+            "question_text": "What happens when you call the 'setState' function?",
+            "options": [
+                "The browser refreshes",
+                "The component re-renders",
+                "The page background changes",
+                "Nothing until the next click"
+            ],
+            "correct_answer": 1,
+            "explanation": "React schedules a re-render of the component and its children."
+        },
+        {
+            "question_text": "How do you initialize a state variable 'count' to 0?",
+            "options": [
+                "const count = 0;",
+                "const [count, setCount] = useState(0);",
+                "let count = useState(0);",
+                "const count = new State(0);"
+            ],
+            "correct_answer": 1,
+            "explanation": "This follows the destructuring pattern required by useState."
+        },
+        {
+            "question_text": "Can you change state directly (e.g., count = count + 1)?",
+            "options": [
+                "Yes, it's a regular variable",
+                "No, you must always use the setter function to trigger a re-render",
+                "Only in class components",
+                "Yes, but only for numbers"
+            ],
+            "correct_answer": 1,
+            "explanation": "Direct mutation won't trigger React's rendering engine."
+        },
+        {
+            "question_text": "What is 'Immutability' in React state?",
+            "options": [
+                "Never changing the state",
+                "Creating a new copy of an object/array instead of modifying the existing one",
+                "Using 'const' for everything",
+                "Setting values to null"
+            ],
+            "correct_answer": 1,
+            "explanation": "React relies on new object references to detect changes efficiently."
+        },
+        {
+            "question_text": "How do you update an object in state `{ name: 'John', age: 25 }` to change only the age?",
+            "options": [
+                "setUser({ age: 26 })",
+                "user.age = 26; setUser(user)",
+                "setUser({ ...user, age: 26 })",
+                "setUser(user.age = 26)"
+            ],
+            "correct_answer": 2,
+            "explanation": "The spread operator (...) copies the existing properties, then overrides the specific one."
+        },
+        {
+            "question_text": "What is the result of `const [val, setVal] = useState();` (no initial value)?",
+            "options": [
+                "Error",
+                "null",
+                "undefined",
+                "0"
+            ],
+            "correct_answer": 2,
+            "explanation": "If no initial value is passed, the state is 'undefined'."
+        },
+        {
+            "question_text": "What is 'State Co-location'?",
+            "options": [
+                "Moving all state to the very top component",
+                "Keeping state as close as possible to where it is being used",
+                "Storing state in a database",
+                "Sharing state between different websites"
+            ],
+            "correct_answer": 1,
+            "explanation": "Co-location improves performance and makes components easier to move/refactor."
+        },
+        {
+            "question_text": "When should you use 'props' vs 'state'?",
+            "options": [
+                "Props for data that changes; State for data passed in",
+                "Props for data passed from parent; State for internal data that changes within the component",
+                "They are interchangeable",
+                "State is for the backend; Props is for CSS"
+            ],
+            "correct_answer": 1,
+            "explanation": "Props are like function arguments; State is like internal variables."
+        },
+        {
+            "question_text": "What is a 'controlled component' in React forms?",
+            "options": [
+                "A component that is password protected",
+                "An input whose value is determined by the React state",
+                "A component that has no styles",
+                "A component that cannot be moved"
+            ],
+            "correct_answer": 1,
+            "explanation": "React becomes the 'single source of truth' for the form value."
+        },
+        {
+            "question_text": "True or False: useState updates are always synchronous.",
+            "options": [
+                "True",
+                "False"
+            ],
+            "correct_answer": 1,
+            "explanation": "React may batch state updates for performance, so they behave asynchronously."
+        },
+        {
+            "question_text": "How do you update state based on a previous value (e.g., incrementing)?",
+            "options": [
+                "setCount(count + 1)",
+                "setCount(prev => prev + 1)",
+                "count++",
+                "update(count + 1)"
+            ],
+            "correct_answer": 1,
+            "explanation": "The functional update pattern (prev => ...) is safer when updates rely on the current state value."
+        },
+        {
+            "question_text": "What is the purpose of 'Batching' in React?",
+            "options": [
+                "To make the code look messy",
+                "To group multiple state updates into a single re-render for better performance",
+                "To delete multiple states at once",
+                "To send data to the server in chunks"
+            ],
+            "correct_answer": 1,
+            "explanation": "React 18 introduced 'Automatic Batching' for almost all updates."
+        },
+        {
+            "question_text": "Why shouldn't you use props directly in useState (e.g., `useState(props.user)`) unless it's for 'initial' only?",
+            "options": [
+                "It's a security risk",
+                "The state won't update automatically if the prop changes later; it only sets the value once at mount",
+                "It's too slow",
+                "It causes a recursion error"
+            ],
+            "correct_answer": 1,
+            "explanation": "If you want it to stay synced, use the prop directly or 'useEffect'."
+        }
+    ]
+}

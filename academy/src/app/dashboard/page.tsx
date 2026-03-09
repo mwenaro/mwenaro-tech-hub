@@ -5,13 +5,14 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getUserProgress } from '@/lib/progress'
 import { getCourseLessons } from '@/lib/lessons'
-import { getLearningStreak, isStreakActive } from '@/lib/streaks'
+import { getLearningStreak, isStreakActive, getTopStreaks } from '@/lib/streaks'
 import { getRecommendedCourses } from '@/lib/ai'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { StatsCards } from '@/components/dashboard/stats-cards'
 import { EnrolledCourseCard } from '@/components/dashboard/enrolled-course-card'
 import { UpcomingSessionCard } from '@/components/dashboard/upcoming-session-card'
+import { StreakLeaderboard } from '@/components/dashboard/streak-leaderboard'
 import { ArrowRight, BookOpen, Calendar, Award, ShieldCheck, Sparkles, PlayCircle } from "lucide-react"
 import { format } from 'date-fns'
 import { getProfile } from '@/lib/user'
@@ -35,13 +36,14 @@ export default async function DashboardPage() {
     }
 
     // Proceed as Learner
-    const [enrolledCourses, upcomingSessions, allProgress, streakData, recommendations, profile] = await Promise.all([
+    const [enrolledCourses, upcomingSessions, allProgress, streakData, recommendations, profile, topStreaks] = await Promise.all([
         getEnrolledCourses(),
         getStudentSessions(),
         getUserProgress(),
         getLearningStreak(user.id),
         getRecommendedCourses(user.id),
-        getProfile()
+        getProfile(),
+        getTopStreaks(5)
     ])
 
     // Calculate current streak (0 if not active)
@@ -277,6 +279,8 @@ export default async function DashboardPage() {
                             )}
                         </div>
                     </div>
+
+                    <StreakLeaderboard topStreaks={topStreaks} />
 
                     <Card>
                         <CardHeader className="pb-3">

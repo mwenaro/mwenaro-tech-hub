@@ -1,0 +1,184 @@
+{
+    "title": "Express Architecture",
+    "has_project": false,
+    "video_url": "https://www.youtube.com/watch?v=L72fhGm1tfE",
+    "content": "# 🚂 Express.js Architecture: Building the Backend\n\nNode.js's native `http` module is incredibly powerful, but writing a raw HTTP server from scratch is tedious. You would have to manually parse URL strings, manually slice TCP byte streams to read JSON bodies, and write 50-line `if/else` ladders to route traffic.\n\n**Express.js** abstracts all of this pain away. It is a minimalist web framework for Node.js. It remains the absolute industry standard for building REST APIs.\n\n---\n\n## 1️⃣ Setting Up an Express Server\n\nBuilding a web server capable of handling millions of requests takes about 7 lines of code in Express.\n\n```bash\nnpm install express\n```\n\n```javascript\nimport express from 'interface';\n\n// 1. Instantiate the Express application\nconst app = express();\nconst PORT = 3000;\n\n// 2. Define a Route (When a GET request hits the root '/')\napp.get('/', (req, res) => {\n    // 3. Send a response back to the client\n    res.send('Welcome to the Mwenaro API');\n});\n\n// 4. Open the port and start listening\napp.listen(PORT, () => {\n    console.log(`🚀 Server running on http://localhost:${PORT}`);\n});\n```\n\n---\n\n## 2️⃣ Routing and HTTP Methods\n\nREST APIs map operations (Create, Read, Update, Delete) directly to HTTP Methods. Express makes this beautifully semantical.\n\n```javascript\n// 🟢 READ (Fetch a list of users)\napp.get('/api/users', (req, res) => {\n    res.json({ status: \"success\", data: [{ id: 1, name: \"Mwero\" }] });\n});\n\n// 🟡 CREATE (Add a new user to the database)\napp.post('/api/users', (req, res) => {\n    res.status(201).json({ status: \"created\" });\n});\n\n// 🔵 UPDATE (Change an existing user's data)\napp.put('/api/users/1', (req, res) => {\n    res.json({ status: \"updated\" });\n});\n\n// 🔴 DELETE (Remove a user)\napp.delete('/api/users/1', (req, res) => {\n    // 204 means successful deletion, no content to return\n    res.status(204).send(); \n});\n```\n\n---\n\n## 3️⃣ The Middleware Architecture (The Onion Pattern)\n\nThis is the most critical concept in Express. **Middleware functions are layers of an onion.**\n\nWhen a request hits your server, it doesn't instantly go to the final route. It travels linearly through a chain of Middleware functions. Each middleware can inspect the request, modify it, or reject it entirely.\n\n```mermaid\ngraph LR\n    A[Client Request] --> B[Middleware 1: Logger]\n    B --> C[Middleware 2: JSON Parser]\n    C --> D[Middleware 3: Auth Verifier]\n    D --> E[Final Route Handler]\n    E --> F[Client Response]\n```\n\n### Writing Custom Middleware\nA middleware function takes three arguments: `req` (Request), `res` (Response), and `next`. \n**If you do not call `next()`, the request freezes forever and the client times out.**\n\n```javascript\n// 1. Defining the Middleware\nconst loggerMiddleware = (req, res, next) => {\n    console.log(`[${new Date().toISOString()}] ${req.method} request to ${req.url}`);\n    \n    // Pass control to the NEXT layer of the onion\n    next(); \n};\n\n// 2. Applying it globally (Affects every single route)\napp.use(loggerMiddleware);\n```\n\n### Route-Specific Middleware\nSometimes you only want a middleware to protect one specific route.\n\n```javascript\nconst requireAdmin = (req, res, next) => {\n    if (req.headers.authorization === 'SecretAdminCode') {\n        next(); // Proceed to the route\n    } else {\n        res.status(403).json({ error: \"Access Denied\" }); // Reject instantly\n    }\n};\n\n// The 'requireAdmin' shield is placed squarely in front of the final callback\napp.delete('/api/database', requireAdmin, (req, res) => {\n    res.send(\"Database wiped.\");\n});\n```\n\n---\n\n## 4️⃣ Essential Built-in Third-Party Middlewares\n\nOut of the box, Express is completely naked. It doesn't even know how to read JSON data sent by a React frontend. You must plug these tools in globally:\n\n```javascript\nimport express from 'express';\nimport cors from 'cors';\n\nconst app = express();\n\n// 1. JSON Body Parser (MANDATORY)\n// Without this, req.body will be undefined. This parses incoming JSON payload streams.\napp.use(express.json()); \n\n// 2. URL-Encoded Parser\n// Allows Express to read data sent from old-school HTML <form> tags.\napp.use(express.urlencoded({ extended: true }));\n\n// 3. CORS (Cross-Origin Resource Sharing)\n// Browsers block React (running on port 3000) from talking to Express (port 5000) for security.\n// This middleware mathematically tells the browser: \"It's fine, I allow port 3000 to talk to me.\"\napp.use(cors({ origin: 'http://localhost:3000' }));\n```\n\n---\n\n## 5️⃣ The Request (`req`) and Response (`res`) Objects\n\nExpress provides powerful utility methods on these objects.\n\n### Extracting Data from the Request (`req`)\n```javascript\napp.post('/api/users/:userId', (req, res) => {\n    // 1. req.params: Extracts URL Path variables (e.g. /users/99)\n    const id = req.params.userId; // \"99\"\n\n    // 2. req.query: Extracts URL Query Strings (e.g. ?sort=asc&limit=10)\n    const limit = req.query.limit; // \"10\"\n\n    // 3. req.body: Extracts the actual JSON payload attached by React \n    // (Requires app.use(express.json()) to work!)\n    const payload = req.body; // { name: \"Mwero\", role: \"Dev\" }\n});\n```\n\n### Sending Data via the Response (`res`)\n```javascript\napp.get('/api/data', (req, res) => {\n    // Send a string (Content-Type: text/html)\n    res.send(\"<html>Hello</html>\");\n\n    // Send a precise JSON object (Content-Type: application/json)\n    res.json({ success: true, count: 5 });\n\n    // Chain status codes\n    res.status(404).json({ error: \"File not found\" });\n\n    // Send a physical file download to the user\n    res.download('/path/to/invoice.pdf');\n});\n```\n\n---\n\n## 💡 Summary Checklist for Express Services\n\n- [ ] Initialize `const app = express()`.\n- [ ] Globally attach `app.use(express.json())` and `app.use(cors())`.\n- [ ] Conceptually group your routes using the correct HTTP methods (`GET`, `POST`, `PUT`, `DELETE`).\n- [ ] Understand that `req.params`, `req.query`, and `req.body` extract different types of data.\n- [ ] Protect sensitive routes using a custom Middleware function that conditionally calls `next()`.\n",
+    "questions": [
+        {
+            "question_text": "What is the primary function of 'next()' in an Express middleware?",
+            "options": [
+                "To send the response to the client",
+                "To stop the server",
+                "To pass the request to the next middleware in the stack",
+                "To go to the next page"
+            ],
+            "correct_answer": 2,
+            "explanation": "If next() is not called, the request will hang and the next middleware/route will never be reached."
+        },
+        {
+            "question_text": "What is Express.js?",
+            "options": [
+                "A type of database",
+                "A minimal and flexible Node.js web application framework",
+                "A new programming language",
+                "A tool for front-end styling"
+            ],
+            "correct_answer": 1,
+            "explanation": "Express provides a robust set of features to build web and mobile applications."
+        },
+        {
+            "question_text": "How do you create a new Express application instance?",
+            "options": [
+                "const app = new Express();",
+                "const app = express();",
+                "const app = createServer();",
+                "const app = express.init();"
+            ],
+            "correct_answer": 1,
+            "explanation": "You invoke the express function exported by the library."
+        },
+        {
+            "question_text": "What does a Route consist of in Express?",
+            "options": [
+                "A URL only",
+                "A path, an HTTP method (GET, POST, etc.), and a handler function",
+                "A CSS file",
+                "A database table"
+            ],
+            "correct_answer": 1,
+            "explanation": "Example: `app.get('/home', (req, res) => { ... })`."
+        },
+        {
+            "question_text": "What is 'Middleware' in Express?",
+            "options": [
+                "Software for the middle of the room",
+                "Functions that have access to the request object (req), the response object (res), and the next middleware function",
+                "A security firewall",
+                "A type of image processing"
+            ],
+            "correct_answer": 1,
+            "explanation": "Middleware can execute code, modify req/res, and end the cycle or call 'next()'."
+        },
+        {
+            "question_text": "Which method is used to send a JSON response to the client?",
+            "options": [
+                "res.send()",
+                "res.json()",
+                "res.write()",
+                "res.output()"
+            ],
+            "correct_answer": 1,
+            "explanation": "res.json() automatically sets the Content-Type header to application/json."
+        },
+        {
+            "question_text": "How do you access URL parameters like /users/:id?",
+            "options": [
+                "req.body.id",
+                "req.params.id",
+                "req.query.id",
+                "req.url.id"
+            ],
+            "correct_answer": 1,
+            "explanation": "Route parameters are stored in the req.params object."
+        },
+        {
+            "question_text": "What is the purpose of `app.use()`?",
+            "options": [
+                "To define a GET route",
+                "To apply middleware globally or to a specific path",
+                "To start the server",
+                "To connect to MongoDB"
+            ],
+            "correct_answer": 1,
+            "explanation": "Commonly used for body-parsing, logging, and CORS."
+        },
+        {
+            "question_text": "Which built-in middleware is used to parse incoming JSON payloads?",
+            "options": [
+                "app.use(express.json())",
+                "app.use(jsonParser)",
+                "app.use(express.body())",
+                "app.use(body.json())"
+            ],
+            "correct_answer": 0,
+            "explanation": "This allows you to access `req.body` in POST/PUT requests."
+        },
+        {
+            "question_text": "What does 'req' represent in the handler `(req, res) => {}`?",
+            "options": [
+                "The Response object",
+                "The Request object (incoming data from the client)",
+                "A required field",
+                "The current route"
+            ],
+            "correct_answer": 1,
+            "explanation": "It contains headers, query params, body, and more."
+        },
+        {
+            "question_text": "What does 'res' represent?",
+            "options": [
+                "The result of the database query",
+                "The Response object (used to send data back to the client)",
+                "The rest of the code",
+                "A reserved keyword"
+            ],
+            "correct_answer": 1,
+            "explanation": "Methods like .send(), .json(), and .status() are called on this object."
+        },
+        {
+            "question_text": "How do you set an HTTP status code (like 404) in Express?",
+            "options": [
+                "res.status(404)",
+                "res.code(404)",
+                "res.set(404)",
+                "res.error(404)"
+            ],
+            "correct_answer": 0,
+            "explanation": "Often chained: `res.status(404).json({ message: 'Not Found' })`."
+        },
+        {
+            "question_text": "What is an Express Router?",
+            "options": [
+                "A physical device for internet",
+                "A mini-application used to group related routes into separate files (modularization)",
+                "A tool for navigation",
+                "A type of loop"
+            ],
+            "correct_answer": 1,
+            "explanation": "Routers make big apps easier to manage."
+        },
+        {
+            "question_text": "Which method starts the server listening for connections?",
+            "options": [
+                "app.start()",
+                "app.listen(port, callback)",
+                "app.open()",
+                "app.run()"
+            ],
+            "correct_answer": 1,
+            "explanation": "This is usually the last line in your main server file."
+        },
+        {
+            "question_text": "How do you handle Query Parameters (e.g., ?page=2)?",
+            "options": [
+                "req.params.page",
+                "req.query.page",
+                "req.body.page",
+                "req.url.search"
+            ],
+            "correct_answer": 1,
+            "explanation": "Query strings are automatically parsed into req.query."
+        },
+        {
+            "question_text": "What is the result of calling `res.end()` without any data?",
+            "options": [
+                "The server crashes",
+                "The response is finished immediately without sending any content",
+                "The user is logged out",
+                "A blank page is shown"
+            ],
+            "correct_answer": 1,
+            "explanation": "Useful for finishing a response cycle quickly."
+        }
+    ]
+}

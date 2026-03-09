@@ -1,0 +1,173 @@
+{
+    "title": "Node.js Internals",
+    "has_project": false,
+    "video_url": "https://www.youtube.com/watch?v=jo_B4LTHi3I",
+    "content": "# ⚙️ Node.js Internals: Beyond the Browser\n\nFor the first 20 years of its life, JavaScript was trapped inside the web browser. It could manipulate HTML buttons, but it physically could not read a file from your hard drive or open a network port to listen for incoming internet traffic.\n\nIn 2009, Ryan Dahl ripped the V8 JavaScript Engine out of Google Chrome, wrapped it in a C++ program called `libuv`, and created **Node.js**. Suddenly, JavaScript could build backend servers capable of handling millions of concurrent connections.\n\n---\n\n## 1️⃣ The Node.js Architecture\n\nNode.js is not a framework or a language. It is a **Runtime Environment**.\n\n```mermaid\ngraph TD\n    A[Your JS Code] --> B[V8 Engine]\n    B -->|Translates JS to Machine Code| C[Node.js Bindings]\n    C --> D[libuv C++ Library]\n    D --> E[Operating System (File System / Networks)]\n```\n\n### The V8 Engine\nWritten in C++ by Google. It takes your raw text (`let x = 5`) and mathematically compiles it down into literal 1s and 0s (Machine Code) that your CPU can physically execute.\n\n### Libuv (The Magic of Asynchronous I/O)\nThis is the heart of Node.js. `libuv` is a C++ library that handles the **Event Loop** and background Thread Pool. It is the reason Node.js is famous for being \"Non-Blocking\".\n\n---\n\n## 2️⃣ The Event Loop and Non-Blocking I/O\n\nTraditional backend languages (like PHP or Ruby) are **Blocking/Synchronous**. If a user requests a 5-megabyte database file, the entire server process halts and waits for the hard drive to spin and find the file. If user #2 connects during that 1-second wait, they are put on hold. To serve 1,000 users, Apache servers had to spawn 1,000 separate, heavy memory threads.\n\n**Node.js is Single Threaded, but Non-Blocking**.\n\n```javascript\nconst fs = require('fs');\n\nconsole.log(\"1. Starting Program\");\n\n// Asynchronous, Non-Blocking File Read\nfs.readFile('/massive-database.json', (err, data) => {\n    console.log(\"3. Finished reading the massive file!\");\n});\n\nconsole.log(\"2. Moving on to other work...\");\n```\n**Output Order:** 1, 2, 3.\n\n### How does this work? (The Event Loop)\nWhen Node hits the `fs.readFile` command:\n1. The single JS thread hands the heavy reading task directly to `libuv`.\n2. `libuv` assigns a tiny background C++ thread to watch the hard drive.\n3. The main JS thread **immediately** moves to the next line (`console.log(\"2\")`), keeping the server 100% responsive for new users.\n4. When the hard drive finishes 5 seconds later, `libuv` yells to the **Event Loop**.\n5. The Event Loop waits for the main JS thread to be empty, and shoves the callback function onto the stack, printing \"3\".\n\nBecause of this, a single Node.js thread can technically handle 10,000 simultaneous connections, as long as it isn't doing heavy CPU math.\n\n---\n\n## 3️⃣ CPU Bound vs I/O Bound Tasks\n\nNode.js is flawless for **I/O Bound** applications (Input/Output).\n- Chat applications transferring text.\n- APIs fetching data from a database and returning JSON.\n- Video streaming.\n\nNode.js is terrible for **CPU Bound** applications.\n- Rendering 3D graphics.\n- Calculating the millionth digit of Pi.\n- Converting a 4K video to 1080p.\n\nIf you block the single thread with 10 seconds of heavy CPU math, the Event Loop stops spinning. All 10,000 connected users instantly freeze and their requests time out.\n\n---\n\n## 4️⃣ Modules: CommonJS vs ES Modules\n\nTo build a massive server, you must split code into hundreds of files. Node.js historically used the **CommonJS (CJS)** module system, which differs from the React (ESM) syntax.\n\n### The Old Way: CommonJS (`require`)\n```javascript\n// math.js\nconst add = (a, b) => a + b;\nmodule.exports = { add }; // Pushing it out\n\n// server.js\nconst math = require('./math.js'); // Pulling it in\nconsole.log(math.add(5, 5));\n```\n\n### The Modern Way: ES Modules (`import`)\nIn modern Node (v14+), you can use the exact same `import/export` syntax as React. You just have to add `\"type\": \"module\"` to your `package.json` file.\n\n```javascript\n// math.mjs\nexport const add = (a, b) => a + b;\n\n// server.mjs\nimport { add } from './math.mjs';\n```\n\n---\n\n## 5️⃣ The Core Modules (Batteries Included)\n\nNode.js ships with powerful integrated libraries interacting directly with the Operating System. You never have to `npm install` these.\n\n1. **`fs` (File System)**: Reading, writing, and deleting physical files on the hard drive.\n2. **`path`**: Safely calculating file directory strings whether the server is on Windows (`C:\folder`) or Linux (`/usr/folder`).\n3. **`os`**: Reading the physical server's CPU cores, free RAM, and network interfaces.\n4. **`http`**: The raw, low-level module capable of opening port 80 and listening to web traffic. (We rarely use this directly anymore; we use Express instead).\n5. **`crypto`**: Hardware-accelerated cryptographic functions for hashing passwords and verifying SSL certificates.\n\n---\n\n## 💡 Summary Hierarchy\n\n| Concept | Explanation | Real-World Impact |\n|---|---|---|\n| **V8 Engine** | The JS Compiler. | Makes JS astronomically fast. |\n| **libuv** | The C++ Async engine. | Prevents the server from freezing during DB queries. |\n| **Event Loop** | The traffic cop. | Takes finished background tasks and executes their callbacks. |\n| **Single-Threaded**| Only one main lane. | Unbeatable for high-concurrency APIs. Terrible for video editing. |\n| **CommonJS** | `require()` | The legacy way Node imports files. |\n| **ESM** | `import {}` | The modern, React-aligned way to import files. |\n",
+    "questions": [
+        {
+            "question_text": "What is Node.js built on?",
+            "options": [
+                "Python's engine",
+                "Chrome's V8 JavaScript engine",
+                "Mozilla's SpiderMonkey",
+                "Apple's Nitro"
+            ],
+            "correct_answer": 1,
+            "explanation": "Node.js uses the V8 engine to execute JavaScript on the server."
+        },
+        {
+            "question_text": "What does it mean that Node.js is 'Non-blocking I/O'?",
+            "options": [
+                "It can only do one thing at a time",
+                "It doesn't wait for data to be read from disk or network; it continues executing and handles the result via a callback",
+                "It blocks all other users",
+                "It is faster because it skip tasks"
+            ],
+            "correct_answer": 1,
+            "explanation": "This allows Node to handle thousands of concurrent connections on a single thread."
+        },
+        {
+            "question_text": "What is the 'Event Loop'?",
+            "options": [
+                "A circular piece of code",
+                "The mechanism that allows Node to perform non-blocking I/O operations by offloading tasks to the system kernel",
+                "A feature for creating animations",
+                "A type of database"
+            ],
+            "correct_answer": 1,
+            "explanation": "The Event Loop is the heart of Node's concurrency model."
+        },
+        {
+            "question_text": "Which core module is used to work with file paths?",
+            "options": [
+                "fs",
+                "path",
+                "url",
+                "os"
+            ],
+            "correct_answer": 1,
+            "explanation": "The 'path' module provides utilities for joining and resolving file system paths."
+        },
+        {
+            "question_text": "What is 'libuv'?",
+            "options": [
+                "A library for ultraviolet light",
+                "A multi-platform support library with a focus on asynchronous I/O that Node uses under the hood",
+                "A new version of JS",
+                "A CSS framework"
+            ],
+            "correct_answer": 1,
+            "explanation": "libuv handles the thread pool and event loop logic in C++."
+        },
+        {
+            "question_text": "What does NPM stand for?",
+            "options": [
+                "Node Package Manager",
+                "New Program Module",
+                "Network Protocol Map",
+                "Node Process Monitor"
+            ],
+            "correct_answer": 0,
+            "explanation": "NPM is the world's largest software registry."
+        },
+        {
+            "question_text": "What is the purpose of 'package.json'?",
+            "options": [
+                "To store image files",
+                "To manage project metadata and dependencies",
+                "To write CSS",
+                "To connect to the database"
+            ],
+            "correct_answer": 1,
+            "explanation": "It lists your project's version, scripts, and libraries."
+        },
+        {
+            "question_text": "What is the difference between `require()` and `import`?",
+            "options": [
+                "There is no difference",
+                "`require()` is CommonJS (older/standard) and `import` is ES Modules (modern standard)",
+                "`import` is faster",
+                "`require()` only works in the browser"
+            ],
+            "correct_answer": 1,
+            "explanation": "Node now supports both, but ES Modules are the future."
+        },
+        {
+            "question_text": "What does the `fs.readFile()` method do?",
+            "options": [
+                "Deletes a file",
+                "Asynchronously reads the entire contents of a file",
+                "Writes text to a file",
+                "Renames a directory"
+            ],
+            "correct_answer": 1,
+            "explanation": "The 'fs' (File System) module is core to server-side tasks."
+        },
+        {
+            "question_text": "What is a 'Buffer' in Node.js?",
+            "options": [
+                "A slow internet connection",
+                "A class used to handle raw binary data",
+                "A type of error",
+                "A security feature"
+            ],
+            "correct_answer": 1,
+            "explanation": "Buffers are used to represent sequences of bytes."
+        },
+        {
+            "question_text": "What is the 'Global' object in Node.js (equivalent to 'window' in browsers)?",
+            "options": [
+                "window",
+                "document",
+                "global",
+                "root"
+            ],
+            "correct_answer": 2,
+            "explanation": "The `global` object provides variables that are available everywhere."
+        },
+        {
+            "question_text": "What is the 'process' object?",
+            "options": [
+                "A way to process images",
+                "A global object that provides information about the current Node.js process",
+                "A tool for CPU monitoring",
+                "A hidden file"
+            ],
+            "correct_answer": 1,
+            "explanation": "Example: `process.env` is used to access environment variables."
+        },
+        {
+            "question_text": "How do you install a dependency as a development tool only (e.g., nodemon)?",
+            "options": [
+                "npm install nodemon",
+                "npm install --save-dev nodemon (or -D)",
+                "npm add nodemon",
+                "npm install -g nodemon"
+            ],
+            "correct_answer": 1,
+            "explanation": "DevDependencies are not installed in production environments."
+        },
+        {
+            "question_text": "What does 'Single Threaded' mean for Node users?",
+            "options": [
+                "Only one person can use the site at a time",
+                "JavaScript execution happens on one main thread, so you should avoid heavy computation (blocking) on it",
+                "It is very slow",
+                "It doesn't use the CPU"
+            ],
+            "correct_answer": 1,
+            "explanation": "If the main thread is blocked, the server becomes unresponsive."
+        },
+        {
+            "question_text": "What is a 'Stream' in Node.js?",
+            "options": [
+                "A video file",
+                "An interface for reading or writing data continuously (in pieces) rather than all at once",
+                "A large array",
+                "A type of database connection"
+            ],
+            "correct_answer": 1,
+            "explanation": "Streams allow you to handle files larger than available RAM."
+        }
+    ]
+}

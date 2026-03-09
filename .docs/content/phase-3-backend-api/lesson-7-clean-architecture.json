@@ -1,0 +1,184 @@
+{
+    "title": "Clean Architecture",
+    "has_project": true,
+    "video_url": "https://www.youtube.com/watch?v=C7D_6G16T70",
+    "content": "# 🏛️ Clean Architecture: Building for 100,000 Lines of Code\n\nIf you put your Database Queries, your Business Logic, your Email Sending code, and your HTTP Response code all inside a single `app.js` file, your project will become a \"Big Ball of Mud\". \n\nWhen a company scales from 1 backend developer to 100 developers, the codebase must be mathematically divided into strict, isolated Layers. This is **Clean Architecture** (also known as Onion Architecture or Hexagonal Architecture).\n\n---\n\n## 1️⃣ The MVC Pattern (The Standard Starter)\n\n**Model-View-Controller (MVC)** is the classic paradigm.\n\n1. **Model (Database)**: The raw structure of the data (e.g., Prisma schema or Mongoose model).\n2. **View (UI)**: In modern tech, this is the React frontend. Express doesn't handle Views anymore.\n3. **Controller (Logic)**: The Express route function that receives the HTTP request, asks the Model for data, and returns JSON.\n\n### The Problem with MVC in Express\nMost developers dump 200 lines of complex business logic directly inside the Controller.\n\"If user buys cart > check inventory > deduct credit card > send email > write to database\".\nThis makes the Controller completely untestable and violently tied to Express.\n\n---\n\n## 2️⃣ The N-Tier Enterprise Architecture\n\nTo fix the MVC bloat, Professional backends introduce a new layer holding the Core Business Logic: **The Service Layer**.\n\n```mermaid\ngraph TD\n    A[Router Layer: 'router.post()'] -->|Receives HTTP| B[Controller Layer: req, res]\n    B -->|Strips away HTTP, passes raw JSON| C[Service Layer: Business Logic]\n    C -->|Requests Database Action| D[Repository/Data Access Layer]\n    D --> E[PostgreSQL Database]\n```\n\n### Layer 1: The Express Router\nIts *only* job is connecting URLs to functions and assigning Middlewares. It does zero math.\n\n```javascript\n// routes/userRoutes.js\nimport express from 'express';\nimport { createUser } from '../controllers/userController.js';\nimport { requireAuth } from '../middleware/auth.js';\n\nconst router = express.Router();\nrouter.post('/register', requireAuth, createUser);\nexport default router;\n```\n\n### Layer 2: The Controller\nIts *only* job is parsing HTTP Requests (`req.body`, `req.params`) and sending HTTP Responses (`res.status(200)`). It does NOT know about the database. In fact, you should be able to swap Express for Fastify or a GraphQL server without modifying a single drop of business logic.\n\n```javascript\n// controllers/userController.js\nimport { UserService } from '../services/userService.js';\n\nexport const createUser = async (req, res) => {\n    try {\n        // Strip away 'req' and 'res'. Pass raw data to the core Service.\n        const result = await UserService.register(req.body.email, req.body.password);\n        \n        // Handle the HTTP response\n        res.status(201).json({ success: true, data: result });\n    } catch (err) {\n        res.status(400).json({ error: err.message });\n    }\n};\n```\n\n### Layer 3: The Service (The Core Application)\nThis handles the heavy lifting: validating rules, checking inventory, processing payments. It knows absolutely nothing about HTTP, `req`, or `res`. \n\n```javascript\n// services/userService.js\nimport { db } from '../data/database.js';\n\nexport class UserService {\n    static async register(email, plainPassword) {\n        // Business Logic 1: Does user exist?\n        const exists = await db.users.find(email);\n        if (exists) throw new Error(\"Email already taken\");\n\n        // Business Logic 2: Hash password\n        const securePassword = await hash(plainPassword);\n\n        // Data Access: Save to DB\n        return await db.users.create({ email, password: securePassword });\n    }\n}\n```\n\n---\n\n## 3️⃣ Dependency Injection (The Absolute Peak)\n\nIf your `UserService` directly imports the `Postgres Database` file, it is permanently locked to Postgres. If the CTO decides to migrate to MongoDB, every single file in the application breaks. \n\n**Dependency Injection (DI)** solves this. Instead of a Service importing a database, you *inject* the database into the Service from the outside.\n\n```javascript\n// The Service simply demands ANY database object that possesses a '.saveUser()' method.\nclass AdvancedUserService {\n    constructor(databaseEngine) {\n        this.db = databaseEngine;\n    }\n\n    async registerUser(email) {\n        await this.db.saveUser(email);\n    }\n}\n\n// In the App setup:\n// If we switch to MongoDB, we just pass in a new MongoEngine here! The UserService code never changes!\nconst postgresEngine = new PostgresDB();\nconst myService = new AdvancedUserService(postgresEngine);\n```\n\n---\n\n## 4️⃣ Environment Variables (`.env`)\n\nNever hardcode passwords or API keys in your code. Hackers have bots that scrape GitHub 24/7 searching for leaked database passwords.\n\nUse a `.env` file to hold secret strings. This file is **always added to `.gitignore`**.\n\n```env\n# .env file (DO NOT COMMIT to Git)\nDATABASE_URL=postgres://admin:superSecretPassword@aws.com/mydb\nSTRIPE_API_KEY=sk_test_123456789\nPORT=8080\n```\n\nNode.js reads these securely using the `dotenv` package.\n```javascript\nimport dotenv from 'dotenv';\ndotenv.config();\n\n// Safely access the invisible password\nconsole.log(process.env.DATABASE_URL);\n```\n\n---\n\n## 💡 Summary Architectural Tenets\n\n- [ ] **Single Responsibility**: A file does exactly one thing. A router routes. A controller parses HTTP. A service calculates math.\n- [ ] **Agnostic Logic**: The Core Service Layer should not import `express`. It should just take in raw parameters and return raw data.\n- [ ] **Dependency Injection**: Pass databases into functions instead of hardcoding imports, making testing incredibly easy.\n- [ ] **Secrets Security**: Store all API keys, JWT Secrets, and Database URLs in a gitignored `.env` file.\n",
+    "questions": [
+        {
+            "question_text": "In a Controller-Service-Repository pattern, where does the 'Business Logic' (e.g., calculating a user's discount) belong?",
+            "options": [
+                "Controller",
+                "Service",
+                "Model",
+                "Router"
+            ],
+            "correct_answer": 1,
+            "explanation": "Services contain the core logic of your application, keeping Controllers lean and Models focused purely on data storage."
+        },
+        {
+            "question_text": "What is 'Clean Architecture'?",
+            "options": [
+                "A design pattern to organize code into layers so it is easy to test and maintain",
+                "Coding without making mistakes",
+                "Deleting old files",
+                "Using a specific folder name"
+            ],
+            "correct_answer": 0,
+            "explanation": "The core goal is 'Independence of Tools' (you can swap DBs or Frameworks without breaking the core logic)."
+        },
+        {
+            "question_text": "What is an 'Entity' in Clean Architecture?",
+            "options": [
+                "A database table",
+                "The core business logic/rules that are independent of the UI or DB",
+                "A user interface component",
+                "The server itself"
+            ],
+            "correct_answer": 1,
+            "explanation": "Entities represent the 'Heart' of your system."
+        },
+        {
+            "question_text": "What is a 'Use Case'?",
+            "options": [
+                "A description of how a user uses the site",
+                "Application-specific business rules that orchestrate the flow of data",
+                "A test script",
+                "A CSS file"
+            ],
+            "correct_answer": 1,
+            "explanation": "Example: 'Register User' or 'Create Order'."
+        },
+        {
+            "question_text": "What is 'Separation of Concerns'?",
+            "options": [
+                "Talking about problems separately",
+                "The idea that different parts of a program should handle different responsibilities (e.g., data fetching vs. data display)",
+                "Splitting the team",
+                "Using multiple servers"
+            ],
+            "correct_answer": 1,
+            "explanation": "This makes code more readable and debuggable."
+        },
+        {
+            "question_text": "What is the 'MVC' pattern?",
+            "options": [
+                "Most Valuable Code",
+                "Model-View-Controller; a pattern for separating data, UI, and logic",
+                "Modern Version Control",
+                "Multiple Variable Calculation"
+            ],
+            "correct_answer": 1,
+            "explanation": "MVC is the most popular architectural pattern for web apps."
+        },
+        {
+            "question_text": "What is the 'Dependency Injection' (DI)?",
+            "options": [
+                "A security hack",
+                "A technique where an object receives its dependencies from outside rather than creating them itself",
+                "Installing packages",
+                "Deleting global variables"
+            ],
+            "correct_answer": 1,
+            "explanation": "DI makes code much easier to test using 'Mocks'."
+        },
+        {
+            "question_text": "What is 'DRY'?",
+            "options": [
+                "Do Repeat Yourself",
+                "Don't Repeat Yourself - avoiding code duplication",
+                "Data Ready Yesterday",
+                "Deploy Rapidly Yearly"
+            ],
+            "correct_answer": 1,
+            "explanation": "If you write the same code twice, turn it into a function/component."
+        },
+        {
+            "question_text": "What is 'KISS'?",
+            "options": [
+                "Keep It Simple, Stupid - avoiding over-engineering",
+                "Keep It Safe and Secure",
+                "Kindness in Software Systems",
+                "Knowledge is Super Small"
+            ],
+            "correct_answer": 0,
+            "explanation": "Write simple code first; only add complexity if absolutely needed."
+        },
+        {
+            "question_text": "What is a 'Monolith' architecture?",
+            "options": [
+                "A very heavy server",
+                "An application where all code (UI, API, DB) is in a single unit/deployment",
+                "A type of database",
+                "A physical rock"
+            ],
+            "correct_answer": 1,
+            "explanation": "Monoliths are easier to start with but harder to scale as the team grows."
+        },
+        {
+            "question_text": "What is 'Microservices' architecture?",
+            "options": [
+                "Small pieces of code",
+                "Breaking an application into small, independent services that communicate over the network",
+                "Using many small databases",
+                "A tiny computer"
+            ],
+            "correct_answer": 1,
+            "explanation": "Microservices allow different teams to work on different parts of an app independently."
+        },
+        {
+            "question_text": "What is the 'Controller's' job in an API?",
+            "options": [
+                "Saving data to the DB",
+                "Handling the incoming HTTP request, talking to the Service layer, and sending the response",
+                "Writing CSS",
+                "Calculating math"
+            ],
+            "correct_answer": 1,
+            "explanation": "Controllers should be 'thin' and only handle the 'web' part of the request."
+        },
+        {
+            "question_text": "What is 'Layered Architecture'?",
+            "options": [
+                "A cake made of code",
+                "Organizing code into horizontal layers (e.g., Presentation, Business, Data)",
+                "Using multiple versions of Node",
+                "A type of cloud hosting"
+            ],
+            "correct_answer": 1,
+            "explanation": "Each layer only talks to the layer directly below it."
+        },
+        {
+            "question_text": "What is 'Coupling'?",
+            "options": [
+                "A romantic relationship",
+                "How dependent different modules are on each other (Low coupling is better)",
+                "Merging two databases",
+                "Using two servers"
+            ],
+            "correct_answer": 1,
+            "explanation": "Low coupling means you can change one file without breaking 50 others."
+        },
+        {
+            "question_text": "What is 'Cohesion'?",
+            "options": [
+                "Sticking together",
+                "How related the functions within a single module are (High cohesion is better)",
+                "Deleting unused code",
+                "An external library"
+            ],
+            "correct_answer": 1,
+            "explanation": "High cohesion means a file does ONE thing and does it well."
+        },
+        {
+            "question_text": "What is 'Test-Driven Development' (TDD)?",
+            "options": [
+                "Testing after deployment",
+                "A process where you write the test BEFORE you write the actual code",
+                "A specialized test server",
+                "Deleting buggy code"
+            ],
+            "correct_answer": 1,
+            "explanation": "TDD leads to better architecture and fewer bugs."
+        }
+    ]
+}

@@ -1,0 +1,182 @@
+{
+    "title": "Authentication (Base)",
+    "has_project": false,
+    "video_url": "https://www.youtube.com/watch?v=67_aMPDk27M",
+    "content": "# 🔐 Authentication Base: Hashes, Salts, and Sessions\n\nThe most dangerous code you will ever write involves User Authentication. If you design a button wrong, the user gets annoyed. If you design Authentication wrong, you will leak 10,000 passwords onto the dark web and destroy your company.\n\nIn this lesson, we study the absolute foundational rules of modern password storage: **Hashing** and **Salting**.\n\n---\n\n## 1️⃣ Rule #1: NEVER Store Plain-Text Passwords\n\nIf your database looks like this, you have committed a fireable offense:\n\n| id | username | password |\n|--|--|--|\n| 1 | admin | `Password123` |\n| 2 | bob | `ilovedogs` |\n\nIf a hacker exploits a single tiny vulnerability in your Express code (SQL Injection), they download the database table. Because the passwords are raw strings, they instantly log into your users' banking, email, and social media accounts (since people reuse passwords).\n\n---\n\n## 2️⃣ The Cryptographic Hash Function\n\nTo solve this, we use mathematics. A **Hash Function** (like SHA-256 or bcrypt) takes an input string and scrambles it into a fixed-length string of garbage.\n\n```bash\nInput: \"hello\"\nOutput (SHA-256): 2CF24DBA5FB0A30E26E83B2AC5B9E29E1B161E5C1FA7425E730...\n```\n\n### The Three Laws of Hashing:\n1. **Deterministic**: Inputting `\"hello\"` will *always* generate the exact same hash.\n2. **One-Way (Irreversible)**: It is mathematically impossible to take the hash and reverse-engineer it back into the word `\"hello\"`.\n3. **Avalanche Effect**: Changing `\"hello\"` to `\"hellp\"` completely destroys the entire output string, making it impossible to guess if two passwords are similar.\n\n**The Authentication Flow:**\n1. User creates account with password `\"12345\"`.\n2. Server runs `hash(\"12345\")` -> `abcde99`.\n3. Server saves `abcde99` to the database. (The server *never* knows the real password).\n4. User logs in tomorrow and types `\"12345\"`.\n5. Server hashes their login attempt -> `abcde99`.\n6. Server checks if `abcde99 === abcde99`. Access granted.\n\n---\n\n## 3️⃣ Breaking Hashes: Rainbow Tables & Salting\n\nHackers found a way around basic hashing. They generated a \"Rainbow Table\": a 500GB Excel spreadsheet containing every single word in the dictionary, alongside its pre-computed Hash.\nWhen they steal your database, they just run `.find()` on their spreadsheet to reverse-lookup the hash. If your user's password was `\"password123\"`, the hacker cracks it in 0.4 seconds.\n\n### The Solution: Salting\nA **Salt** is a 20-character string of pure, random gibberish generated *uniquely* for every single user at the moment they sign up.\n\n1. User registers: `\"password123\"`.\n2. Server generates random salt: `XyZ!9kP`.\n3. Server glues them together: `\"password123\" + \"XyZ!9kP\"`.\n4. Server hashes the glued string: `8f7b...`\n\nNow, the hacker's 500GB Rainbow Table is completely useless, because the dictionary does not contain the word `\"password123XyZ!9kP\"`.\n\n---\n\n## 4️⃣ Implementing Bcrypt in Express\n\nWe do not write cryptography from scratch. We rely on industry-standard libraries like **Bcrypt**, which automatically handles salting and hashing.\n\n```bash\nnpm install bcrypt\n```\n\n### Route 1: Registration\n```javascript\nimport express from 'express';\nimport bcrypt from 'bcrypt';\n\nconst app = express();\napp.use(express.json());\n\napp.post('/api/register', async (req, res) => {\n    const { username, plainTextPassword } = req.body;\n\n    try {\n        // 1. Define the \"cost factor\" (How slow the math is). \n        // 10 is standard. By slowing down the CPU, we prevent hackers from \n        // guessing 10 billion combinations a second via brute force.\n        const saltRounds = 10;\n        \n        // 2. Generate the Hash (Bcrypt automatically generates and embeds the Salt inside the hash string)\n        const hashedPassword = await bcrypt.hash(plainTextPassword, saltRounds);\n\n        // 3. Save to DB\n        await db.users.insert({ username, password: hashedPassword });\n\n        res.status(201).json({ message: \"Registered safely!\" });\n    } catch (err) {\n        res.status(500).json({ error: \"Server Error\" });\n    }\n});\n```\n\n### Route 2: Login\n```javascript\napp.post('/api/login', async (req, res) => {\n    const { username, plainTextPasswordAttempt } = req.body;\n\n    // 1. Fetch the user's stored hash from the Database\n    const user = await db.users.find({ username });\n    if (!user) return res.status(404).json({ error: \"User not found\" });\n\n    // 2. Compare the plain-text attempt against the stored hash\n    // Bcrypt automatically extracts the embedded salt, applies it to the attempt, hashes it, and compares.\n    const isMatch = await bcrypt.compare(plainTextPasswordAttempt, user.password);\n\n    if (isMatch) {\n        // SUCCESS! \n        res.status(200).json({ message: \"Logged in!\" });\n    } else {\n        // Never tell the user \"Password incorrect\", just say \"Invalid Credentials\" \n        // so hackers don't know if they guessed a valid username or not.\n        res.status(401).json({ error: \"Invalid Credentials\" });\n    }\n});\n```\n\n---\n\n## 💡 Summary Cryptography Rules\n\n| Term | Definition | Purpose |\n|---|---|---|\n| **Plain-Text** | `my_dog_123` | Never store this. A catastrophic security failure. |\n| **Encode** | Base64 | Just translating letters to other letters. Hackers can trivially reverse this. |\n| **Encrypt** | AES-256 | Scrambling data with a Master Key. You do this if you need to read the data later (like Credit Cards). |\n| **Hash** | SHA-256 | Irreversibly destroying text into a fingerprint. You do this for Passwords. |\n| **Salt** | Random garbage | Added before hashing. Defeats Rainbow Table lookup attacks. |\n| **Bcrypt** | Npm Library | The industry standard algorithm that handles salting and slow-hashing automatically. |\n",
+    "questions": [
+        {
+            "question_text": "What is the purpose of 'salting' a password during hashing?",
+            "options": [
+                "To make the hashing process faster",
+                "To encrypt the password twice",
+                "To ensure the same password results in a different hash every time",
+                "To compress the file size"
+            ],
+            "correct_answer": 2,
+            "explanation": "Salting adds a random string to the password before hashing, making it impossible for hackers to use 'pre-computed' tables of common passwords."
+        },
+        {
+            "question_text": "What is 'Authentication'?",
+            "options": [
+                "Deciding what a user can do",
+                "Verifying WHO the user is (Identity)",
+                "encrypting data",
+                "Loading images"
+            ],
+            "correct_answer": 1,
+            "explanation": "Authentication answers the question 'Are you who you say you are?'."
+        },
+        {
+            "question_text": "What is 'Authorization'?",
+            "options": [
+                "Verifying who the user is",
+                "Deciding WHAT a user is allowed to do (Permissions)",
+                "Updating a profile",
+                "Resetting a password"
+            ],
+            "correct_answer": 1,
+            "explanation": "Authorization happens AFTER Authentication."
+        },
+        {
+            "question_text": "Why should you NEVER store passwords in plain text?",
+            "options": [
+                "They take up too much space",
+                "If the database is leaked, hackers can see everyone's password instantly",
+                "It's against the law",
+                "The database will crash"
+            ],
+            "correct_answer": 1,
+            "explanation": "Security 101: Always use hashing + salting."
+        },
+        {
+            "question_text": "What is 'Hashing'?",
+            "options": [
+                "A type of encryption that can be reversed",
+                "A one-way mathematical function that turns a password into a unique string of characters",
+                "Making a password shorter",
+                "A search algorithm"
+            ],
+            "correct_answer": 1,
+            "explanation": "You cannot 'un-hash' a value to get the original password."
+        },
+        {
+            "question_text": "What is a 'Salt' in the context of security?",
+            "options": [
+                "A seasoning for food",
+                "A random string added to a password before hashing to make it unique even if two users have the same password",
+                "A type of cookie",
+                "A hidden variable"
+            ],
+            "correct_answer": 1,
+            "explanation": "Salting prevents 'Rainbow Table' attacks."
+        },
+        {
+            "question_text": "Which library is most commonly used for hashing passwords in Node.js?",
+            "options": [
+                "Crypto",
+                "Bcrypt",
+                "PasswordJS",
+                "SafeText"
+            ],
+            "correct_answer": 1,
+            "explanation": "Bcrypt is slow on purpose, making it harder for hackers to brute-force passwords."
+        },
+        {
+            "question_text": "What is 'Session-Based Authentication'?",
+            "options": [
+                "Storing user data in a cookie",
+                "Storing user state on the server (usually in memory or Redis) and giving the user a Session ID",
+                "A temporary login",
+                "Logging in without a password"
+            ],
+            "correct_answer": 1,
+            "explanation": "The server 'remembers' the user as long as the session is active."
+        },
+        {
+            "question_text": "What is a 'Token-Based Authentication' (e.g., JWT)?",
+            "options": [
+                "The server doesn't store state; the user carries their identity in a signed token",
+                "Using a physical coin to log in",
+                "A type of encryption",
+                "Only for mobile apps"
+            ],
+            "correct_answer": 0,
+            "explanation": "Tokens are 'Stateless' and great for scaling across multiple servers."
+        },
+        {
+            "question_text": "What is 'OAuth 2.0'?",
+            "options": [
+                "A login form",
+                "An open standard for access delegation (e.g., 'Login with Google')",
+                "A new version of JS",
+                "A type of firewall"
+            ],
+            "correct_answer": 1,
+            "explanation": "It allows users to share data with 3rd party apps without sharing their password."
+        },
+        {
+            "question_text": "What is 'Multi-Factor Authentication' (MFA)?",
+            "options": [
+                "Logging in twice",
+                "Requiring two or more pieces of evidence to verify identity (e.g., password + SMS code)",
+                "Using multiple passwords",
+                "A premium feature"
+            ],
+            "correct_answer": 1,
+            "explanation": "MFA significantly increases security."
+        },
+        {
+            "question_text": "What is CSRF (Cross-Site Request Forgery)?",
+            "options": [
+                "A type of CSS error",
+                "An attack where a malicious site tricks a user's browser into performing an action on another site where they are logged in",
+                "Stealing passwords",
+                "Deleting the database"
+            ],
+            "correct_answer": 1,
+            "explanation": "Security measures like 'anti-csrf' tokens prevent this."
+        },
+        {
+            "question_text": "What is the danger of 'XSS' (Cross-Site Scripting)?",
+            "options": [
+                "It makes the site slow",
+                "An attacker injects malicious scripts into your site, which run in other users' browsers",
+                "It deletes images",
+                "It changes colors"
+            ],
+            "correct_answer": 1,
+            "explanation": "Attacker could steal session cookies using XSS."
+        },
+        {
+            "question_text": "What is 'Rate Limiting'?",
+            "options": [
+                "Making the internet faster",
+                "Restricting the number of requests a user can make in a set time to prevent brute-force attacks or DDoS",
+                "Charging users for use",
+                "Deleting old accounts"
+            ],
+            "correct_answer": 1,
+            "explanation": "Crucial for protecting login endpoints."
+        },
+        {
+            "question_text": "What is a 'Middleware's' role in authentication?",
+            "options": [
+                "To show the login page",
+                "To check if a request has a valid token/session before allowing access to a protected route",
+                "To encrypt files",
+                "To save user data"
+            ],
+            "correct_answer": 1,
+            "explanation": "Think of it as a 'Guard' at the gate of your API."
+        },
+        {
+            "question_text": "True or False: Storing sensitive data like API keys in the code is safe if the repo is private.",
+            "options": [
+                "True",
+                "False"
+            ],
+            "correct_answer": 1,
+            "explanation": "NEVER store secrets in code. Use environment variables (.env)."
+        }
+    ]
+}
