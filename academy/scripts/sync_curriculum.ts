@@ -25,7 +25,7 @@ async function syncCourse(courseSlug: string) {
     }
 
     const courseData = JSON.parse(fs.readFileSync(coursePath, 'utf8'));
-    const { title, description, course_overview, course_outline, difficulty, duration, price, modules } = courseData;
+    const { title, description, image_url, course_overview, course_outline, difficulty, duration, price, modules } = courseData;
 
     // 1. Fetch/Update Course and Get Real ID
     console.log(`Matching course by slug: ${courseSlug}...`);
@@ -35,6 +35,7 @@ async function syncCourse(courseSlug: string) {
             slug: courseSlug,
             title,
             description,
+            image_url,
             course_overview,
             course_outline,
             level: difficulty,
