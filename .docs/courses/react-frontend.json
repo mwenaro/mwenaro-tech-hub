@@ -3,7 +3,6 @@
     "slug": "react-frontend",
     "title": "React Frontend Engineering",
     "description": "Build type-safe, performant Single Page Applications (SPAs) using React, TypeScript, and modern state management architectures.",
-    "difficulty": "Intermediate",
     "price": 79.99,
     "total_modules": 10,
     "duration": 8,

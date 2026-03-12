@@ -3,7 +3,6 @@
     "slug": "backend-api",
     "title": "Backend API Engineering",
     "description": "Architect production-grade Node.js systems, design resilient PostgreSQL databases, and master JWT Authentication and Clean Architecture.",
-    "difficulty": "Advanced",
     "price": 89.99,
     "total_modules": 7,
     "duration": 8,
