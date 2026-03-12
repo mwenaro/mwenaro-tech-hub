@@ -2,84 +2,172 @@
     "title": "The Terminal: Cross-Platform CLI Mastery",
     "has_project": false,
     "video_url": "https://www.youtube.com/watch?v=J3mC0t_G7qQ",
-    "content": "# 💻 Mastering the Terminal (Windows, Mac, Linux)\n\n## 🎯 Lesson Objectives\n\nBy the end of this lesson, learners will be able to:\n\n* Understand what the terminal is and how it differs across platforms.\n* Navigate directories using standard commands.\n* Create, view, copy, move, rename, and delete files and folders using the CLI.\n\n---\n\n## ⌨️ What is the Terminal?\n\nThe **terminal** (also called the command line) allows you to interact with your computer using text commands instead of a mouse.\n\nDevelopers use the terminal to:\n* Manage files and folders efficiently.\n* Run programs and automated scripts.\n* Use version control (Git).\n* Control development servers and tools.\n\n### 🛡️ One Language, Many Platforms\nIn modern software engineering, the Terminal is the universal language. However, how you access it depends on your operating system:\n\n- **Mac Users**: macOS is built on a Unix foundation; your native **Terminal** app supports these commands natively.\n- **Linux Users**: This is your natural environment.\n- **Windows Users**: **This is critical.** Standard Windows tools like \"Command Prompt\" or \"PowerShell\" follow different rules. To run these standard developer commands on Windows, you **must** use a compatibility tool like **Git Bash** or the **Windows Subsystem for Linux (WSL)**. \n\n---\n\n## 📂 Understanding Directories\n\nA **directory** is simply another name for a **folder**. The terminal lets you move between directories and manage what’s inside them.\n\n### The Shell Prompt\nEvery line starts with a prompt, giving you context:\n`dev@machine:~/projects$`\n- `dev`: The current user.\n- `~`: Shortcut for your **Home Directory**.\n- `$`: Indicates you are a standard user.\n\n---\n\n# 🔑 Essential Commands\n\n## 📍 `pwd` — Print Working Directory\nShows the folder you are currently inside.\n```bash\npwd\n```\n\n--- \n\n## 📄 `ls` — List Files and Folders\nShows the contents of the current directory.\n```bash\nls\n```\n### Useful Flags\n- `ls -a`: Shows hidden files (files starting with a `.`).\n- `ls -l`: Shows a detailed list (size, date, permissions).\n- `ls -la`: Combines both—shows hidden files in a detailed view.\n\n--- \n\n## 📁 `cd` — Change Directory\n- Move into a folder: `cd projects` \n- Move back one level: `cd ..` \n- Go to home directory: `cd ~` \n\n--- \n\n## 🧹 `clear` — Clear the Screen\nRemoves previous commands from view (start with a fresh slate).\n```bash\nclear\n```\n\n--- \n\n## 🆕 `mkdir` & `touch` — Create Things\n- `mkdir website`: Creates a new folder. \n- `touch index.html`: Creates an empty file.\n\n--- \n\n## 🗣️ `echo` — Print and Write Content\n\n### 1️⃣ Print Text\n`echo Hello World` \n\n### 2️⃣ Create or Overwrite (`>`)\nUsing `>` writes text into a file. If the file exists, it **replaces** everything inside.\n`echo \"My first webpage\" > index.html` \n\n### 3️⃣ Append Content (`>>`)\nUsing `>>` adds text to the end of a file without deleting what is already inside.\n`echo \"This line was added later\" >> index.html` \n\n| Command | What It Does |\n|---|---|\n| `echo \"text\" > file.txt` | Creates or **overwrites** existing content |\n| `echo \"text\" >> file.txt` | **Appends** text to the end of the file |\n\n--- \n\n## 📖 `cat` — View and Create Content\n\n- **View**: `cat index.html` (Displays what is inside).\n- **Create/Overwrite**: `cat > notes.txt` (Type content, then press **CTRL+D** to save).\n- **Append**: `cat >> notes.txt` (Add content, press **CTRL+D** to save).\n\n--- \n\n## 📋 `cp` & `mv` — Copy and Move\n- **Copy File**: `cp index.html about.html` \n- **Copy Folder**: `cp -r website backup-website` (The `-r` is required for folders).\n- **Rename/Move**: `mv index.html home.html` \n\n--- \n\n## ❌ `rm` & `rmdir` — Delete\n- **Delete Empty Folder**: `rmdir old-folder` \n- **Delete File**: `rm file.txt` \n- **Delete Folder & Content**: `rm -r website` \n\n**⚠️ CAUTION: Deletions are instantaneous and permanent. There is no Recycle Bin.**\n\n---\n\n## 🧪 Practice Exercise\n\nTry the following commands step by step:\n\n```bash\nmkdir web-practice\ncd web-practice\ntouch index.html\necho \"Hello Web\" > index.html\necho \"Learning terminal commands\" >> index.html\ncat index.html\nmkdir assets\ncp index.html assets/\nls -l\n```\n\n---\n\n## 🖼️ Terminal Example\n\n![Terminal example](/images/terminal-example.png)\n\n--- \n\n## 🎥 Lesson Video\n\n<video controls width=\"100%\">\n  <source src=\"/videos/lesson-3-terminal-basics.mp4\" type=\"video/mp4\">\n  Your browser does not support the video tag.\n</video>\n\n---\n\n## 📝 Project Task: Terminal Mastery\n\nUsing only the terminal:\n\n1. Create a folder named `my-first-website`\n2. Inside it, create `index.html` and `about.html`.\n3. Add the text **\"Welcome to my website\"** inside `index.html` using `echo`.\n4. Append another line to `index.html` using `echo >>`.\n5. Create a file called `notes.txt` using `cat` and write two lines inside.\n6. Append a third line to `notes.txt` using `cat >>`.\n7. Copy `index.html` into a new folder called `backup`.\n8. Rename `about.html` to `about-me.html`.\n9. Verify your folder structure using `ls -l`.\n",
+    "content": "# 💻 Mastering the Terminal (Windows, Mac, Linux)\n\n## 🎯 Lesson Objectives\n\nBy the end of this lesson, learners will be able to:\n\n* Understand what the terminal is and how it differs across platforms.\n* Navigate directories using standard commands.\n* Create, view, copy, move, rename, and delete files and folders using the CLI.\n\n---\n\n## ⌨️ What is the Terminal?\n\nThe **terminal** (also called the command line) allows you to interact with your computer using text commands instead of a mouse.\n\nDevelopers use the terminal to:\n* Manage files and folders efficiently.\n* Run programs and automated scripts.\n* Use version control (Git).\n* Control development servers and tools.\n\n### 🛡️ One Language, Many Platforms\nIn modern software engineering, the Terminal is the universal language. However, how you access it depends on your operating system:\n\n- **Mac Users**: macOS is built on a Unix foundation; your native **Terminal** app supports these commands natively.\n- **Linux Users**: This is your natural environment.\n- **Windows Users**: **This is critical.** Standard Windows tools like \"Command Prompt\" (CMD) or \"PowerShell\" follow different rules. To run these standard developer commands on Windows, you **must** use a compatibility tool like **Git Bash** or the **Windows Subsystem for Linux (WSL)**. \n\n---\n\n## 📂 Understanding Directories\n\nA **directory** is simply another name for a **folder**. The terminal lets you move between directories and manage what’s inside them.\n\n### The Shell Prompt\nEvery line starts with a prompt, giving you context:\n`dev@machine:~/projects$`\n- `dev`: The current user.\n- `~`: Shortcut for your **Home Directory**.\n- `$`: Indicates you are a standard user.\n\n---\n\n# 🔑 Essential Commands\n\n## 📍 `pwd` — Print Working Directory\nShows the folder you are currently inside.\n```bash\npwd\n```\n\n--- \n\n## 📄 `ls` — List Files and Folders\nShows the contents of the current directory.\n```bash\nls\n```\n### Useful Flags\n- `ls -a`: Shows hidden files (files starting with a `.`).\n- `ls -l`: Shows a detailed list (size, date, permissions).\n- `ls -la`: Combines both—shows hidden files in a detailed view.\n\n--- \n\n## 📁 `cd` — Change Directory\n- Move into a folder: `cd projects` \n- Move back one level: `cd ..` \n- Go to home directory: `cd ~` \n\n--- \n\n## 🧹 `clear` — Clear the Screen\nRemoves previous commands from view (start with a fresh slate).\n```bash\nclear\n```\n\n--- \n\n## 🆕 `mkdir` & `touch` — Create Things\n- `mkdir website`: Creates a new folder. \n- `touch index.html`: Creates an empty file.\n\n--- \n\n## 🗣️ `echo` — Print and Write Content\n\n### 1️⃣ Print Text\n`echo Hello World` \n\n### 2️⃣ Create or Overwrite (`>`)\nUsing `>` writes text into a file. If the file exists, it **replaces** everything inside.\n`echo \"My first webpage\" > index.html` \n\n### 3️⃣ Append Content (`>>`)\nUsing `>>` adds text to the end of a file without deleting what is already inside.\n`echo \"This line was added later\" >> index.html` \n\n| Command | What It Does |\n|---|---|\n| `echo \"text\" > file.txt` | Creates or **overwrites** existing content |\n| `echo \"text\" >> file.txt` | **Appends** text to the end of the file |\n\n--- \n\n## 📖 `cat` — View and Create Content\n\n- **View**: `cat index.html` (Displays what is inside).\n- **Create/Overwrite**: `cat > notes.txt` (Type content, then press **CTRL+D** to save).\n- **Append**: `cat >> notes.txt` (Add content, press **CTRL+D** to save).\n\n--- \n\n## 📋 `cp` & `mv` — Copy and Move\n- **Copy File**: `cp index.html about.html` \n- **Copy Folder**: `cp -r website backup-website` (The `-r` is required for folders).\n- **Rename/Move**: `mv index.html home.html` \n\n--- \n\n## ❌ `rm` & `rmdir` — Delete\n- **Delete Empty Folder**: `rmdir old-folder` \n- **Delete File**: `rm file.txt` \n- **Delete Folder & Content**: `rm -r website` \n\n**⚠️ CAUTION: Deletions are instantaneous and permanent. There is no Recycle Bin.**\n\n---\n\n## 🧪 Practice Exercise\n\nTry the following commands step by step:\n\n```bash\nmkdir web-practice\ncd web-practice\ntouch index.html\necho \"Hello Web\" > index.html\necho \"Learning terminal commands\" >> index.html\ncat index.html\nmkdir assets\ncp index.html assets/\nls -l\n```\n\n---\n\n## 🖼️ Terminal Example\n\n![Terminal example](/images/terminal-example.png)\n\n--- \n\n## 🎥 Lesson Video\n\n<video controls width=\"100%\">\n  <source src=\"/videos/lesson-3-terminal-basics.mp4\" type=\"video/mp4\">\n  Your browser does not support the video tag.\n</video>\n\n---\n\n## 📝 Project Task: Terminal Mastery\n\nUsing only the terminal:\n\n1. Create a folder named `my-first-website`\n2. Inside it, create `index.html` and `about.html`.\n3. Add the text **\"Welcome to my website\"** inside `index.html` using `echo`.\n4. Append another line to `index.html` using `echo >>`.\n5. Create a file called `notes.txt` using `cat` and write two lines inside.\n6. Append a third line to `notes.txt` using `cat >>`.\n7. Copy `index.html` into a new folder called `backup`.\n8. Rename `about.html` to `about-me.html`.\n9. Verify your folder structure using `ls -l`.\n",
     "questions": [
         {
-            "question_text": "Which command allows you to see the path of your current directory?",
+            "question_text": "What does the 'pwd' command display?",
             "options": [
-                "ls",
-                "cd",
-                "pwd",
-                "dir"
+                "All files in a folder",
+                "Your current directory path",
+                "Hidden files only",
+                "System password details"
+            ],
+            "correct_answer": 1,
+            "explanation": "'pwd' stands for Print Working Directory and shows your current folder path."
+        },
+        {
+            "question_text": "Which command lists files including hidden ones?",
+            "options": [
+                "ls -l",
+                "ls -a",
+                "ls hidden",
+                "show -a"
+            ],
+            "correct_answer": 1,
+            "explanation": "The '-a' flag shows hidden files when using the ls command."
+        },
+        {
+            "question_text": "What does 'ls -l' provide?",
+            "options": [
+                "A list of only folders",
+                "A detailed file list with permissions and sizes",
+                "A list of hidden files only",
+                "The largest files in a folder"
+            ],
+            "correct_answer": 1,
+            "explanation": "'ls -l' shows files in long format, including permissions, size, and date."
+        },
+        {
+            "question_text": "Which command moves you into a directory named 'projects'?",
+            "options": [
+                "move projects",
+                "cd projects",
+                "ls projects",
+                "open projects"
+            ],
+            "correct_answer": 1,
+            "explanation": "'cd projects' changes your current directory to the 'projects' folder."
+        },
+        {
+            "question_text": "What does the 'clear' command do?",
+            "options": [
+                "Deletes all files",
+                "Clears the terminal screen",
+                "Stops running programs",
+                "Removes command history permanently"
+            ],
+            "correct_answer": 1,
+            "explanation": "'clear' simply clears the visible terminal screen."
+        },
+        {
+            "question_text": "Which command creates a new folder?",
+            "options": [
+                "touch folder",
+                "new folder",
+                "mkdir folder",
+                "make folder"
             ],
             "correct_answer": 2,
-            "explanation": "pwd stands for 'Print Working Directory'."
+            "explanation": "'mkdir' means make directory and creates a new folder."
         },
         {
-            "question_text": "If you are on Windows, which tool provides a compatible environment for these standard Terminal commands?",
+            "question_text": "What does 'touch index.html' do?",
             "options": [
-                "Notepad",
-                "Git Bash or WSL",
-                "Windows Media Player",
-                "File Explorer"
-            ],
-            "correct_answer": 1,
-            "explanation": "Git Bash and WSL provide a POSIX-compliant shell environment on Windows."
-        },
-        {
-            "question_text": "What is the key difference between > and >> when using echo?",
-            "options": [
-                "> appends content; >> overwrites content.",
-                "> overwrites content; >> appends content to the end.",
-                "There is no difference.",
-                "> is for files; >> is for folders."
-            ],
-            "correct_answer": 1,
-            "explanation": "Single bracket (>) replaces everything; double (>>) adds to the end."
-        },
-        {
-            "question_text": "How do you copy an entire folder and its contents?",
-            "options": [
-                "cp folder new-folder",
-                "cp -r folder new-folder",
-                "mv folder new-folder",
-                "copy folder new-folder"
-            ],
-            "correct_answer": 1,
-            "explanation": "The -r (recursive) flag is required to copy directories."
-        },
-        {
-            "question_text": "Which character represents your 'Home' directory?",
-            "options": [
-                "/",
-                ".",
-                "~",
-                "$"
+                "Opens the file for editing",
+                "Deletes the file",
+                "Creates an empty file named index.html",
+                "Renames a file"
             ],
             "correct_answer": 2,
-            "explanation": "The tilde (~) is the standard shortcut for the current user's home folder."
+            "explanation": "'touch' creates a new empty file if it doesn't exist."
         },
         {
-            "question_text": "How do you save and exit when creating a file using 'cat > file.txt'?",
+            "question_text": "What happens when you run: echo \"Hello\" > file.txt",
             "options": [
-                "Enter + Esc",
-                "CTRL + C",
-                "CTRL + D",
-                "q"
+                "Adds text to the end of file.txt",
+                "Deletes file.txt",
+                "Creates or overwrites file.txt with 'Hello'",
+                "Displays file.txt content"
             ],
             "correct_answer": 2,
-            "explanation": "CTRL + D sends the EOF (End Of File) signal to the terminal."
+            "explanation": "The '>' symbol overwrites the file with the provided text."
         },
         {
-            "question_text": "Which flag is used with 'ls' to see hidden files (starting with a dot)?",
+            "question_text": "What does 'echo \"Hi\" >> file.txt' do?",
             "options": [
-                "-h",
-                "-a",
-                "-l",
-                "-x"
+                "Deletes file.txt",
+                "Appends 'Hi' to the end of file.txt",
+                "Creates a new folder",
+                "Displays the file content"
             ],
             "correct_answer": 1,
-            "explanation": "'-a' stands for 'all', which includes hidden entries."
+            "explanation": "'>>' appends text to the end of an existing file."
+        },
+        {
+            "question_text": "Which command allows you to type content directly into a file from the terminal?",
+            "options": [
+                "cat > file.txt",
+                "touch file.txt",
+                "echo file.txt",
+                "ls file.txt"
+            ],
+            "correct_answer": 0,
+            "explanation": "'cat > file.txt' lets you type content into a file until you press CTRL + D."
+        },
+        {
+            "question_text": "What does 'cat >> notes.txt' allow you to do?",
+            "options": [
+                "Delete notes.txt",
+                "Rename notes.txt",
+                "Append content to notes.txt",
+                "Move notes.txt"
+            ],
+            "correct_answer": 2,
+            "explanation": "'cat >>' adds new content to the end of the file without deleting existing content."
+        },
+        {
+            "question_text": "Which command copies a file?",
+            "options": [
+                "mv file1 file2",
+                "cp file1 file2",
+                "rm file1 file2",
+                "cat file1 file2"
+            ],
+            "correct_answer": 1,
+            "explanation": "'cp' copies files or directories."
+        },
+        {
+            "question_text": "What does the 'mv' command do?",
+            "options": [
+                "Views file content",
+                "Moves or renames files and folders",
+                "Makes a new directory",
+                "Deletes files permanently"
+            ],
+            "correct_answer": 1,
+            "explanation": "'mv' is used to move files or rename them."
+        },
+        {
+            "question_text": "Which command removes an empty directory?",
+            "options": [
+                "rm folder",
+                "delete folder",
+                "rmdir folder",
+                "clear folder"
+            ],
+            "correct_answer": 2,
+            "explanation": "'rmdir' removes directories that are empty."
+        },
+        {
+            "question_text": "Which command deletes a folder and everything inside it?",
+            "options": [
+                "rmdir folder",
+                "rm -r folder",
+                "delete -all folder",
+                "clear folder"
+            ],
+            "correct_answer": 1,
+            "explanation": "'rm -r' recursively deletes a folder and all its contents."
         }
     ]
 }
