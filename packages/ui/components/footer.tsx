@@ -65,10 +65,10 @@ export const Footer: React.FC<FooterProps> = ({ currentApp = 'hub' }) => {
             <ul className="space-y-4 text-sm font-medium text-secondary-foreground opacity-70">
               <li>
                 <a
-                  href="mailto:support@mwenaro.co.ke"
+                  href="mailto:support@mwenaro.com"
                   className="hover:text-primary hover:opacity-100 transition-all"
                 >
-                  support@mwenaro.co.ke
+                  support@mwenaro.com
                 </a>
               </li>
               <li>Likoni, Mombasa</li>

@@ -37,8 +37,8 @@ export default function ContactPage() {
                   <Rocket className="w-10 h-10 text-primary mb-6" />
                   <h3 className="text-2xl font-bold mb-2 text-foreground">Project Discovery</h3>
                   <p className="text-zinc-500 dark:text-zinc-400 mb-6 leading-relaxed">Schedule a free 30-minute consultation to discuss your vision and technical requirements.</p>
-                  <a href="mailto:labs@mwenaro.co.ke" className="text-primary font-bold hover:underline flex items-center gap-2">
-                    labs@mwenaro.co.ke
+                  <a href="mailto:labs@mwenaro.com" className="text-primary font-bold hover:underline flex items-center gap-2">
+                    labs@mwenaro.com
                   </a>
                 </div>
 
@@ -47,8 +47,8 @@ export default function ContactPage() {
                   <Code2 className="w-10 h-10 text-primary mb-6" />
                   <h3 className="text-2xl font-bold mb-2 text-foreground">Technical Audit</h3>
                   <p className="text-zinc-500 dark:text-zinc-400 mb-6 leading-relaxed">Need help scaling your current architecture? We offer comprehensive technical audits.</p>
-                  <a href="mailto:audit@mwenaro.co.ke" className="text-primary font-bold hover:underline flex items-center gap-2">
-                    audit@mwenaro.co.ke
+                  <a href="mailto:audit@mwenaro.com" className="text-primary font-bold hover:underline flex items-center gap-2">
+                    audit@mwenaro.com
                   </a>
                 </div>
               </div>

@@ -16,7 +16,7 @@ const contactInfo = [
     {
         icon: Mail,
         title: "Email Us",
-        detail: "support@mwenaro.co.ke",
+        detail: "support@mwenaro.com",
         description: "We'll respond within 24 hours",
     },
     {

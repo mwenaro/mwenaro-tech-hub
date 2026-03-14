@@ -41,8 +41,8 @@ export default function ContactPage() {
                       </div>
                       <div>
                         <h3 className="font-bold text-lg mb-1 text-foreground">Email</h3>
-                        <p className="text-zinc-500 dark:text-zinc-400">hello@mwenaro.co.ke</p>
-                        <p className="text-zinc-500 dark:text-zinc-400">support@mwenaro.co.ke</p>
+                        <p className="text-zinc-500 dark:text-zinc-400">hello@mwenaro.com</p>
+                        <p className="text-zinc-500 dark:text-zinc-400">support@mwenaro.com</p>
                       </div>
                     </div>
 
