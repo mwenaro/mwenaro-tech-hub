@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { GraduationCap, Mail, Lock, User, Eye, EyeOff, CheckCircle, Loader2 } from "lucide-react";
 import { signup } from '../auth/actions';
+import { createClient } from "@/lib/supabase/client";
 
 export default function SignupForm() {
     const [showPassword, setShowPassword] = useState(false);
@@ -18,6 +19,16 @@ export default function SignupForm() {
     const [agreedToTerms, setAgreedToTerms] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
+
+    const handleGoogleSignup = async () => {
+        const supabase = createClient();
+        await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                redirectTo: `${window.location.origin}/auth/v1/callback?next=/dashboard`,
+            },
+        });
+    };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -213,7 +224,7 @@ export default function SignupForm() {
                         </div>
                     </div>
 
-                    <Button variant="outline" size="lg" className="w-full h-14 rounded-2xl border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-all font-bold text-foreground">
+                    <Button type="button" onClick={handleGoogleSignup} variant="outline" size="lg" className="w-full h-14 rounded-2xl border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-all font-bold text-foreground">
                         <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
                             <path
                                 fill="currentColor"
