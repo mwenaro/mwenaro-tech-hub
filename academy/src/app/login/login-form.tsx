@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { GraduationCap, Mail, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
 import { login } from '../auth/actions';
+import { createClient } from "@/lib/supabase/client";
 
 export default function LoginForm() {
     const [showPassword, setShowPassword] = useState(false);
@@ -17,6 +18,16 @@ export default function LoginForm() {
     const [rememberMe, setRememberMe] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
+
+    const handleGoogleLogin = async () => {
+        const supabase = createClient();
+        await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                redirectTo: `${window.location.origin}/auth/v1/callback?next=/dashboard`,
+            },
+        });
+    };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -149,7 +160,7 @@ export default function LoginForm() {
                         </div>
                     </div>
 
-                    <Button variant="outline" size="lg" className="w-full h-14 rounded-2xl border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-all font-bold text-foreground">
+                    <Button type="button" onClick={handleGoogleLogin} variant="outline" size="lg" className="w-full h-14 rounded-2xl border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-all font-bold text-foreground">
                         <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
                             <path
                                 fill="currentColor"
