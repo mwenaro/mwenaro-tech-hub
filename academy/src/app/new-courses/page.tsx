@@ -1,6 +1,11 @@
 import Link from 'next/link';
 import { BookOpen, Code, Database, Layers } from 'lucide-react';
 
+export const metadata = {
+    title: "Curriculum Previews",
+    description: "Preview the comprehensive, rigorous curricula for our Fullstack, Web Foundations, React Frontend, and Backend API bootcamps.",
+};
+
 const courses = [
     {
         title: "MERN Full-Stack Engineering Bootcamp",

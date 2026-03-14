@@ -2,12 +2,16 @@ import { MetadataRoute } from 'next'
 import { ecosystem } from '@mwenaro/config/ecosystem'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-    return [
-        {
-            url: ecosystem.labs,
-            lastModified: new Date(),
-            changeFrequency: 'weekly',
-            priority: 1,
-        }
+    const routes = [
+        '',
+        '/about',
+        '/contact',
     ]
+
+    return routes.map((route) => ({
+        url: `${ecosystem.labs}${route}`,
+        lastModified: new Date(),
+        changeFrequency: 'weekly',
+        priority: route === '' ? 1 : 0.8,
+    }))
 }

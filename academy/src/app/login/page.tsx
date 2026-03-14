@@ -2,6 +2,11 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import LoginForm from './login-form'
 
+export const metadata = {
+    title: "Sign In",
+    description: "Welcome back! Sign in to Mwenaro Academy to continue your technical journey.",
+};
+
 export default async function LoginPage() {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
