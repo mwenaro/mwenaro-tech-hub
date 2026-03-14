@@ -39,7 +39,7 @@ export default function ContactPage() {
                     <h3 className="text-xl font-bold">For Companies</h3>
                   </div>
                   <p className="text-zinc-400 mb-6">Looking to accelerate your product development with vetted engineers?</p>
-                  <a href="mailto:hire@mwenaro.co.ke" className="text-primary font-bold hover:underline">hire@mwenaro.co.ke</a>
+                  <a href="mailto:hire@mwenaro.com" className="text-primary font-bold hover:underline">hire@mwenaro.com</a>
                 </div>
 
                 <div className="bg-zinc-900 border border-zinc-800 p-8 rounded-3xl hover:border-primary/50 transition-colors group">
@@ -50,7 +50,7 @@ export default function ContactPage() {
                     <h3 className="text-xl font-bold">For Talent</h3>
                   </div>
                   <p className="text-zinc-400 mb-6">Are you a world-class developer ready for your next big challenge?</p>
-                  <a href="mailto:apply@mwenaro.co.ke" className="text-primary font-bold hover:underline">apply@mwenaro.co.ke</a>
+                  <a href="mailto:apply@mwenaro.com" className="text-primary font-bold hover:underline">apply@mwenaro.com</a>
                 </div>
                 
                 <div className="bg-zinc-900 border border-zinc-800 p-8 rounded-3xl hover:border-primary/50 transition-colors group">
@@ -61,7 +61,7 @@ export default function ContactPage() {
                     <h3 className="text-xl font-bold">General Inquiries</h3>
                   </div>
                   <p className="text-zinc-400 mb-6">Have questions about our talent network or processes?</p>
-                  <a href="mailto:talent@mwenaro.co.ke" className="text-primary font-bold hover:underline">talent@mwenaro.co.ke</a>
+                  <a href="mailto:talent@mwenaro.com" className="text-primary font-bold hover:underline">talent@mwenaro.com</a>
                 </div>
               </div>
 
