@@ -4,6 +4,11 @@ import {
     Lightbulb, Rocket, ArrowRight, CheckCircle
 } from "lucide-react";
 
+export const metadata = {
+    title: "About",
+    description: "Learn more about Mwenaro Academy, our mission, values, and the team empowering the next generation of tech talent in Africa.",
+};
+
 const stats = [
     { value: "100+", label: "Active Learners", icon: Users },
     { value: "10+", label: "Expert-Led Courses", icon: BookOpen },

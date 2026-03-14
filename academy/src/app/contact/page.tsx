@@ -10,6 +10,11 @@ import {
     Send, HelpCircle, BookOpen, Users, Headphones, Video, Calendar, ArrowRight
 } from "lucide-react";
 
+export const metadata = {
+    title: "Contact Us",
+    description: "Get in touch with Mwenaro Academy. Reach out for support, course inquiries, or to book a discovery call with our team.",
+};
+
 const contactInfo = [
     {
         icon: Mail,
