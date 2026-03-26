@@ -19,9 +19,11 @@ interface LessonQuizProps {
     lessonId?: string // Optional for production tracking
     onSuccess?: (score: number) => void // Callback for production gating
     userRole?: 'student' | 'instructor' | 'admin'
+    onQuizStart?: () => void   // Called when student clicks "Take Module Quiz"
+    onQuizComplete?: () => void // Called when quiz is fully submitted (any score)
 }
 
-export function LessonQuiz({ questions, nextLessonHref, lessonId, onSuccess, userRole }: LessonQuizProps) {
+export function LessonQuiz({ questions, nextLessonHref, lessonId, onSuccess, userRole, onQuizStart, onQuizComplete }: LessonQuizProps) {
     const router = useRouter()
     const [isStarted, setIsStarted] = useState(false)
     const [userAnswers, setUserAnswers] = useState<number[]>(new Array(questions.length).fill(-1))
@@ -52,6 +54,7 @@ export function LessonQuiz({ questions, nextLessonHref, lessonId, onSuccess, use
                 const res = await submitQuiz(lessonId, userAnswers)
                 if (res.success) {
                     setSubmitted(true)
+                    onQuizComplete?.()
                     if (res.passed && onSuccess) {
                         onSuccess(res.score)
                     }
@@ -61,6 +64,7 @@ export function LessonQuiz({ questions, nextLessonHref, lessonId, onSuccess, use
             } else {
                 // Vetting/Instructor Mode: Client-side validation only
                 setSubmitted(true)
+                onQuizComplete?.()
             }
         } catch (e) {
             console.error('Quiz submission error:', e)
@@ -74,6 +78,7 @@ export function LessonQuiz({ questions, nextLessonHref, lessonId, onSuccess, use
         setUserAnswers(new Array(questions.length).fill(-1))
         setSubmitted(false)
         setError(null)
+        onQuizStart?.()
     }
 
     if (!isStarted) {
@@ -90,7 +95,7 @@ export function LessonQuiz({ questions, nextLessonHref, lessonId, onSuccess, use
                         </p>
                     </div>
                     <button
-                        onClick={() => setIsStarted(true)}
+                        onClick={() => { setIsStarted(true); onQuizStart?.() }}
                         className="px-10 py-4 bg-primary text-white font-black text-lg rounded-2xl hover:bg-primary/90 transition-all hover:-translate-y-1 shadow-2xl shadow-primary/30"
                     >
                         Take Module Quiz

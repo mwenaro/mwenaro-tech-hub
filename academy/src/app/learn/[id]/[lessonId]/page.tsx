@@ -6,14 +6,10 @@ import { notFound } from 'next/navigation'
 import { updateLastCourse } from '@/lib/user'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { QuizModal } from '@/components/quiz-modal'
 import { ProjectSubmission } from '@/components/project-submission'
 import { VideoPlayer } from '@/components/video-player'
-import Mermaid from '@/components/mermaid'
-import { LessonQuiz } from '@/components/course/lesson-quiz'
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
-import { ChevronLeft, ChevronRight, Maximize2, Monitor } from 'lucide-react'
+import { LessonContentArea } from '@/components/course/lesson-content-area'
+import { ChevronLeft, ChevronRight, Maximize2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface LessonPageProps {
@@ -88,67 +84,39 @@ export default async function ImmersiveLessonPage({ params }: LessonPageProps) {
             )}
 
             {/* Content & Activities */}
-            <div className="grid grid-cols-1 gap-12">
-                <div className="prose prose-zinc lg:prose-xl dark:prose-invert max-w-none prose-headings:font-black prose-headings:tracking-tight prose-a:text-primary prose-a:font-bold hover:prose-a:text-primary/80 prose-img:rounded-3xl prose-img:shadow-xl prose-strong:font-black">
-                    <div className="rounded-3xl border border-zinc-200/50 dark:border-zinc-800/50 bg-white/80 dark:bg-zinc-900/50 p-8 md:p-14 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.12)] backdrop-blur-xl">
-                        <ReactMarkdown 
-                            remarkPlugins={[remarkGfm]}
-                            components={{
-                                code({ node, inline, className, children, ...props }: any) {
-                                    const match = /language-(\w+)/.exec(className || "");
-                                    if (!inline && match && match[1] === "mermaid") {
-                                        return <Mermaid chart={String(children).replace(/\n$/, "")} />;
-                                    }
-                                    return (
-                                        <code className={className} {...props}>
-                                            {children}
-                                        </code>
-                                    );
-                                },
-                            }}
-                        >
-                            {lesson.content}
-                        </ReactMarkdown>
-                    </div>
-                </div>
+            <LessonContentArea
+                content={lesson.content}
+                questions={questions}
+                lessonId={lessonId}
+                userRole={user?.user_metadata?.role}
+                nextLessonHref={nextLesson ? `/learn/${courseId}/${nextLesson.id}` : undefined}
+            />
 
-                <div className="grid gap-8">
-                    {questions.length > 0 && (
-                        <LessonQuiz 
-                            questions={questions}
-                            lessonId={lessonId}
-                            userRole={user?.user_metadata?.role}
-                            nextLessonHref={nextLesson ? `/learn/${courseId}/${nextLesson.id}` : undefined}
+            {/* Project Section (outside quiz gate) */}
+            {lesson.has_project && (
+                <div className="rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-primary/5 p-10">
+                    <div className="mb-8">
+                        <h2 className="text-2xl font-black tracking-tight mb-1">Hands-on Challenge</h2>
+                        <p className="text-sm text-primary/70 font-medium">Apply what you've learned in a real-world project.</p>
+                    </div>
+                    {isInstructor ? (
+                        <p className="text-primary font-bold bg-primary/5 p-6 rounded-2xl border border-primary/20 italic">
+                            Instructor Preview: Submissions are disabled in this mode.
+                        </p>
+                    ) : (
+                        <ProjectSubmission
+                            lessonId={lesson.id}
+                            isCompleted={progress?.is_completed || false}
+                            existingLink={progress?.project_repo_link}
+                            quizRequired={questions.length > 0}
+                            quizPassed={(progress?.highest_quiz_score || 0) >= 70}
+                            isReviewed={progress?.project_reviewed || false}
+                            rating={progress?.project_rating}
+                            feedback={progress?.project_feedback}
                         />
                     )}
-
-                    {/* Project Section */}
-                    {lesson.has_project && (
-                        <div className="rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-primary/5 p-10">
-                            <div className="mb-8">
-                                <h2 className="text-2xl font-black tracking-tight mb-1">Hands-on Challenge</h2>
-                                <p className="text-sm text-primary/70 font-medium">Apply what you've learned in a real-world project.</p>
-                            </div>
-                            {isInstructor ? (
-                                <p className="text-primary font-bold bg-primary/5 p-6 rounded-2xl border border-primary/20 italic">
-                                    Instructor Preview: Submissions are disabled in this mode.
-                                </p>
-                            ) : (
-                                <ProjectSubmission
-                                    lessonId={lesson.id}
-                                    isCompleted={progress?.is_completed || false}
-                                    existingLink={progress?.project_repo_link}
-                                    quizRequired={questions.length > 0}
-                                    quizPassed={(progress?.highest_quiz_score || 0) >= 70}
-                                    isReviewed={progress?.project_reviewed || false}
-                                    rating={progress?.project_rating}
-                                    feedback={progress?.project_feedback}
-                                />
-                            )}
-                        </div>
-                    )}
                 </div>
-            </div>
+            )}
 
             {/* Float Navigation */}
             <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 w-full max-w-4xl px-4 lg:pl-[340px] lg:pr-8 lg:max-w-none lg:left-0 lg:translate-x-0 lg:flex lg:justify-center">
