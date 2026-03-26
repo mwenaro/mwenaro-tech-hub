@@ -6,6 +6,7 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import Mermaid from '@/components/mermaid'
 import { LessonQuiz } from './lesson-quiz'
+import { LessonProgress } from '@/lib/progress'
 
 interface Question {
     question_text: string
@@ -20,6 +21,7 @@ interface LessonContentAreaProps {
     lessonId: string
     userRole?: 'student' | 'instructor' | 'admin'
     nextLessonHref?: string
+    initialProgress?: LessonProgress
 }
 
 export function LessonContentArea({
@@ -28,6 +30,7 @@ export function LessonContentArea({
     lessonId,
     userRole,
     nextLessonHref,
+    initialProgress,
 }: LessonContentAreaProps) {
     const [quizActive, setQuizActive] = useState(false)
     const [quizDone, setQuizDone] = useState(false)
@@ -94,6 +97,7 @@ export function LessonContentArea({
                         lessonId={lessonId}
                         userRole={userRole}
                         nextLessonHref={nextLessonHref}
+                        initialProgress={initialProgress}
                         onQuizStart={() => setQuizActive(true)}
                         onQuizComplete={() => {
                             setQuizDone(true)

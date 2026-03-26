@@ -21,6 +21,8 @@ export interface LessonProgress {
     reviewed_by: string | null
     reviewed_at: string | null
     project_feedback: string | null
+    extra_attempts_granted: number
+    retrial_requested: boolean
 }
 
 export interface QuizSubmission {
@@ -144,9 +146,11 @@ export async function submitQuiz(lessonId: string, answers: number[]): Promise<{
 
     const progress = await getLessonProgress(lessonId)
     const attempts = progress?.quiz_attempts || 0
+    const extraAttempts = progress?.extra_attempts_granted || 0
+    const maxAttempts = 3 + extraAttempts
 
-    if (attempts >= 2) {
-        return { success: false, score: 0, passed: false, message: 'Max attempts reached' }
+    if (attempts >= maxAttempts) {
+        return { success: false, score: 0, passed: false, message: `Max attempts (${maxAttempts}) reached.` }
     }
 
     // Calculate score
@@ -165,10 +169,13 @@ export async function submitQuiz(lessonId: string, answers: number[]): Promise<{
     const passed = score >= 70 // 70% passing grade
 
     // Determine completion: 
-    // Completed ONLY IF (passed AND (no project required OR project already submitted))
+    // Completed IF (passed AND (no project required OR project already submitted))
+    // OR IF (reached total hard limit of 5 attempts)
+    const totalAttemptsNow = attempts + 1
+    const hardLimitReached = totalAttemptsNow >= 5
     const hasProjectRequirement = lesson?.has_project || false
     const projectDone = !!progress?.project_repo_link
-    const isCompletedNow = passed && (!hasProjectRequirement || projectDone)
+    const isCompletedNow = (passed && (!hasProjectRequirement || projectDone)) || (hardLimitReached && !passed)
 
     // Update progress
     const { error: progressError } = await supabase
@@ -176,10 +183,11 @@ export async function submitQuiz(lessonId: string, answers: number[]): Promise<{
         .upsert({
             user_id: user.id,
             lesson_id: lessonId,
-            quiz_attempts: attempts + 1,
+            quiz_attempts: totalAttemptsNow,
             highest_quiz_score: Math.max(score, progress?.highest_quiz_score || 0),
             is_completed: isCompletedNow,
-            completed_at: isCompletedNow ? new Date().toISOString() : (progress?.completed_at || null)
+            completed_at: isCompletedNow ? new Date().toISOString() : (progress?.completed_at || null),
+            retrial_requested: false // Reset request on submission
         })
 
     if (progressError) {
@@ -216,7 +224,13 @@ export async function submitQuiz(lessonId: string, answers: number[]): Promise<{
     revalidatePath(`/courses`)
     revalidatePath(`/dashboard`)
     revalidatePath(`/dashboard/courses`)
-    return { success: true, score, passed, message: passed ? 'Quiz passed!' : 'Quiz failed. Try again.', correctAnswers, streakData }
+    
+    let finalMessage = passed ? 'Quiz passed!' : 'Quiz failed. Try again.'
+    if (hardLimitReached && !passed) {
+        finalMessage = 'Quiz failed after 5 attempts. Recording score and allowing you to proceed.'
+    }
+
+    return { success: true, score, passed, message: finalMessage, correctAnswers, streakData }
 }
 
 export async function submitProject(lessonId: string, repoLink: string): Promise<{ streakData?: { current_streak: number; is_milestone: boolean; milestone_value: number } }> {
@@ -525,4 +539,98 @@ export async function getQuizReview(submissionId: string): Promise<QuizReviewDat
         questions: questions as any[], // Casting options directly to any[] because supabase jsonb is returned as object/array directly
         user_answers: submission.answers
     }
+}
+
+export async function requestRetrial(lessonId: string) {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) throw new Error('Unauthorized')
+
+    const { error } = await supabase
+        .from('lesson_progress')
+        .update({ retrial_requested: true })
+        .eq('user_id', user.id)
+        .eq('lesson_id', lessonId)
+
+    if (error) {
+        console.error('Error requesting retrial:', error)
+        return { success: false, message: 'Failed to request retrial' }
+    }
+
+    revalidatePath('/dashboard')
+    return { success: true }
+}
+
+export async function grantRetrial(lessonId: string, userId: string) {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) throw new Error('Unauthorized')
+    const role = user.user_metadata?.role || 'student'
+    if (role !== 'instructor' && role !== 'admin') {
+        throw new Error('Unauthorized: Instructor access required')
+    }
+
+    const { error } = await supabase
+        .from('lesson_progress')
+        .update({ 
+            extra_attempts_granted: 2, 
+            retrial_requested: false 
+        })
+        .eq('user_id', userId)
+        .eq('lesson_id', lessonId)
+
+    if (error) {
+        console.error('Error granting retrial:', error)
+        return { success: false, message: 'Failed to grant retrial' }
+    }
+
+    // Notify student
+    await createNotification({
+        user_id: userId,
+        type: 'system',
+        title: 'Retrial Granted',
+        content: `You have been granted 2 extra attempts for your quiz in lesson "${lessonId}".`,
+        link: `/learn/${lessonId}` // Simplification
+    })
+
+    revalidatePath('/instructor/quizzes')
+    return { success: true }
+}
+
+export async function getRetrialRequests() {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) return []
+    const role = user.user_metadata?.role || 'student'
+    if (role !== 'admin' && role !== 'instructor') return []
+
+    const { data, error } = await supabase
+        .from('lesson_progress')
+        .select(`
+            *,
+            profiles (full_name, email),
+            lessons (
+                title,
+                phase_lessons (
+                    phases (
+                        courses (
+                            id,
+                            title
+                        )
+                    )
+                )
+            )
+        `)
+        .eq('retrial_requested', true)
+        .order('completed_at', { ascending: false })
+
+    if (error) {
+        console.error('Error fetching retrial requests:', error)
+        return []
+    }
+
+    return data as (LessonProgress & { profiles: any, lessons: any })[]
 }

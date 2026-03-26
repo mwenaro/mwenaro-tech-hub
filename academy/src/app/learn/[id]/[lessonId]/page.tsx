@@ -90,6 +90,7 @@ export default async function ImmersiveLessonPage({ params }: LessonPageProps) {
                 lessonId={lessonId}
                 userRole={user?.user_metadata?.role}
                 nextLessonHref={nextLesson ? `/learn/${courseId}/${nextLesson.id}` : undefined}
+                initialProgress={progress || undefined}
             />
 
             {/* Project Section (outside quiz gate) */}

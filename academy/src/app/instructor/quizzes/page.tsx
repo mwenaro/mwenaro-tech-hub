@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { getAllQuizzes } from '@/lib/progress'
+import { getAllQuizzes, getRetrialRequests } from '@/lib/progress'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { QuizzesManagementClient } from '@/components/quizzes-management-client'
@@ -19,7 +19,10 @@ export default async function InstructorQuizzesPage() {
         redirect('/dashboard')
     }
 
-    const quizzes = await getAllQuizzes()
+    const [quizzes, retrialRequests] = await Promise.all([
+        getAllQuizzes(),
+        getRetrialRequests()
+    ])
 
     return (
         <div className="min-h-screen bg-gray-50/50 dark:bg-zinc-950 p-8">
@@ -37,7 +40,10 @@ export default async function InstructorQuizzesPage() {
                     </Link>
                 </div>
 
-                <QuizzesManagementClient initialSubmissions={quizzes} />
+                <QuizzesManagementClient 
+                    initialSubmissions={quizzes} 
+                    retrialRequests={retrialRequests as any[]} 
+                />
             </div>
         </div>
     )

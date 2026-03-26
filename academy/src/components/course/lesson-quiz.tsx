@@ -3,8 +3,10 @@
 import { useState } from 'react'
 import { CheckCircle2, XCircle, ChevronRight, HelpCircle } from 'lucide-react'
 import Link from 'next/link'
-import { submitQuiz } from '@/lib/progress'
+import { submitQuiz, LessonProgress, requestRetrial } from '@/lib/progress'
 import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
+import { cn } from '@/lib/utils'
 
 interface Question {
     question_text: string
@@ -21,15 +23,25 @@ interface LessonQuizProps {
     userRole?: 'student' | 'instructor' | 'admin'
     onQuizStart?: () => void   // Called when student clicks "Take Module Quiz"
     onQuizComplete?: () => void // Called when quiz is fully submitted (any score)
+    initialProgress?: LessonProgress
 }
 
-export function LessonQuiz({ questions, nextLessonHref, lessonId, onSuccess, userRole, onQuizStart, onQuizComplete }: LessonQuizProps) {
+export function LessonQuiz({ questions, nextLessonHref, lessonId, onSuccess, userRole, onQuizStart, onQuizComplete, initialProgress }: LessonQuizProps) {
     const router = useRouter()
     const [isStarted, setIsStarted] = useState(false)
     const [userAnswers, setUserAnswers] = useState<number[]>(new Array(questions.length).fill(-1))
     const [submitted, setSubmitted] = useState(false)
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const [quizProgress, setQuizProgress] = useState<LessonProgress | undefined>(initialProgress)
+    const [isRequestingRetrial, setIsRequestingRetrial] = useState(false)
+
+    const attempts = quizProgress?.quiz_attempts || 0
+    const extraAttempts = quizProgress?.extra_attempts_granted || 0
+    const maxAttempts = 3 + extraAttempts
+    const retrialRequested = quizProgress?.retrial_requested || false
+    const highestScore = quizProgress?.highest_quiz_score || 0
+    const isCompleted = quizProgress?.is_completed || false
 
     const isInstructor = userRole === 'instructor'
 
@@ -55,6 +67,16 @@ export function LessonQuiz({ questions, nextLessonHref, lessonId, onSuccess, use
                 if (res.success) {
                     setSubmitted(true)
                     onQuizComplete?.()
+                    
+                    // Update local progress state to reflect new attempt
+                    setQuizProgress(prev => prev ? {
+                        ...prev,
+                        quiz_attempts: (prev.quiz_attempts || 0) + 1,
+                        highest_quiz_score: Math.max(prev.highest_quiz_score || 0, res.score),
+                        is_completed: res.passed || (prev.quiz_attempts + 1 >= 5),
+                        retrial_requested: false
+                    } : undefined)
+
                     if (res.passed && onSuccess) {
                         onSuccess(res.score)
                     }
@@ -75,10 +97,29 @@ export function LessonQuiz({ questions, nextLessonHref, lessonId, onSuccess, use
     }
 
     const handleRetry = () => {
+        if (attempts >= maxAttempts) return
         setUserAnswers(new Array(questions.length).fill(-1))
         setSubmitted(false)
         setError(null)
         onQuizStart?.()
+    }
+
+    const handleRequestRetrial = async () => {
+        if (!lessonId) return
+        setIsRequestingRetrial(true)
+        try {
+            const res = await requestRetrial(lessonId)
+            if (res.success) {
+                setQuizProgress(prev => prev ? { ...prev, retrial_requested: true } : prev)
+                toast.success('Retrial requested! Please wait for instructor approval.')
+            } else {
+                toast.error(res.message)
+            }
+        } catch (e) {
+            toast.error('Failed to request retrial')
+        } finally {
+            setIsRequestingRetrial(false)
+        }
     }
 
     if (!isStarted) {
@@ -90,16 +131,40 @@ export function LessonQuiz({ questions, nextLessonHref, lessonId, onSuccess, use
                     </div>
                     <div>
                         <h2 className="text-2xl font-black tracking-tight mb-2">Knowledge Check</h2>
+                        <div className="flex flex-col items-center gap-1 mb-4">
+                            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400 bg-white dark:bg-zinc-800 px-3 py-1 rounded-full border border-zinc-200 dark:border-zinc-700">
+                                {attempts} of {maxAttempts} Attempts Used
+                            </span>
+                        </div>
                         <p className="text-zinc-500 font-bold max-w-sm mx-auto">
                             Complete this quick quiz to verify your understanding and unlock the next module.
                         </p>
                     </div>
-                    <button
-                        onClick={() => { setIsStarted(true); onQuizStart?.() }}
-                        className="px-10 py-4 bg-primary text-white font-black text-lg rounded-2xl hover:bg-primary/90 transition-all hover:-translate-y-1 shadow-2xl shadow-primary/30"
-                    >
-                        Take Module Quiz
-                    </button>
+
+                    {attempts >= maxAttempts && !isCompleted ? (
+                        <div className="space-y-4">
+                            {!retrialRequested ? (
+                                <button
+                                    onClick={handleRequestRetrial}
+                                    disabled={isRequestingRetrial}
+                                    className="px-10 py-4 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-black text-lg rounded-2xl hover:opacity-90 transition-all hover:-translate-y-1 shadow-2xl"
+                                >
+                                    {isRequestingRetrial ? 'Requesting...' : 'Request 2 More Attempts'}
+                                </button>
+                            ) : (
+                                <div className="p-4 rounded-xl bg-primary/10 border border-primary/20 text-primary font-bold">
+                                    Retrial requested! Please wait for instructor approval.
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        <button
+                            onClick={() => { setIsStarted(true); onQuizStart?.() }}
+                            className="px-10 py-4 bg-primary text-white font-black text-lg rounded-2xl hover:bg-primary/90 transition-all hover:-translate-y-1 shadow-2xl shadow-primary/30"
+                        >
+                            {isCompleted ? 'Review Module Quiz' : 'Take Module Quiz'}
+                        </button>
+                    )}
                 </div>
             </div>
         )
@@ -205,18 +270,25 @@ export function LessonQuiz({ questions, nextLessonHref, lessonId, onSuccess, use
 
                 {!allCorrect ? (
                     <div className="w-full space-y-4 max-w-md mx-auto">
-                        <button
-                            onClick={handleSubmit}
-                            disabled={userAnswers.includes(-1) || isSubmitting}
-                            className={`w-full py-4 rounded-2xl font-black text-lg transition-all shadow-xl ${
-                                (userAnswers.includes(-1) || isSubmitting)
-                                ? 'bg-zinc-200 text-zinc-400 cursor-not-allowed shadow-none' 
-                                : 'bg-primary text-white hover:bg-primary/90 hover:-translate-y-0.5 shadow-primary/20'
-                            }`}
-                        >
-                            {isSubmitting ? 'Submitting...' : 'Submit Quiz'}
-                        </button>
-                        {submitted && (
+                        {attempts < maxAttempts ? (
+                             <button
+                                onClick={handleSubmit}
+                                disabled={userAnswers.includes(-1) || isSubmitting}
+                                className={`w-full py-4 rounded-2xl font-black text-lg transition-all shadow-xl ${
+                                    (userAnswers.includes(-1) || isSubmitting)
+                                    ? 'bg-zinc-200 text-zinc-400 cursor-not-allowed shadow-none' 
+                                    : 'bg-primary text-white hover:bg-primary/90 hover:-translate-y-0.5 shadow-primary/20'
+                                }`}
+                            >
+                                {isSubmitting ? 'Submitting...' : 'Submit Quiz'}
+                            </button>
+                        ) : (
+                            <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-600 font-bold text-center">
+                                Max attempts reached. {retrialRequested ? 'Wait for approval.' : 'Request more below.'}
+                            </div>
+                        )}
+                       
+                        {submitted && attempts < maxAttempts && (
                             <button
                                 onClick={handleRetry}
                                 className="w-full py-3 text-zinc-500 font-bold hover:text-primary transition-colors text-sm uppercase tracking-widest"
@@ -227,10 +299,35 @@ export function LessonQuiz({ questions, nextLessonHref, lessonId, onSuccess, use
                     </div>
                 ) : (
                     <div className="w-full max-w-md mx-auto space-y-6 animate-in zoom-in duration-500">
-                        <div className="bg-green-500/10 border border-green-500/20 rounded-2xl p-6 text-center">
-                            <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto mb-3" />
-                            <h3 className="text-xl font-black text-green-700 dark:text-green-400">Excellent!</h3>
-                            <p className="text-green-600 dark:text-green-500 font-bold">You've mastered this module.</p>
+                        {/* Status Card: Different for Passed vs. Failed-but-Completed */}
+                        <div className={cn(
+                            "rounded-2xl p-6 text-center border",
+                            highestScore >= 70 
+                                ? "bg-green-500/10 border-green-500/20" 
+                                : "bg-amber-500/10 border-amber-500/20"
+                        )}>
+                            {highestScore >= 70 ? (
+                                <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto mb-3" />
+                            ) : (
+                                <HelpCircle className="w-12 h-12 text-amber-500 mx-auto mb-3" />
+                            )}
+                            
+                            <h3 className={cn(
+                                "text-xl font-black",
+                                highestScore >= 70 ? "text-green-700 dark:text-green-400" : "text-amber-700 dark:text-amber-400"
+                            )}>
+                                {highestScore >= 70 ? "Excellent!" : "Keep Growing!"}
+                            </h3>
+                            
+                            <p className={cn(
+                                "font-bold",
+                                highestScore >= 70 ? "text-green-600 dark:text-green-500" : "text-amber-600 dark:text-amber-500"
+                            )}>
+                                {highestScore >= 70 
+                                    ? "You've mastered this module." 
+                                    : "Don't worry! We've recorded your effort. You can now proceed to the next module."
+                                }
+                            </p>
                         </div>
                         
                         {nextLessonHref ? (
