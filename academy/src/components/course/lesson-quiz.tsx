@@ -59,7 +59,7 @@ export function LessonQuiz({ questions, nextLessonHref, lessonId, onSuccess, use
 
         setIsSubmitting(true)
         setError(null)
-        
+
         try {
             if (lessonId && !isInstructor) {
                 // Production Mode: Submit to DB
@@ -67,7 +67,7 @@ export function LessonQuiz({ questions, nextLessonHref, lessonId, onSuccess, use
                 if (res.success) {
                     setSubmitted(true)
                     onQuizComplete?.()
-                    
+
                     // Update local progress state to reflect new attempt
                     setQuizProgress(prev => prev ? {
                         ...prev,
@@ -188,17 +188,15 @@ export function LessonQuiz({ questions, nextLessonHref, lessonId, onSuccess, use
                     const isWrong = submitted && !isCorrect && userAnswers[qIdx] !== -1
 
                     return (
-                        <div key={qIdx} className={`rounded-3xl border transition-all duration-300 ${
-                            submitted 
+                        <div key={qIdx} className={`rounded-3xl border transition-all duration-300 ${submitted
                             ? (isCorrect ? 'border-green-500/30 bg-green-500/[0.02]' : 'border-red-500/30 bg-red-500/[0.02]')
                             : 'border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm'
-                        } p-8 space-y-6`}>
+                            } p-8 space-y-6`}>
                             <div className="flex items-start gap-4">
-                                <span className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-black ${
-                                    submitted 
+                                <span className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-black ${submitted
                                     ? (isCorrect ? 'bg-green-500 text-white' : 'bg-red-500 text-white')
                                     : 'bg-zinc-100 dark:bg-zinc-800'
-                                }`}>
+                                    }`}>
                                     {qIdx + 1}
                                 </span>
                                 <h3 className="text-xl font-bold leading-snug">{q.question_text}</h3>
@@ -215,15 +213,11 @@ export function LessonQuiz({ questions, nextLessonHref, lessonId, onSuccess, use
                                             key={oIdx}
                                             disabled={submitted}
                                             onClick={() => handleOptionSelect(qIdx, oIdx)}
-                                            className={`p-4 rounded-xl border text-left flex items-center justify-between gap-4 transition-all ${
-                                                isSelected && !submitted ? 'border-primary bg-primary/5 ring-1 ring-primary' : ''
-                                            } ${
-                                                showAsCorrect ? 'bg-green-500/10 border-green-500/50 text-green-700 dark:text-green-400' : ''
-                                            } ${
-                                                showAsWrong ? 'bg-red-500/10 border-red-500/50 text-red-700 dark:text-red-400' : ''
-                                            } ${
-                                                !isSelected && !showAsCorrect ? 'bg-zinc-50 dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600' : ''
-                                            } ${submitted && !isSelected && !showAsCorrect ? 'opacity-40' : ''}`}
+                                            className={`p-4 rounded-xl border text-left flex items-center justify-between gap-4 transition-all ${isSelected && !submitted ? 'border-primary bg-primary/5 ring-1 ring-primary' : ''
+                                                } ${showAsCorrect ? 'bg-green-500/10 border-green-500/50 text-green-700 dark:text-green-400' : ''
+                                                } ${showAsWrong ? 'bg-red-500/10 border-red-500/50 text-red-700 dark:text-red-400' : ''
+                                                } ${!isSelected && !showAsCorrect ? 'bg-zinc-50 dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600' : ''
+                                                } ${submitted && !isSelected && !showAsCorrect ? 'opacity-40' : ''}`}
                                         >
                                             <span className="font-bold">{opt}</span>
                                             {showAsCorrect && <CheckCircle2 className="w-5 h-5 flex-shrink-0" />}
@@ -261,7 +255,7 @@ export function LessonQuiz({ questions, nextLessonHref, lessonId, onSuccess, use
                         Instructor Preview: Quizzes are client-side only. Progress is not saved.
                     </div>
                 )}
-                
+
                 {error && (
                     <div className="w-full p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-600 font-bold text-center mb-4">
                         {error}
@@ -271,14 +265,13 @@ export function LessonQuiz({ questions, nextLessonHref, lessonId, onSuccess, use
                 {!allCorrect ? (
                     <div className="w-full space-y-4 max-w-md mx-auto">
                         {attempts < maxAttempts ? (
-                             <button
+                            <button
                                 onClick={handleSubmit}
                                 disabled={userAnswers.includes(-1) || isSubmitting}
-                                className={`w-full py-4 rounded-2xl font-black text-lg transition-all shadow-xl ${
-                                    (userAnswers.includes(-1) || isSubmitting)
-                                    ? 'bg-zinc-200 text-zinc-400 cursor-not-allowed shadow-none' 
+                                className={`w-full py-4 rounded-2xl font-black text-lg transition-all shadow-xl ${(userAnswers.includes(-1) || isSubmitting)
+                                    ? 'bg-zinc-200 text-zinc-400 cursor-not-allowed shadow-none'
                                     : 'bg-primary text-white hover:bg-primary/90 hover:-translate-y-0.5 shadow-primary/20'
-                                }`}
+                                    }`}
                             >
                                 {isSubmitting ? 'Submitting...' : 'Submit Quiz'}
                             </button>
@@ -287,7 +280,7 @@ export function LessonQuiz({ questions, nextLessonHref, lessonId, onSuccess, use
                                 Max attempts reached. {retrialRequested ? 'Wait for approval.' : 'Request more below.'}
                             </div>
                         )}
-                       
+
                         {submitted && attempts < maxAttempts && (
                             <button
                                 onClick={handleRetry}
@@ -302,8 +295,8 @@ export function LessonQuiz({ questions, nextLessonHref, lessonId, onSuccess, use
                         {/* Status Card: Different for Passed vs. Failed-but-Completed */}
                         <div className={cn(
                             "rounded-2xl p-6 text-center border",
-                            highestScore >= 70 
-                                ? "bg-green-500/10 border-green-500/20" 
+                            highestScore >= 70
+                                ? "bg-green-500/10 border-green-500/20"
                                 : "bg-amber-500/10 border-amber-500/20"
                         )}>
                             {highestScore >= 70 ? (
@@ -311,25 +304,25 @@ export function LessonQuiz({ questions, nextLessonHref, lessonId, onSuccess, use
                             ) : (
                                 <HelpCircle className="w-12 h-12 text-amber-500 mx-auto mb-3" />
                             )}
-                            
+
                             <h3 className={cn(
                                 "text-xl font-black",
                                 highestScore >= 70 ? "text-green-700 dark:text-green-400" : "text-amber-700 dark:text-amber-400"
                             )}>
                                 {highestScore >= 70 ? "Excellent!" : "Keep Growing!"}
                             </h3>
-                            
+
                             <p className={cn(
                                 "font-bold",
                                 highestScore >= 70 ? "text-green-600 dark:text-green-500" : "text-amber-600 dark:text-amber-500"
                             )}>
-                                {highestScore >= 70 
-                                    ? "You've mastered this module." 
+                                {highestScore >= 70
+                                    ? "You've mastered this module."
                                     : "Don't worry! We've recorded your effort. You can now proceed to the next module."
                                 }
                             </p>
                         </div>
-                        
+
                         {nextLessonHref ? (
                             <Link
                                 href={nextLessonHref}
