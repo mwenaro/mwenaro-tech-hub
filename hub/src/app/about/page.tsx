@@ -1,8 +1,13 @@
 import { NavBar, Footer } from "@mwenaro/ui";
 
-export const metadata = {
-  title: "About | Mwenaro Hub",
-  description: "Learn more about Mwenaro, a unified ecosystem for tech excellence.",
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: "About | Mwenaro Hub - Building Africa's Tech Future",
+  description: "Learn about Mwenaro Hub's mission to drive tech innovation in Africa. We are a unified ecosystem empowering individuals and organizations through Academy, Talent, and Labs.",
+  alternates: {
+    canonical: "/about",
+  },
 };
 
 export default function AboutPage() {

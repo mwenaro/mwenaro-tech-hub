@@ -6,6 +6,7 @@ import { FooterWrapper } from "@/components/footer-wrapper";
 import { ChatWidget } from "@/components/chat-widget";
 import { Toaster } from "@/components/ui/sonner"
 import { ecosystem } from "@mwenaro/config/ecosystem";
+import { AcademyOrganizationSchema } from "@/components/structured-data";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -25,9 +26,9 @@ export const metadata: Metadata = {
     "data science course Kenya",
     "web development bootcamp Africa",
   ],
-  authors: [{ name: "Mwenaro Hub" }],
-  creator: "Mwenaro Hub",
-  publisher: "Mwenaro Hub",
+  authors: [{ name: "Mwenaro" }],
+  creator: "Mwenaro",
+  publisher: "Mwenaro",
   formatDetection: {
     email: false,
     address: false,
@@ -72,6 +73,9 @@ export const metadata: Metadata = {
     shortcut: "/logo.svg",
     apple: "/logo.svg",
   },
+  alternates: {
+    canonical: "/",
+  },
 };
 
 export default function RootLayout({
@@ -82,6 +86,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
+        <AcademyOrganizationSchema />
         <div className="flex min-h-screen flex-col">
           <NavBar currentApp="academy" />
           <main className="flex-1">{children}</main>

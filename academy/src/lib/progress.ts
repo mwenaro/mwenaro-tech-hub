@@ -23,6 +23,7 @@ export interface LessonProgress {
     project_feedback: string | null
     extra_attempts_granted: number
     retrial_requested: boolean
+    retrial_requested_at?: string | null
 }
 
 export interface QuizSubmission {
@@ -66,14 +67,52 @@ export async function getLessonProgress(lessonId: string): Promise<LessonProgres
 
     if (!user) return null
 
-    const { data } = await supabase
+    let { data } = await supabase
         .from('lesson_progress')
         .select('*')
         .eq('user_id', user.id)
         .eq('lesson_id', lessonId)
         .single()
 
-    return data as LessonProgress
+    const progress = data as LessonProgress | null
+
+    // Auto-grant retrial after 30 minutes
+    if (progress?.retrial_requested && progress?.retrial_requested_at) {
+        const reqDate = new Date(progress.retrial_requested_at).getTime()
+        const now = Date.now()
+        if (now - reqDate >= 30 * 60 * 1000) { // 30 minutes
+            // Automatically grant 2 attempts
+            const { error: updateError } = await supabase
+                .from('lesson_progress')
+                .update({ 
+                    extra_attempts_granted: 2, 
+                    retrial_requested: false,
+                    retrial_requested_at: null
+                })
+                .eq('user_id', user.id)
+                .eq('lesson_id', lessonId)
+
+            if (!updateError) {
+                progress.extra_attempts_granted = 2
+                progress.retrial_requested = false
+                progress.retrial_requested_at = null
+
+                try {
+                    await createNotification({
+                        user_id: user.id,
+                        type: 'system',
+                        title: 'Retrial Granted Automatically',
+                        content: `Your 30 minutes wait is over. You have been granted 2 extra attempts.`,
+                        link: `/learn/${lessonId}`
+                    })
+                } catch (e) {
+                    console.error('Failed to send auto-grant notification:', e)
+                }
+            }
+        }
+    }
+
+    return progress
 }
 
 export async function getCourseProgress(courseId: string): Promise<LessonProgress[]> {
@@ -187,7 +226,8 @@ export async function submitQuiz(lessonId: string, answers: number[]): Promise<{
             highest_quiz_score: Math.max(score, progress?.highest_quiz_score || 0),
             is_completed: isCompletedNow,
             completed_at: isCompletedNow ? new Date().toISOString() : (progress?.completed_at || null),
-            retrial_requested: false // Reset request on submission
+            retrial_requested: false, // Reset request on submission
+            retrial_requested_at: null
         })
 
     if (progressError) {
@@ -549,7 +589,10 @@ export async function requestRetrial(lessonId: string) {
 
     const { error } = await supabase
         .from('lesson_progress')
-        .update({ retrial_requested: true })
+        .update({ 
+            retrial_requested: true,
+            retrial_requested_at: new Date().toISOString()
+        })
         .eq('user_id', user.id)
         .eq('lesson_id', lessonId)
 
@@ -576,7 +619,8 @@ export async function grantRetrial(lessonId: string, userId: string) {
         .from('lesson_progress')
         .update({ 
             extra_attempts_granted: 2, 
-            retrial_requested: false 
+            retrial_requested: false,
+            retrial_requested_at: null
         })
         .eq('user_id', userId)
         .eq('lesson_id', lessonId)

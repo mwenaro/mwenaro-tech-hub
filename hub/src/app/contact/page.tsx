@@ -1,9 +1,14 @@
 import { NavBar, Footer, Button } from "@mwenaro/ui";
 import { Mail, MapPin, Phone } from "lucide-react";
 
-export const metadata = {
-  title: "Contact | Mwenaro Hub",
-  description: "Get in touch with the Mwenaro team.",
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: "Contact Us | Mwenaro Hub - Enrollment & Partnerships",
+  description: "Get in touch with Mwenaro Hub for course admissions, talent hiring, or software development inquiries. We're here to build the next generation of tech talent together.",
+  alternates: {
+    canonical: "/contact",
+  },
 };
 
 export default function ContactPage() {

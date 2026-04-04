@@ -1,6 +1,15 @@
 import { Button } from "@/components/ui/button"
 import Link from 'next/link'
 import { academyContent } from "@mwenaro/content/academy-content"
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: "Software Engineering Bootcamp Africa | Mwenaro Academy",
+  description: "Join Mwenaro Academy, Africa's leading software engineering bootcamp. Project-based learning, expert mentorship, and career placement in Kenya and beyond.",
+  alternates: {
+    canonical: "/",
+  },
+}
 
 export default function ExecutiveAcademy() {
   const { hero, pillars, roadmap, finalCTA, footer } = academyContent
