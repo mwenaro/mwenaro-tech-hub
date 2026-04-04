@@ -1,8 +1,13 @@
 import { NavBar, Footer } from "@mwenaro/ui";
 
-export const metadata = {
-  title: "About | Mwenaro Labs",
-  description: "Innovative software solutions and bespoke engineering for your enterprise.",
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: "About Us | Mwenaro Labs - Custom Software Engineering Studio",
+  description: "Learn about Mwenaro Labs' mission to engineer the future of business through scalable, robust, and intuitive digital products. We partner with fast-growing companies and enterprises to solve complex challenges.",
+  alternates: {
+    canonical: "/about",
+  },
 };
 
 export default function AboutPage() {

@@ -2,6 +2,15 @@ import React from "react";
 import { NavBar, Footer, Button, Card } from "@mwenaro/ui";
 import { ArrowRight } from "lucide-react";
 import { labsContent } from "@mwenaro/content/labs-content";
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: "Custom Software Development Agency | Mwenaro Labs",
+  description: "Mwenaro Labs designs and builds scalable custom digital solutions for startups and enterprises. Expertise in full-stack development, cloud modernization, and product strategy.",
+  alternates: {
+    canonical: "/",
+  },
+}
 
 export default function LabsPage() {
     const { hero, pillars, projects, finalCTA } = labsContent;

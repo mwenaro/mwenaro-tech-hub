@@ -1,8 +1,13 @@
 import { NavBar, Footer } from "@mwenaro/ui";
 
-export const metadata = {
-  title: "About | Mwenaro Talent",
-  description: "Connecting world-class tech professionals with innovative companies globally.",
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: "About Us | Mwenaro Talent - Elite Tech Recruitment Africa",
+  description: "Learn about Mwenaro Talent's mission to connect world-class tech professionals with innovative companies globally. We provide rigorous vetting and seamless scaling for your engineering teams.",
+  alternates: {
+    canonical: "/about",
+  },
 };
 
 export default function AboutPage() {
