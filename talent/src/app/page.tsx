@@ -1,6 +1,15 @@
 import { NavBar, Footer, Button, Card } from "@mwenaro/ui";
 import { Search, ArrowRight, Users, MapPin } from "lucide-react";
 import { talentContent } from "@mwenaro/content/talent-content";
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: "Hire Vetted African Tech Talent | Mwenaro Talent",
+  description: "Connect with elite, vetted software engineers and data scientists in Kenya and across Africa. Mwenaro Talent provides project-ready tech professionals for global teams.",
+  alternates: {
+    canonical: "/",
+  },
+}
 
 const statusColorMap: Record<string, string> = {
   "Ready to Hire": "bg-green-500/10 text-green-600 border-green-500/20",

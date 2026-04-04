@@ -1,9 +1,14 @@
 import { NavBar, Footer, Button } from "@mwenaro/ui";
 import { Briefcase, Building2, UserCircle } from "lucide-react";
 
-export const metadata = {
-  title: "Contact | Mwenaro Talent",
-  description: "Reach out to hire elite tech talent or join our talent network.",
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: "Hire Talent | Contact Mwenaro Talent Recruitment",
+  description: "Ready to scale your tech team? Contact Mwenaro Talent to hire vetted African developers or join our elite talent network today.",
+  alternates: {
+    canonical: "/contact",
+  },
 };
 
 export default function ContactPage() {

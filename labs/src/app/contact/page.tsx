@@ -1,9 +1,14 @@
 import { NavBar, Footer, Button } from "@mwenaro/ui";
 import { Code2, Rocket, MessagesSquare } from "lucide-react";
 
-export const metadata = {
-  title: "Contact | Mwenaro Labs",
-  description: "Discuss your next big project with our engineering team.",
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: "Start a Project | Contact Mwenaro Labs Engineering",
+  description: "Discuss your next big technical challenge or product idea with Mwenaro Labs. Schedule a consultation for project discovery or a technical audit today.",
+  alternates: {
+    canonical: "/contact",
+  },
 };
 
 export default function ContactPage() {

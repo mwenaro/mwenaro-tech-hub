@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ecosystem } from "@mwenaro/config/ecosystem";
+import { TalentOrganizationSchema, TalentWebsiteSchema } from "@/components/structured-data";
 
 export const metadata: Metadata = {
     metadataBase: new URL(ecosystem.talent),
@@ -60,6 +61,9 @@ export const metadata: Metadata = {
         shortcut: "/icon.svg",
         apple: "/icon.svg",
     },
+    alternates: {
+        canonical: "/",
+    }
 };
 
 export default function RootLayout({
@@ -70,6 +74,8 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body className="antialiased">
+                <TalentOrganizationSchema />
+                <TalentWebsiteSchema />
                 {children}
             </body>
         </html>
