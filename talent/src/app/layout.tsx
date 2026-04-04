@@ -19,9 +19,9 @@ export const metadata: Metadata = {
         "Mwenaro Talent",
         "tech recruitment Africa",
     ],
-    authors: [{ name: "Mwenaro Hub" }],
-    creator: "Mwenaro Hub",
-    publisher: "Mwenaro Hub",
+    authors: [{ name: "Mwenaro" }],
+    creator: "Mwenaro",
+    publisher: "Mwenaro",
     openGraph: {
         title: "Mwenaro Talent | Hire Top African Tech Talent",
         description: "Connect with vetted, project-ready software engineers and data scientists.",

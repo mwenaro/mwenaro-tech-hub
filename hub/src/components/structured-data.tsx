@@ -4,7 +4,7 @@ export function OrganizationSchema() {
   const schema = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": "Mwenaro Hub",
+    "name": "Mwenaro",
     "url": ecosystem.hub,
     "logo": `${ecosystem.hub}/logo.svg`,
     "description": "Mwenaro is Africa's premier technology ecosystem driving tech innovation in Kenya.",

@@ -5,8 +5,8 @@ import { ArrowRight } from "lucide-react";
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: "Africa's Premier Tech Ecosystem | Mwenaro Hub",
-  description: "Driving tech innovation in Kenya. Mwenaro Hub connects startups, developers, and businesses across the African tech ecosystem through training, labs, and talent networking.",
+  title: "Africa's Premier Tech Ecosystem | Mwenaro",
+  description: "Driving tech innovation in Kenya. Mwenaro connects startups, developers, and businesses across the African tech ecosystem through training, labs, and talent networking.",
   alternates: {
     canonical: "/",
   },
