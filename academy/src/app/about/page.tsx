@@ -5,8 +5,11 @@ import {
 } from "lucide-react";
 
 export const metadata = {
-    title: "About",
-    description: "Learn more about Mwenaro Academy, our mission, values, and the team empowering the next generation of tech talent in Africa.",
+    title: "About Us | Mwenaro Academy - Our Mission & Vision",
+    description: "Learn more about Mwenaro Academy, our mission, values, and the team empowering the next generation of tech talent in Africa through project-based learning.",
+    alternates: {
+        canonical: "/about",
+    },
 };
 
 const stats = [

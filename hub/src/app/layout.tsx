@@ -1,37 +1,37 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ecosystem } from "@mwenaro/config/ecosystem";
+import { OrganizationSchema, WebsiteSchema } from "@/components/structured-data";
 
 export const metadata: Metadata = {
     metadataBase: new URL(ecosystem.hub),
     title: {
-        default: "Mwenaro Hub | Premier Tech Ecosystem in Africa",
-        template: "%s | Mwenaro Hub",
+        default: "Mwenaro | Premier Tech Ecosystem in Africa",
+        template: "%s | Mwenaro",
     },
-    description: "Mwenaro Hub is Africa's premier technology ecosystem. We drive tech innovation in Kenya, empowering startups, developers, and businesses through our Academy, Talent network, and Labs.",
+    description: "Mwenaro is Africa's premier technology ecosystem. We drive tech innovation in Kenya, empowering startups, developers, and businesses through our Academy, Talent network, and Labs.",
     keywords: [
-        "Mwenaro Hub",
+        "Mwenaro",
         "tech innovation in Kenya",
         "African tech ecosystem",
         "tech startup builder Africa",
         "technology hub Mombasa",
         "Kenya tech talent",
-        "Mwenaro",
     ],
-    authors: [{ name: "Mwenaro Hub" }],
-    creator: "Mwenaro Hub",
-    publisher: "Mwenaro Hub",
+    authors: [{ name: "Mwenaro" }],
+    creator: "Mwenaro",
+    publisher: "Mwenaro",
     openGraph: {
-        title: "Mwenaro Hub | Africa's Premier Tech Ecosystem",
+        title: "Mwenaro | Africa's Premier Tech Ecosystem",
         description: "Connecting innovation, talent, and tech education across the African ecosystem.",
         url: ecosystem.hub,
-        siteName: "Mwenaro Hub",
+        siteName: "Mwenaro",
         images: [
             {
                 url: "/logo-full.svg",
                 width: 1200,
                 height: 630,
-                alt: "Mwenaro Hub Logo - Technology Ecosystem in Africa",
+                alt: "Mwenaro Logo - Technology Ecosystem in Africa",
             },
         ],
         locale: "en_KE",
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     },
     twitter: {
         card: "summary_large_image",
-        title: "Mwenaro Hub | Tech Ecosystem",
+        title: "Mwenaro | Tech Ecosystem",
         description: "Driving tech innovation in Kenya and across Africa. Join our ecosystem.",
         images: ["/logo-full.svg"],
         creator: "@mwenaro",
@@ -60,6 +60,9 @@ export const metadata: Metadata = {
         shortcut: "/icon.svg",
         apple: "/icon.svg",
     },
+    alternates: {
+        canonical: "/",
+    },
 };
 
 export default function RootLayout({
@@ -70,6 +73,8 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body className="antialiased">
+                <OrganizationSchema />
+                <WebsiteSchema />
                 {children}
             </body>
         </html>
