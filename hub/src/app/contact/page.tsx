@@ -4,8 +4,8 @@ import { Mail, MapPin, Phone } from "lucide-react";
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: "Contact Us | Mwenaro Hub - Enrollment & Partnerships",
-  description: "Get in touch with Mwenaro Hub for course admissions, talent hiring, or software development inquiries. We're here to build the next generation of tech talent together.",
+  title: "Contact Us | Mwenaro - Enrollment & Partnerships",
+  description: "Get in touch with Mwenaro for course admissions, talent hiring, or software development inquiries. We're here to build the next generation of tech talent together.",
   alternates: {
     canonical: "/contact",
   },

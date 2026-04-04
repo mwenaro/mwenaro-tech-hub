@@ -19,9 +19,9 @@ export const metadata: Metadata = {
         "software engineering consulting Mombasa",
         "digital innovation agency",
     ],
-    authors: [{ name: "Mwenaro Hub" }],
-    creator: "Mwenaro Hub",
-    publisher: "Mwenaro Hub",
+    authors: [{ name: "Mwenaro" }],
+    creator: "Mwenaro",
+    publisher: "Mwenaro",
     openGraph: {
         title: "Mwenaro Labs | Digital Innovation & Software Development",
         description: "Building futuristic, scalable software solutions for startups and enterprises in Africa.",

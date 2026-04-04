@@ -1,4 +1,4 @@
-# Mwenaro Hub
+# Mwenaro
 
 The **Hub** is the central gateway to the Mwenaro ecosystem. It provides a high-level overview of our mission, pillars, and provides the main entry point for students, talent, and partners.
 

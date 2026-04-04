@@ -3,8 +3,8 @@ import { NavBar, Footer } from "@mwenaro/ui";
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: "About | Mwenaro Hub - Building Africa's Tech Future",
-  description: "Learn about Mwenaro Hub's mission to drive tech innovation in Africa. We are a unified ecosystem empowering individuals and organizations through Academy, Talent, and Labs.",
+  title: "About | Mwenaro - Building Africa's Tech Future",
+  description: "Learn about Mwenaro's mission to drive tech innovation in Africa. We are a unified ecosystem empowering individuals and organizations through Academy, Talent, and Labs.",
   alternates: {
     canonical: "/about",
   },

@@ -10,7 +10,7 @@ export function TalentOrganizationSchema() {
     "description": "Hire vetted, project-ready software engineers and data scientists in Kenya and across Africa.",
     "parentOrganization": {
       "@type": "Organization",
-      "name": "Mwenaro Hub",
+      "name": "Mwenaro",
       "url": ecosystem.hub
     },
     "sameAs": [
