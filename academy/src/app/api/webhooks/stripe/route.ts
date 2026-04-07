@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { enrollUser } from '@/lib/enrollment'
+import { assessAffiliateReward } from '@/lib/affiliates'
 import Stripe from 'stripe'
 
 export async function POST(req: Request) {
@@ -51,6 +52,9 @@ export async function POST(req: Request) {
 
                 // Enroll the user
                 await enrollUser(courseId, payment.id)
+
+                // Check if affiliate reward applies
+                await assessAffiliateReward(userId, courseId).catch(console.error)
             }
         }
     }

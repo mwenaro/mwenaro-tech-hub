@@ -7,7 +7,8 @@ import { ChatWidget } from "@/components/chat-widget";
 import { Toaster } from "@/components/ui/sonner"
 import { ecosystem } from "@mwenaro/config/ecosystem";
 import { AcademyOrganizationSchema } from "@/components/structured-data";
-
+import { InviteTracker } from "@/components/invite-tracker";
+import { Suspense } from "react";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -86,6 +87,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
+        <Suspense fallback={null}>
+          <InviteTracker />
+        </Suspense>
         <AcademyOrganizationSchema />
         <div className="flex min-h-screen flex-col">
           <NavBar currentApp="academy" />
