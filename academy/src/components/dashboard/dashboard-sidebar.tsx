@@ -12,7 +12,8 @@ import {
     FileQuestion,
     MessageSquare,
     Bell,
-    Receipt
+    Receipt,
+    Share2
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -119,6 +120,11 @@ export function DashboardSidebar({ user, ...props }: DashboardSidebarProps) {
             title: "Certificates",
             url: "/dashboard/certificates",
             icon: GraduationCap,
+        },
+        {
+            title: "Partner Program",
+            url: "/dashboard/affiliate",
+            icon: Share2,
         },
         {
             title: "Settings",

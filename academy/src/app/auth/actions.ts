@@ -4,6 +4,8 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { ecosystem } from '@mwenaro/config/ecosystem'
+import { cookies } from 'next/headers'
+import { processAffiliateSignup } from '@/lib/affiliates'
 
 export async function login(formData: FormData) {
     const supabase = await createClient()
@@ -32,7 +34,7 @@ export async function signup(formData: FormData) {
     const password = formData.get('password') as string
     const name = formData.get('name') as string
 
-    const { error } = await supabase.auth.signUp({
+    const { data: authData, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -45,6 +47,14 @@ export async function signup(formData: FormData) {
     if (error) {
         console.error('Signup Error:', error)
         return { error: error.message }
+    }
+
+    if (authData?.user) {
+        const cookieStore = await cookies()
+        const inviteCode = cookieStore.get('mwenaro_invite')?.value
+        if (inviteCode) {
+            await processAffiliateSignup(inviteCode, authData.user.id)
+        }
     }
 
     return { success: true }

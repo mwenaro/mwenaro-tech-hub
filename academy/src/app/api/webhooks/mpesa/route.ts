@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { enrollUser } from '@/lib/enrollment'
+import { assessAffiliateReward } from '@/lib/affiliates'
 
 export async function POST(req: Request) {
     const data = await req.json()
@@ -37,6 +38,9 @@ export async function POST(req: Request) {
 
             // Enroll the user (this will revalidate paths)
             await enrollUser(payment.course_id, payment.id)
+
+            // Check if affiliate reward applies
+            await assessAffiliateReward(payment.user_id, payment.course_id).catch(console.error)
         }
     } else {
         // Failed
