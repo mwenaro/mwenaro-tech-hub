@@ -2,172 +2,227 @@
     "title": "Sass: Engineering Professional Stylesheets",
     "has_project": true,
     "video_url": "https://www.youtube.com/watch?v=_a5j7KoflTs",
-    "content": "# 💎 Sass: Engineering Professional Stylesheets\n\n## 🎯 Introduction\nStandard CSS (Cascading Style Sheets) is powerful, but as projects grow, it becomes difficult to maintain. **Sass (Syntactically Awesome Style Sheets)** is a pre-processor that adds programming logic—variables, nesting, math, and loops—to CSS. In this lesson, you will learn how to architect scalable stylesheets and use the **Live Sass Compiler** in VS Code to turn your logic into browser-ready CSS.\n\n---\n\n## 1️⃣ Setup: The Compiler Pipeline\n\nBrowsers cannot read `.scss` files directly. We must \"compile\" them into standard `.css`. \n\n### The Workflow:\n1. Open VS Code and install the **Live Sass Compiler** extension.\n2. Create a file named `style.scss`.\n3. Click **\"Watch Sass\"** in the bottom status bar.\n4. Every time you save your `.scss` file, it will automatically generate a highly optimized `style.css` file for the browser.\n\n---\n\n## 2️⃣ The Core Five Concepts\n\n### 1. Variables (`$symbol`)\nStore values like colors, fonts, or spacing once and reuse them everywhere.\n```scss\n$primary-color: #FF5733;\n$base-padding: 1rem;\n\nbody { \n  background: $primary-color; \n  padding: $base-padding; \n}\n```\n\n### 2. Nesting (Matching HTML Structure)\nInstead of repeating selectors, nest children inside parents to match your HTML hierarchy.\n```scss\nnav {\n  background: #333;\n  ul {\n    display: flex;\n    li { list-style: none; }\n    a { color: white; &:hover { color: gold; } } // '&' refers to the parent (a)\n  }\n}\n```\n\n### 3. Partials & Imports (`_filename.scss`)\nBreak your CSS into small, modular files. Files starting with an underscore (e.g., `_header.scss`) are ignored by the compiler and only exist to be imported into your main file.\n```scss\n// main.scss\n@import 'header';\n@import 'footer';\n```\n\n### 4. Mixins (`@mixin` and `@include`)\nCreate reusable blocks of CSS code that you can \"drop\" into any selector.\n```scss\n@mixin flex-center {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}\n\n.hero { @include flex-center; }\n```\n\n### 5. Mathematics & `calc()`\nSass allows for direct math operations. While native CSS has `calc()`, Sass math is faster and more powerful during the build step.\n```scss\n$width: 1000px;\n.sidebar { width: $width / 3; } // Results in 333.33px\n```\n\n---\n\n## 3️⃣ Advanced Logic: Loops & Inheritance\n\n### Control Flow (@for and @each)\nYou can automate the generation of dozens of utility classes in a single loop.\n```scss\n// Generate margins m-1 to m-5\n@for $i from 1 through 5 {\n  .m-#{$i} { margin: $i * 1rem; }\n}\n```\n\n### Inheritance (@extend)\nAllow one selector to inherit the styles of another without repeating the code.\n```scss\n.message { border: 1px solid #ccc; padding: 10px; color: #333; }\n.error { @extend .message; border-color: red; } // Inherits from .message\n```\n\n---\n\n## 🚀 Sass Mastery: 10 Cool Developer Tricks\n\n1.  **The Perfect Centering Mixin:**\n    `@mixin center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }`\n2.  **Fluid Typography:** Use math to scale text: `$base-font: 1rem + 1vw;`.\n3.  **Glassmorphism Generator:** Create a mixin that applies background-blur and semi-transparent borders.\n4.  **Color Morphing:** Use `lighten($color, 20%)` or `darken($color, 10%)` for instant hover effects.\n5.  **Parent Selector Magic:** Use `&--active` to easily create BEM modifications like `btn btn--active`.\n6.  **Breakpoint Power:** `@mixin mobile { @media (max-width: 600px) { @content; } }` usage: `.card { width: 50%; @include mobile { width: 100%; } }`.\n7.  **Placeholder Selectors (%):** Use `%silent-class` for shared styles that only appear in CSS when extended.\n8.  **Automated Grid Palette:** Loop through a list of colors to generate `bg-red`, `bg-blue`, etc.\n9.  **Clearfix Hack:** A classic mixin to fix floating element issues automatically.\n10. **Aspect Ratio Calc:** Use math to ensure images and videos stay in a perfect 16:9 ratio.\n\n---\n\n## 🎓 Conclusion\nSass doesn't just make CSS \"easier\"; it makes it **engineered**. By modularizing your code and using logic, you can build massive applications that remain maintainable. Remember: compile often, use variables religiously, and never hunt for a hex code again.\n",
+    "content": "# 💎 Sass: Engineering Professional Stylesheets\n\n## 🎯 Introduction\nSass (Syntactically Awesome Style Sheets) is not just a \"better CSS\"—it is a programming language for your styles. It allows you to use logic, math, and variables to architect massive design systems that are maintainable, scalable, and modular. In this lesson, we will shift from writing \"static styles\" to building a robust **Style Pipeline**.\n\n---\n\n## 🏗️ Part 1: Architecture & Setup\n\n### The 7-1 Pattern\nProfessional Sass projects don't live in one giant file. We use the **7-1 Pattern**: 7 folders, 1 main entry point. \n- **abstracts/**: Variables, mixins, and functions (no CSS output).\n- **base/**: Resets and typography defaults.\n- **components/**: Modular styles for buttons, cards, etc.\n- **layout/**: Grid systems and headers.\n- **main.scss**: The only file that compiles; it @uses all other files.\n\n### The Live Sass Pipeline\n1. Install the **Live Sass Compiler** extension in VS Code.\n2. Click \"Watch Sass\" to automatically turn your logic into a `main.css` file.\n\n---\n\n## 📦 Part 2: The 15 Key Sass Features\n\n### 1. Variables (`$symbol`)\n**Purpose:** Store reusable values like colors or spacing.\n```scss\n$primary-color: #3498db;\n$base-padding: 16px;\n\n.btn { background: $primary-color; padding: $base-padding; }\n```\n*Pitfall:* Sass variables are replaced at compile-time. Use CSS Variables (`--var`) if you need to change them in the browser via JS.\n\n### 2. Nesting\n**Purpose:** Organize code to match HTML structure.\n```scss\n.nav {\n  ul { list-style: none; }\n  li { display: inline-block; }\n  a { text-decoration: none; &:hover { color: red; } }\n}\n```\n*Pitfall:* **Rule of Three.** Never nest deeper than 3 levels to avoid bloated, unperformant CSS selectors.\n\n### 3. Partials & Modules (`@use`)\n**Purpose:** Break styles into files and namespace them.\n```scss\n// _variables.scss\n$brand: #333;\n\n// main.scss\n@use 'variables' as var;\nbody { background: var.$brand; }\n```\n*Pitfall:* Use `@use` instead of the legacy `@import` to avoid global naming collisions.\n\n### 4. Mixins with Parameters\n**Purpose:** Reuse style blocks with custom values.\n```scss\n@mixin button($bg, $color: white) {\n  background: $bg; color: $color; padding: 10px 20px;\n}\n\n.btn-buy { @include button(blue); }\n```\n\n### 5. `@extend` (Inheritance)\n**Purpose:** Share styles between selectors.\n```scss\n.error { border: 1px solid red; }\n.error--serious { @extend .error; border-width: 3px; }\n```\n*Pitfall:* Avoid extending deep selectors; it group-merges selectors and can create massive, unexpected CSS blocks.\n\n### 6. Functions\n**Purpose:** Compute values and return them.\n```scss\n@function px-to-rem($px) {\n  @return ($px / 16) * 1rem;\n}\n.text { font-size: px-to-rem(24); }\n```\n\n### 7. Operators & Math\n**Purpose:** Perform calculations directly in SCSS.\n```scss\n@use \"sass:math\";\n.container { width: math.div(100%, 3); }\n```\n*Pitfall:* Use `math.div()` instead of `/` for division, as `/` is deprecated for math in modern Sass.\n\n### 8. Maps (Config Objects)\n**Purpose:** Store key-value pairs for themes.\n```scss\n$theme-colors: ( \"light\": #fff, \"dark\": #000 );\n.bg-light { background: map-get($theme-colors, \"light\"); }\n```\n\n### 9. Lists\n**Purpose:** Sequences of values like font stacks.\n```scss\n$font-stack: 'Inter', Helvetica, sans-serif;\nbody { font-family: $font-stack; }\n```\n\n### 10. `@each` (Collection Loops)\n**Purpose:** Iterate through maps or lists.\n```scss\n@each $color, $value in $theme-colors {\n  .bg-#{$color} { background-color: $value; }\n}\n```\n\n### 11. `@for` (Numeric Loops)\n**Purpose:** Generate repetitive utility classes.\n```scss\n@for $i from 1 through 12 {\n  .col-#{$i} { width: math.div(100%, 12) * $i; }\n}\n```\n\n### 12. `@while` (Condition Loops)\n**Purpose:** Run a loop as long as a condition is true.\n```scss\n$i: 6; \n@while $i > 0 {\n  .p-#{$i} { padding: $i * 10px; }\n  $i: $i - 2;\n}\n```\n\n### 13. `@if` / `@else` (Logic Gate)\n**Purpose:** Include styles only if a condition was met.\n```scss\n@mixin theme($dark-mode: false) {\n  @if $dark-mode { background: black; color: white; }\n  @else { background: white; color: black; }\n}\n```\n\n### 14. Placeholders (`%`)\n**Purpose:** Shared styles that only appear in CSS when extended (no class output).\n```scss\n%card-base { padding: 20px; border-radius: 8px; }\n.card { @extend %card-base; background: gray; }\n```\n\n### 15. Error Handling (`@warn` / `@error`)\n**Purpose:** Enforce API rules in your design system.\n```scss\n@mixin grid($cols) {\n  @if $cols > 12 { @error \"Grid cannot have more than 12 columns.\"; }\n  grid-template-columns: repeat($cols, 1fr);\n}\n```\n*Pitfall:* `@error` stops the build; `@warn` just prints a message in the terminal.\n\n---\n\n## 🚀 10 Strategic Tricks for Developers\n\n### 1. The Perfect Centering Mixin\nWhy type 5 lines when you can type one?\n```scss\n@mixin center($type: 'both') {\n  position: absolute;\n  @if $type == 'both' or $type == 'x' { left: 50%; }\n  @if $type == 'both' or $type == 'y' { top: 50%; }\n  transform: translate(\n    if($type == 'both' or $type == 'x', -50%, 0), \n    if($type == 'both' or $type == 'y', -50%, 0)\n  );\n}\n\n.modal-content { @include center('both'); }\n```\n\n### 2. Fluid Typography Math\nCreate text that scales perfectly based on the viewport using math.\n```scss\n$min-font: 1rem;\n$max-font: 2rem;\n$vp-min: 320px;\n$vp-max: 1200px;\n\nh1 {\n  font-size: calc(#{$min-font} + (#{$max-font} - #{$min-font}) * ((100vw - #{$vp-min}) / (#{$vp-max} - #{$vp-min})));\n}\n```\n\n### 3. Glassmorphism Design System\nEncapsulate high-end UI design in a single mixin.\n```scss\n@mixin glass($opacity: 0.1, $blur: 10px) {\n  background: rgba(255, 255, 255, $opacity);\n  backdrop-filter: blur($blur);\n  border: 1px solid rgba(255, 255, 255, 0.2);\n  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);\n}\n\n.card--premium { @include glass(0.2, 15px); }\n```\n\n### 4. Interactive Color Morpher\nGenerate complex hover effects instantly using Sass color functions.\n```scss\n@mixin smart-hover($color) {\n  background: $color;\n  &:hover {\n    background: mix($color, black, 80%); // 20% dark\n    border-color: lighten($color, 15%);\n    box-shadow: 0 0 10px rgba($color, 0.5);\n  }\n}\n\n.btn { @include smart-hover(#3498db); }\n```\n\n### 5. Automated Breakpoint Manager\nStop memorizing media queries. Use a central map.\n```scss\n$breakpoints: ( \"sm\": 576px, \"md\": 768px, \"lg\": 992px );\n\n@mixin mq($size) {\n  $width: map-get($breakpoints, $size);\n  @media (min-width: $width) { @content; }\n}\n\n.container { width: 100%; @include mq('md') { width: 750px; } }\n```\n\n### 6. BEM Class Generator (The '&' Magic)\nStreamline Block-Element-Modifier naming.\n```scss\n.card {\n  background: white;\n  &__header { border-bottom: 1px solid gray; } // .card__header\n  &--active { background: blue; } // .card--active\n}\n```\n\n### 7. Helper Generator Loop\nCreate a whole utility library (like Tailwind) in 5 lines of Sass.\n```scss\n@each $num in 0, 5, 10, 15, 20 {\n  .m-#{$num} { margin: #{$num}px; }\n  .p-#{$num} { padding: #{$num}px; }\n}\n```\n\n### 8. Private Placeholders for Internal Logic\nUse internal-only styles that don't litter your global namespace.\n```scss\n%_hidden-base {\n  display: none;\n  visibility: hidden;\n}\n\n.modal--inactive { @extend %_hidden-base; }\n```\n\n### 9. Triangle Generator (Math Hack)\nUse Sass to draw shapes without images.\n```scss\n@mixin triangle($direction, $size, $color) {\n  width: 0; height: 0;\n  border: $size solid transparent;\n  border-#{$direction}-color: $color;\n}\n\n.tooltip-arrow { @include triangle('top', 10px, black); }\n```\n\n### 10. Aspect Ratio Scaler\nEnsure your images or videos always stay in a specific ratio.\n```scss\n@mixin aspect-ratio($width, $height) {\n  position: relative;\n  &:before {\n    content: \"\";\n    display: block;\n    padding-top: math.div($height, $width) * 100%;\n  }\n  & > * { position: absolute; top: 0; left: 0; bottom: 0; right: 0; }\n}\n\n.video-wrapper { @include aspect-ratio(16, 9); }\n```\n\n---\n\n## 🎓 Final Comparison: Choosing Your Tool\n\n| Feature | When to Use | Result in CSS |\n| :--- | :--- | :--- |\n| **Mixin** | Dynamic logic + parameters | Copies code to every call |\n| **Extend** | Semantic relationship (Modifier subclasses) | Merges selectors into one group |\n| **Placeholder** | Internal shared styling (Abstract) | No output unless extended |\n| **Variables** | Brand values & consistency | Values injected directly |\n",
     "questions": [
         {
-            "question_text": "Why do browsers need a compiler for Sass files?",
+            "question_text": "In the 7-1 pattern, what is the purpose of the 'abstracts/' directory?",
             "options": [
-                "Because Sass files are too large",
-                "Because Sass uses logic (variables, loops) that the browser doesn't natively understand",
-                "Because Sass replaces JavaScript",
-                "To make the files more secure"
+                "To store image files",
+                "To store files that don't output CSS themselves (variables, mixins, functions)",
+                "To store the final compiled main.css",
+                "To store layout-specific grid systems"
             ],
             "correct_answer": 1,
-            "explanation": "Sass is a pre-processor; browsers only understand standard CSS, so the Sass logic must be transformed before deployment."
+            "explanation": "Abstracts contain the logic and configuration that other files @use, but they should not generate CSS declarations themselves."
         },
         {
-            "question_text": "In VS Code, which extension is most commonly used to compile Sass in real-time?",
+            "question_text": "Why is 'math.div(100%, 3)' preferred over '100% / 3' in modern Sass?",
             "options": [
-                "Prettier",
-                "ESLint",
-                "Live Sass Compiler",
-                "Python"
+                "Because math.div() is faster",
+                "Because the '/' operator is being deprecated for mathematical division to avoid ambiguity with CSS slash-syntax",
+                "Because it results in a more precise number",
+                "There is no preference; they are identical"
+            ],
+            "correct_answer": 1,
+            "explanation": "Sass is moving towards math.div() as the standard for numeric division."
+        },
+        {
+            "question_text": "What does '@error' do in a Sass mixin?",
+            "options": [
+                "It colors the text red in the browser",
+                "It logs a warning to the console but continues build",
+                "It immediately stops the compilation and displays an error message",
+                "It deletes the current style file"
             ],
             "correct_answer": 2,
-            "explanation": "Live Sass Compiler is the de-facto standard for VS Code based Sass development."
+            "explanation": "@error is a fatal directive used to enforce design system constraints."
         },
         {
-            "question_text": "What does the symbol '$' represent in Sass?",
+            "question_text": "Which directive allows you to refer to a parent selector within a nested rule?",
             "options": [
-                "A jQuery selector",
-                "A currency unit",
-                "A variable name",
-                "A comment"
-            ],
-            "correct_answer": 2,
-            "explanation": "The '$' symbol is used to define and call variables in Sass."
-        },
-        {
-            "question_text": "What is a Sass 'Partial'?",
-            "options": [
-                "An unfinished CSS file",
-                "A file starting with '_' that is hidden from the compiler and meant to be imported",
-                "A file that only contains HTML",
-                "A broken link"
-            ],
-            "correct_answer": 1,
-            "explanation": "Partials allow you to break code into modules without the compiler creating individual .css files for each one."
-        },
-        {
-            "question_text": "Which directive is used to reuse a block of CSS code defined in a '@mixin'?",
-            "options": [
-                "@apply",
-                "@include",
-                "@extend",
-                "@import"
-            ],
-            "correct_answer": 1,
-            "explanation": "'@include' is the command used to inject a mixin into a selector."
-        },
-        {
-            "question_text": "How do you refer to a parent selector within a nested element?",
-            "options": [
+                "^",
                 "parent",
-                "this",
                 "&",
-                ":host"
+                "::"
             ],
             "correct_answer": 2,
-            "explanation": "The '&' symbol acts as a placeholder for the parent selector."
+            "explanation": "The '&' symbol acts as a reference to the parent selector, enabling BEM modifiers like '&--active'."
         },
         {
-            "question_text": "What is the result of '$width: 100% / 4' in Sass?",
+            "question_text": "What happens to a Sass Namespace (using @use 'vars') if you don't use 'as *'?",
             "options": [
-                "100/4",
-                "25%",
-                "0.25",
+                "It fails to load",
+                "Variables must be prefixed with the module name (e.g., vars.$color)",
+                "It makes all variables global by default",
+                "It creates a new CSS file"
+            ],
+            "correct_answer": 1,
+            "explanation": "@use provides encapsulation; you must use the prefix unless you explicitly use 'as *'."
+        },
+        {
+            "question_text": "How many levels of nesting are recommended in professional Sass?",
+            "options": [
+                "No limit",
+                "Maximum 3",
+                "Maximum 10",
+                "Nesting is discouraged"
+            ],
+            "correct_answer": 1,
+            "explanation": "The 'Rule of Three' ensures that CSS selectors remain efficient and readable."
+        },
+        {
+            "question_text": "What is the difference between a Placeholder (%) and a standard Class (.) when not extended?",
+            "options": [
+                "Placeholders are for JS only",
+                "Placeholders do not output any code in the final CSS file if they are not extended",
+                "Classes are faster to load",
+                "There is no difference"
+            ],
+            "correct_answer": 1,
+            "explanation": "Placeholders allow you to define 'silent' styles that only exist for logic reuse."
+        },
+        {
+            "question_text": "What is the main advantage of using an '@each' loop?",
+            "options": [
+                "It makes the page load faster",
+                "It allows you to iterate over a collection (like a list of colors) to automate class generation",
+                "It hides your source code",
+                "It compiles the code to JavaScript"
+            ],
+            "correct_answer": 1,
+            "explanation": "Loops automate repetitive tasks, which is the core of programmatic styling."
+        },
+        {
+            "question_text": "What does 'lighten($color, 20%)' return?",
+            "options": [
+                "The same color but transparent",
+                "A version of the color that is 20% closer to white",
+                "A totally random color",
+                "A numeric value"
+            ],
+            "correct_answer": 1,
+            "explanation": "lighten() is a built-in Sass color function for manipulating lightness."
+        },
+        {
+            "question_text": "In the BEM naming convention, what does '&__element' generate if the parent is '.card'?",
+            "options": [
+                ".card__element",
+                ".card element",
+                ".card--element",
+                ".card-element"
+            ],
+            "correct_answer": 0,
+            "explanation": "Double underscores indicate a child element within a block in BEM."
+        },
+        {
+            "question_text": "Why should you use a Mixin instead of @extend for layout logic requiring custom widths?",
+            "options": [
+                "Mixins allow you to pass parameters/arguments, whereas @extend is static",
+                "Mixins are more modern",
+                "Extends are broken in some browsers",
+                "There is no reason; @extend is better"
+            ],
+            "correct_answer": 0,
+            "explanation": "Mixins are essentially 'functions' that output CSS, providing maximum flexibility."
+        },
+        {
+            "question_text": "What does '@forward' do in a Sass library context?",
+            "options": [
+                "It moves the cursor to the next line",
+                "It makes a module's members available as if they were defined in the current file when loaded elsewhere",
+                "It deletes previous versions of a file",
+                "It skips the current block of code"
+            ],
+            "correct_answer": 1,
+            "explanation": "@forward is used to aggregate several modules into a single entrypoint."
+        },
+        {
+            "question_text": "Which Sass operator is used for string interpolation (injecting variables into strings or selectors)?",
+            "options": [
+                "$()",
+                "#{ }",
+                "[[ ]]",
+                "{{ }}"
+            ],
+            "correct_answer": 1,
+            "explanation": "Interpolation allows you to dynamically build strings or selector names using variables."
+        },
+        {
+            "question_text": "What is the return type of a '@function' in Sass?",
+            "options": [
+                "A block of CSS code",
+                "A single value (number, color, string, etc.)",
+                "An entire file",
+                "Nothing (void)"
+            ],
+            "correct_answer": 1,
+            "explanation": "Functions are for calculations and must @return a value to be used in a property."
+        },
+        {
+            "question_text": "What is 'Sass Soup'?",
+            "options": [
+                "A type of data structure",
+                "A derogatory term for messy, over-nested, and unmaintainable Sass code",
+                "A performance optimization tool",
+                "A new feature in Sass v5"
+            ],
+            "correct_answer": 1,
+            "explanation": "Over-nesting (4+ levels) leads to 'Sass Soup'—selectors that are too specific and difficult to override."
+        },
+        {
+            "question_text": "Which directive acts as a non-fatal warning to the developer during build?",
+            "options": [
+                "@error",
+                "@warn",
+                "@alert",
+                "@print"
+            ],
+            "correct_answer": 1,
+            "explanation": "@warn provides feedback in the terminal without stopping the build process."
+        },
+        {
+            "question_text": "How do you mix two colors together in Sass?",
+            "options": [
+                "combine($c1, $c2)",
+                "mix($c1, $c2)",
+                "blend($c1, $c2)",
+                "c1 + c2"
+            ],
+            "correct_answer": 1,
+            "explanation": "The mix() function takes two colors and returns their blend based on weight."
+        },
+        {
+            "question_text": "What is the primary benefit of the 7-1 pattern for Sass?",
+            "options": [
+                "It makes the CSS compiled file smaller",
+                "It provides a standard, modular structure that makes large projects easier to manage",
+                "It makes images load faster",
+                "It's required by the Sass compiler"
+            ],
+            "correct_answer": 1,
+            "explanation": "Architectural patterns like 7-1 are about human maintainability and organization."
+        },
+        {
+            "question_text": "Which of these is NOT a control directive in Sass?",
+            "options": [
+                "@if",
+                "@for",
+                "@each",
+                "@select"
+            ],
+            "correct_answer": 3,
+            "explanation": "@select is not a Sass directive; the others are part of the 'control flow' suite."
+        },
+        {
+            "question_text": "What is the output of '5px + 10px' in Sass?",
+            "options": [
+                "15",
+                "15px",
+                "510px",
                 "Error"
             ],
             "correct_answer": 1,
-            "explanation": "Sass performs mathematical operations natively during compilation."
-        },
-        {
-            "question_text": "When would you use a '@for' loop in Sass?",
-            "options": [
-                "To fetch data from an API",
-                "To automate the creation of repetitive CSS classes (e.g. m-1, m-2, m-3)",
-                "To create a JavaScript alert",
-                "To change the browser's URL"
-            ],
-            "correct_answer": 1,
-            "explanation": "Loops in Sass are used to programmatically generate CSS selectors and values."
-        },
-        {
-            "question_text": "What is the difference between '@extend' and '@mixin'?",
-            "options": [
-                "Mixins are for JavaScript, Extends are for CSS",
-                "Extends are faster",
-                "Mixins inject code into the selector, while Extends group multiple selectors together in the final CSS",
-                "There is no difference"
-            ],
-            "correct_answer": 2,
-            "explanation": "Extending is better for shared properties among many elements, while mixins are better for logic that requires arguments."
-        },
-        {
-            "question_text": "Which Sass function would you use to create a darker version of a color variable for a hover state?",
-            "options": [
-                "dark()",
-                "blacken()",
-                "darken()",
-                "shadow()"
-            ],
-            "correct_answer": 2,
-            "explanation": "The darken($color, $percent) function is a built-in Sass helper."
-        },
-        {
-            "question_text": "In Sass architecture, which file name is conventional for the 'main' file that imports all other modules?",
-            "options": [
-                "index.html",
-                "main.scss",
-                "_main.scss",
-                "all.css"
-            ],
-            "correct_answer": 1,
-            "explanation": "A main.scss (without underscore) is the entry point that the compiler 'watches'."
-        },
-        {
-            "question_text": "How do you define a comment that will NOT appear in the final CSS file?",
-            "options": [
-                "/* comment */",
-                "// comment",
-                "<!-- comment -->",
-                "# comment"
-            ],
-            "correct_answer": 1,
-            "explanation": "Single-line comments (//) are stripped out during the Sass compilation process."
-        },
-        {
-            "question_text": "Which of these is a valid Sass mathematical calculation for a responsive container?",
-            "options": [
-                "width: 100vw - 200px;",
-                "width: calc(100vw - 200px);",
-                "width: calc-sass(100vw, 200px);",
-                "width: (100vw - 200px);"
-            ],
-            "correct_answer": 1,
-            "explanation": "While Sass handles simple math, native CSS calc() is still used for mixing units like 'vw' and 'px'."
-        },
-        {
-            "question_text": "What does '@each $color in red, blue, green' do?",
-            "options": [
-                "Styles all three colors at once",
-                "Iterates through the list of colors to perform a repeatable action for each",
-                "Deletes those colors from the theme",
-                "Applies all three to the background"
-            ],
-            "correct_answer": 1,
-            "explanation": "'@each' is used for iterating over lists and maps in Sass."
-        },
-        {
-            "question_text": "Why is 'Live Sass Compiler' better than manual compilation?",
-            "options": [
-                "It makes the CSS more colorful",
-                "It automatically generates the CSS every time you save, providing instant feedback",
-                "It proofreads your code",
-                "It uploads the code to the server"
-            ],
-            "correct_answer": 1,
-            "explanation": "Workflows that involve instant 'Watch' mechanisms significantly increase development speed."
+            "explanation": "Sass is unit-aware and correctly performs mathematical operations on matching units."
         }
     ]
 }
