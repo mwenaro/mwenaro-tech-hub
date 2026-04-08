@@ -225,7 +225,7 @@ async function runSync() {
         console.log(`⚡ Force mode enabled. Overwriting dashboard edits.`);
     }
 
-    const coursesToSync = ['fullstack', 'web-foundations', 'react-frontend', 'backend-api'];
+    const coursesToSync = ['fullstack', 'web-foundations', 'react-frontend', 'backend-api', 'specialized-mastery'];
     for (const slug of coursesToSync) {
         await syncCourse(slug, forceFlag);
     }
