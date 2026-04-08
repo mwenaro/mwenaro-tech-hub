@@ -4,11 +4,11 @@
     "title": "Web Foundations & Engineering",
     "description": "Master the absolute fundamentals of the internet, HTML5, CSS layout architecture, and Modern JavaScript. Move from internet user to system architect.",
     "price": 49.99,
-    "total_modules": 14,
+    "total_modules": 15,
     "duration": 6,
     "difficulty": "Beginner",
     "course_overview": "# The Blueprint of the Internet\n\nEvery professional engineer starts here. The Web Foundations track is designed to peel back the curtain on the technology that powers our world. You won't just learn to build websites; you'll learn to architect the **foundation** upon which all modern software sits.\n\n### What you will achieve:\n- **Command Line Mastery**: Master the Linux Terminal and Git history like a pro.\n- **Semantic Web**: Build accessible, lightning-fast HTML5 structures.\n- **Layout Architecture**: Master CSS Flexbox and Grid without the guesswork.\n- **JavaScript Core**: Understand the engine of the web before jumping into frameworks.\n\nBy the end of this track, you will have moved from being a consumer of the internet to someone who understands the system from the inside out.",
-    "course_outline": "### 🌐 Module 1-3: Infrastructure\nHow the web works, Environment setup, and Terminal mastery.\n\n### 🌳 Module 4-5: Version Control\nGit internals and Collaborative workflows on GitHub.\n\n### 🎨 Module 6-10: Structural Styling\nHTML5 Mastery, CSS foundations, Modern Layouts, and Tailwind CSS.\n\n### ⚡ Module 11-14: The Logic Layer\nJavaScript Fundamentals, DOM Manipulation, and Asynchronous programming.",
+    "course_outline": "### 🌐 Module 1-3: Infrastructure\nHow the web works, Environment setup, and Terminal mastery.\n\n### 🌳 Module 4-5: Version Control\nGit internals and Collaborative workflows on GitHub.\n\n### 🎨 Module 6-10: Structural Styling\nHTML5 Mastery, CSS foundations, Modern Layouts, Responsive Design, and Sass.\n\n### ⚡ Module 11-15: The Logic Layer\nTailwind CSS, JavaScript Fundamentals, DOM Manipulation, and Asynchronous programming.",
     "modules": [
         {
             "module_id": "fa6e31e2-fb4d-40a7-accf-68079990200c",
@@ -85,15 +85,24 @@
         {
             "module_id": "81e486f5-ce3c-4418-a56d-fd5dc9e5d4bf",
             "order": 9,
+            "title": "Sass: Pre-processing Logic",
+            "phase": "1 Web Foundations",
+            "slug": "lesson-9-sass",
+            "source_file": "phase-1-web-foundations/lesson-9-sass.json",
+            "quiz_count": 15
+        },
+        {
+            "module_id": "81e486f5-ce3c-4418-a56d-fd5dc9e5d4bg",
+            "order": 10,
             "title": "Tailwind CSS",
             "phase": "1 Web Foundations",
             "slug": "lesson-10-tailwind-css",
             "source_file": "phase-1-web-foundations/lesson-10-tailwind-css.json",
-            "quiz_count": 16
+            "quiz_count": 17
         },
         {
             "module_id": "fa41d54c-2648-43b6-8dbf-3cc0d55497d2",
-            "order": 10,
+            "order": 11,
             "title": "JavaScript Fundamentals",
             "phase": "1 Web Foundations",
             "slug": "lesson-11-js-fundamentals",
@@ -102,7 +111,7 @@
         },
         {
             "module_id": "2be9815f-dba5-4634-ba55-05a629bfd363",
-            "order": 11,
+            "order": 12,
             "title": "DOM Manipulation",
             "phase": "1 Web Foundations",
             "slug": "lesson-12-dom-manipulation",
@@ -111,7 +120,7 @@
         },
         {
             "module_id": "29e701e3-b66b-4ffb-82d8-66268c898a9c",
-            "order": 12,
+            "order": 13,
             "title": "Modern JS (ES6-ES11)",
             "phase": "1 Web Foundations",
             "slug": "lesson-13-modern-js",
@@ -120,7 +129,7 @@
         },
         {
             "module_id": "2c69c545-caf8-4619-8b8e-8b98aa4bc430",
-            "order": 13,
+            "order": 14,
             "title": "Asynchronous JS & APIs",
             "phase": "1 Web Foundations",
             "slug": "lesson-14-async-js",
@@ -129,7 +138,7 @@
         },
         {
             "module_id": "39d29f74-8e4e-4f32-b4f0-e6443a566d96",
-            "order": 14,
+            "order": 15,
             "title": "HTML5 Mastery",
             "phase": "1 Web Foundations",
             "slug": "lesson-6-html5-mastery",
