@@ -279,7 +279,7 @@ export async function createCourse(data: {
 }) {
     if (!await isAdmin()) throw new Error('Unauthorized')
     const supabase = await createClient()
-    const { error } = await supabase.from('courses').insert(data)
+    const { error } = await supabase.from('courses').insert({ ...data, updated_from: 'dashboard' })
     if (error) throw new Error(error.message)
     revalidatePath('/admin/courses')
     revalidatePath('/courses')
@@ -301,7 +301,7 @@ export async function updateCourse(id: string, data: Partial<Course>) {
         if (course?.instructor_id !== user.id) throw new Error('Unauthorized: You can only edit your own courses')
     }
 
-    const { error } = await supabase.from('courses').update(data).eq('id', id)
+    const { error } = await supabase.from('courses').update({ ...data, updated_from: 'dashboard' }).eq('id', id)
     if (error) throw new Error(error.message)
 
     revalidatePath('/admin/courses')
@@ -406,7 +406,7 @@ export async function createLesson(data: { course_id: string, phase_id?: string,
         if (phases && phases.length > 0) {
             phaseId = phases[0].id
         } else {
-            const { data: newPhase } = await supabase.from('phases').insert({ course_id: data.course_id, title: 'Main Content' }).select('id').single()
+            const { data: newPhase } = await supabase.from('phases').insert({ course_id: data.course_id, title: 'Main Content', updated_from: 'dashboard' }).select('id').single()
             phaseId = newPhase?.id
         }
     }
@@ -416,7 +416,8 @@ export async function createLesson(data: { course_id: string, phase_id?: string,
         title: data.title,
         content: data.content,
         video_url: data.video_url,
-        has_project: data.has_project
+        has_project: data.has_project,
+        updated_from: 'dashboard'
     }).select().single()
 
     if (error) throw new Error(error.message)
@@ -455,7 +456,7 @@ export async function updateLesson(id: string, data: Partial<Lesson>) {
 
     // Update core lesson content if any provided
     if (Object.keys(lessonData).length > 0) {
-        const { error } = await supabase.from('lessons').update(lessonData).eq('id', id)
+        const { error } = await supabase.from('lessons').update({ ...lessonData, updated_from: 'dashboard' }).eq('id', id)
         if (error) throw new Error(error.message)
     }
 
@@ -569,7 +570,8 @@ export async function createPhase(courseId: string, title: string) {
     const { error } = await supabase.from('phases').insert({
         course_id: courseId,
         title,
-        order_index: nextOrderIndex
+        order_index: nextOrderIndex,
+        updated_from: 'dashboard'
     })
 
     if (error) throw new Error(error.message)
@@ -582,7 +584,7 @@ export async function updatePhase(id: string, data: { title?: string, order_inde
     const { data: phase } = await supabase.from('phases').select('course_id').eq('id', id).single()
     if (!phase || !await isAuthorizedForCourse(phase.course_id)) throw new Error('Unauthorized')
 
-    const { error } = await supabase.from('phases').update(data).eq('id', id)
+    const { error } = await supabase.from('phases').update({ ...data, updated_from: 'dashboard' }).eq('id', id)
     if (error) throw new Error(error.message)
 
     revalidatePath(`/admin/courses/${phase.course_id}/lessons`)
