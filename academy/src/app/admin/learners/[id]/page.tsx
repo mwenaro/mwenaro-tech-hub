@@ -102,7 +102,11 @@ export default async function LearnerDetailPage({ params, searchParams }: Learne
                 />
 
                 {/* Mastery Roadmap */}
-                <MasteryRoadmap mastery={mastery} />
+                <MasteryRoadmap 
+                    mastery={mastery} 
+                    userId={studentId} 
+                    showReset={true} 
+                />
             </div>
         </div>
     )

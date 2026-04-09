@@ -1,18 +1,16 @@
+import { ResetQuizButton } from "./reset-quiz-button"
+import { StudentMasteryItem } from "@/lib/instructor"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { 
-    CheckCircle2, 
-    Circle, 
-    Trophy,
-    Target
-} from "lucide-react"
-import { StudentMasteryItem } from "@/lib/instructor"
+import { Target, CheckCircle2, Circle, Trophy } from "lucide-react"
 
 interface MasteryRoadmapProps {
     mastery: StudentMasteryItem[]
+    userId?: string
+    showReset?: boolean
 }
 
-export function MasteryRoadmap({ mastery }: MasteryRoadmapProps) {
+export function MasteryRoadmap({ mastery, userId, showReset }: MasteryRoadmapProps) {
     return (
         <div className="space-y-6">
             <div className="flex items-center gap-3 px-2 mb-8">
@@ -71,6 +69,16 @@ export function MasteryRoadmap({ mastery }: MasteryRoadmapProps) {
                                         <CheckCircle2 className="w-5 h-5 text-muted/30" />
                                     )}
                                 </div>
+                                
+                                {showReset && userId && (
+                                    <div className="pl-4 border-l border-white/5">
+                                        <ResetQuizButton 
+                                            lessonId={item.lesson_id} 
+                                            userId={userId} 
+                                            lessonTitle={item.title} 
+                                        />
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </Card>
