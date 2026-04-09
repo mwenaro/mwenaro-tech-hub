@@ -6,6 +6,7 @@ import { FileQuestion, Search, User, BookOpen, ExternalLink } from 'lucide-react
 import Link from 'next/link'
 import { format } from 'date-fns'
 import { Input } from '@/components/ui/input'
+import { CleanupQuizzesButton } from '@/components/dashboard/cleanup-quizzes-button'
 
 export default async function AdminQuizzesPage() {
     const quizzes = await getAllQuizzes()
@@ -18,6 +19,7 @@ export default async function AdminQuizzesPage() {
                         <h1 className="text-4xl font-black text-purple-600 dark:text-purple-400 uppercase tracking-tight">Quiz Monitoring</h1>
                         <p className="text-muted-foreground font-medium">See how students are performing across all courses.</p>
                     </div>
+                    <CleanupQuizzesButton />
                 </div>
 
                 <Card className="border-none shadow-xl overflow-hidden">

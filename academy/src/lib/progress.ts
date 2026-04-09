@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from './supabase/server'
+import { createAdminClient } from './supabase/admin'
 import { revalidatePath } from 'next/cache'
 import { getCourseLessons, getLessonQuestions } from './lessons'
 import { createNotification } from './notifications'
@@ -21,9 +22,6 @@ export interface LessonProgress {
     reviewed_by: string | null
     reviewed_at: string | null
     project_feedback: string | null
-    extra_attempts_granted: number
-    retrial_requested: boolean
-    retrial_requested_at?: string | null
 }
 
 export interface QuizSubmission {
@@ -76,43 +74,7 @@ export async function getLessonProgress(lessonId: string): Promise<LessonProgres
 
     const progress = data as LessonProgress | null
 
-    // Auto-grant retrial after 30 minutes
-    if (progress?.retrial_requested && progress?.retrial_requested_at) {
-        const reqDate = new Date(progress.retrial_requested_at).getTime()
-        const now = Date.now()
-        if (now - reqDate >= 30 * 60 * 1000) { // 30 minutes
-            // Automatically grant 2 attempts
-            const { error: updateError } = await supabase
-                .from('lesson_progress')
-                .update({ 
-                    extra_attempts_granted: 2, 
-                    retrial_requested: false,
-                    retrial_requested_at: null
-                })
-                .eq('user_id', user.id)
-                .eq('lesson_id', lessonId)
-
-            if (!updateError) {
-                progress.extra_attempts_granted = 2
-                progress.retrial_requested = false
-                progress.retrial_requested_at = null
-
-                try {
-                    await createNotification({
-                        user_id: user.id,
-                        type: 'system',
-                        title: 'Retrial Granted Automatically',
-                        content: `Your 30 minutes wait is over. You have been granted 2 extra attempts.`,
-                        link: `/learn/${lessonId}`
-                    })
-                } catch (e) {
-                    console.error('Failed to send auto-grant notification:', e)
-                }
-            }
-        }
-    }
-
-    return progress
+    return data as LessonProgress | null
 }
 
 export async function getCourseProgress(courseId: string): Promise<LessonProgress[]> {
@@ -185,13 +147,7 @@ export async function submitQuiz(lessonId: string, answers: number[]): Promise<{
 
     const progress = await getLessonProgress(lessonId)
     const attempts = progress?.quiz_attempts || 0
-    const extraAttempts = progress?.extra_attempts_granted || 0
-    const maxAttempts = 3 + extraAttempts
-
-    if (attempts >= maxAttempts) {
-        return { success: false, score: 0, passed: false, message: `Max attempts (${maxAttempts}) reached.` }
-    }
-
+    
     // Calculate score
     const questions = await getLessonQuestions(lessonId)
     if (questions.length === 0) return { success: true, score: 0, passed: true, message: 'No questions' }
@@ -207,14 +163,24 @@ export async function submitQuiz(lessonId: string, answers: number[]): Promise<{
     const score = Math.round((correctCount / questions.length) * 100)
     const passed = score >= 70 // 70% passing grade
 
+    // If already had 3 trials, we don't record but show score
+    if (attempts >= 3) {
+        return { 
+            success: true, 
+            score, 
+            passed, 
+            message: `Your score is ${score}%. Note: Only the first 3 trials are recorded. Your permanent score remains ${progress?.highest_quiz_score}%`,
+            correctAnswers 
+        }
+    }
+
     // Determine completion: 
-    // Completed IF (passed AND (no project required OR project already submitted))
-    // OR IF (reached total hard limit of 5 attempts)
+    // Completed IF (passed OR reached 3 trials) AND (no project required OR project already submitted)
     const totalAttemptsNow = attempts + 1
-    const hardLimitReached = totalAttemptsNow >= 5
+    const quizSatisfied = passed || totalAttemptsNow >= 3
     const hasProjectRequirement = lesson?.has_project || false
     const projectDone = !!progress?.project_repo_link
-    const isCompletedNow = (passed && (!hasProjectRequirement || projectDone)) || (hardLimitReached && !passed)
+    const isCompletedNow = quizSatisfied && (!hasProjectRequirement || projectDone)
 
     // Update progress
     const { error: progressError } = await supabase
@@ -225,9 +191,7 @@ export async function submitQuiz(lessonId: string, answers: number[]): Promise<{
             quiz_attempts: totalAttemptsNow,
             highest_quiz_score: Math.max(score, progress?.highest_quiz_score || 0),
             is_completed: isCompletedNow,
-            completed_at: isCompletedNow ? new Date().toISOString() : (progress?.completed_at || null),
-            retrial_requested: false, // Reset request on submission
-            retrial_requested_at: null
+            completed_at: isCompletedNow ? new Date().toISOString() : (progress?.completed_at || null)
         })
 
     if (progressError) {
@@ -248,8 +212,6 @@ export async function submitQuiz(lessonId: string, answers: number[]): Promise<{
 
     if (submissionError) {
         console.error('Error persisting quiz submission:', submissionError)
-        // We don't throw here to avoid failing the whole process if just the history fails, 
-        // but in a production app we might want stricter consistency.
     }
 
     // Update learning streak if lesson is completed
@@ -265,9 +227,9 @@ export async function submitQuiz(lessonId: string, answers: number[]): Promise<{
     revalidatePath(`/dashboard`)
     revalidatePath(`/dashboard/courses`)
     
-    let finalMessage = passed ? 'Quiz passed!' : 'Quiz failed. Try again.'
-    if (hardLimitReached && !passed) {
-        finalMessage = 'Quiz failed after 5 attempts. Recording score and allowing you to proceed.'
+    let finalMessage = passed ? 'Quiz passed!' : 'Quiz failed.'
+    if (totalAttemptsNow >= 3 && !passed) {
+        finalMessage = 'Quiz attempts (3) reached. Recording your highest score and allowing you to proceed.'
     }
 
     return { success: true, score, passed, message: finalMessage, correctAnswers, streakData }
@@ -581,100 +543,104 @@ export async function getQuizReview(submissionId: string): Promise<QuizReviewDat
     }
 }
 
-export async function requestRetrial(lessonId: string) {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-
-    if (!user) throw new Error('Unauthorized')
-
-    const { error } = await supabase
-        .from('lesson_progress')
-        .update({ 
-            retrial_requested: true,
-            retrial_requested_at: new Date().toISOString()
-        })
-        .eq('user_id', user.id)
-        .eq('lesson_id', lessonId)
-
-    if (error) {
-        console.error('Error requesting retrial:', error)
-        return { success: false, message: 'Failed to request retrial' }
-    }
-
-    revalidatePath('/dashboard')
-    return { success: true }
-}
-
-export async function grantRetrial(lessonId: string, userId: string) {
+export async function resetLessonQuiz(lessonId: string, userId: string) {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) throw new Error('Unauthorized')
     const role = user.user_metadata?.role || 'student'
-    if (role !== 'instructor' && role !== 'admin') {
-        throw new Error('Unauthorized: Instructor access required')
+    if (role !== 'admin' && role !== 'instructor') {
+        throw new Error('Unauthorized: Admin/Instructor access required')
     }
 
+    // Fetch existing progress
+    const { data: progress } = await supabase
+        .from('lesson_progress')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('lesson_id', lessonId)
+        .maybeSingle()
+
+    if (!progress) return { success: false, message: 'No progress found' }
+
+    // Logic: Quiz is reset, but project remains intact.
+    // If no project is required, is_completed becomes false.
+    // If project was submitted, check if that alone completes it (unlikely as quiz is usually required).
+    // Actually, in most cases if quiz is reset, completion is removed until quiz is retaken.
+    const projectStillIntact = !!progress.project_repo_link
+    
     const { error } = await supabase
         .from('lesson_progress')
-        .update({ 
-            extra_attempts_granted: 2, 
-            retrial_requested: false,
-            retrial_requested_at: null
+        .update({
+            quiz_attempts: 0,
+            highest_quiz_score: 0,
+            is_completed: false, // Reset completion until they redo the quiz
+            completed_at: null
         })
         .eq('user_id', userId)
         .eq('lesson_id', lessonId)
 
     if (error) {
-        console.error('Error granting retrial:', error)
-        return { success: false, message: 'Failed to grant retrial' }
+        console.error('Error resetting quiz:', error)
+        throw new Error('Failed to reset quiz')
     }
 
-    // Notify student
-    await createNotification({
-        user_id: userId,
-        type: 'system',
-        title: 'Retrial Granted',
-        content: `You have been granted 2 extra attempts for your quiz in lesson "${lessonId}".`,
-        link: `/learn/${lessonId}` // Simplification
-    })
+    // Delete submission history for this lesson/user
+    await supabase
+        .from('quiz_submissions')
+        .delete()
+        .eq('user_id', userId)
+        .eq('lesson_id', lessonId)
 
-    revalidatePath('/instructor/quizzes')
+    revalidatePath('/dashboard')
+    revalidatePath('/admin/learners')
+    revalidatePath(`/admin/learners/${userId}`)
+    
     return { success: true }
 }
 
-export async function getRetrialRequests() {
+export async function cleanupDuplicateQuizzes() {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
-    if (!user) return []
-    const role = user.user_metadata?.role || 'student'
-    if (role !== 'admin' && role !== 'instructor') return []
-
-    const { data, error } = await supabase
-        .from('lesson_progress')
-        .select(`
-            *,
-            profiles (full_name, email),
-            lessons (
-                title,
-                phase_lessons (
-                    phases (
-                        courses (
-                            id,
-                            title
-                        )
-                    )
-                )
-            )
-        `)
-        .eq('retrial_requested', true)
-        .order('completed_at', { ascending: false })
-
-    if (error) {
-        console.error('Error fetching retrial requests:', error)
-        return []
+    if (!user || user.user_metadata?.role !== 'admin') {
+        throw new Error('Unauthorized: Admin access required')
     }
 
-    return data as (LessonProgress & { profiles: any, lessons: any })[]
+    const adminSupabase = createAdminClient()
+    
+    // Find all progress records with more than 1 quiz attempt
+    const { data: records, error } = await adminSupabase
+        .from('lesson_progress')
+        .select('user_id, lesson_id, quiz_attempts')
+        .gt('quiz_attempts', 1)
+
+    if (error) throw new Error(error.message)
+    if (!records || records.length === 0) return { success: true, count: 0 }
+
+    for (const record of records) {
+        // Reset progress
+        await adminSupabase
+            .from('lesson_progress')
+            .update({
+                quiz_attempts: 0,
+                highest_quiz_score: 0,
+                is_completed: false, 
+                completed_at: null
+            })
+            .eq('user_id', record.user_id)
+            .eq('lesson_id', record.lesson_id)
+
+        // Delete all submissions for this user/lesson
+        await adminSupabase
+            .from('quiz_submissions')
+            .delete()
+            .eq('user_id', record.user_id)
+            .eq('lesson_id', record.lesson_id)
+    }
+
+    revalidatePath('/dashboard')
+    revalidatePath('/admin/learners')
+    
+    return { success: true, count: records.length }
 }
