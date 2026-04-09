@@ -670,27 +670,76 @@ export async function getCohortAnalytics(): Promise<CohortAnalytics[]> {
  */
 export async function getStudentDetailedMastery(userId: string, courseId: string): Promise<StudentMasteryItem[]> {
     const supabase = await createClient()
+    const adminSupabase = createAdminClient()
     
-    // Authorization check
-    if (!await isInstructor()) throw new Error('Unauthorized')
+    // 1. Authorization & Scoping Check
+    const { data: { user: authUser } } = await supabase.auth.getUser()
+    if (!authUser) throw new Error('Unauthorized')
 
-    // 1. Get all lessons for this course
-    const { data: courseLessons } = await supabase
-        .from('phase_lessons')
+    const role = authUser.user_metadata?.role || 'student'
+    const isSelf = authUser.id === userId
+    const isInstructorOrAdmin = role === 'instructor' || role === 'admin'
+    
+    if (!isInstructorOrAdmin && !isSelf) throw new Error('Unauthorized')
+
+    // If instructor, strictly scope to their assigned students
+    if (role === 'instructor') {
+        const { data: myCohorts } = await adminSupabase
+            .from('cohorts')
+            .select('id')
+            .eq('instructor_id', authUser.id)
+        
+        const cohortIds = myCohorts?.map(c => c.id) || []
+        
+        const { data: isEnrolled } = await adminSupabase
+            .from('enrollments')
+            .select('id')
+            .eq('user_id', userId)
+            .in('cohort_id', cohortIds)
+            .maybeSingle()
+        
+        if (!isEnrolled) throw new Error('Unauthorized: You can only view mastery for students in your assigned cohorts')
+    }
+
+    // 2. Get all lessons for this course (ordered by phase and then by lesson order)
+    const { data: phases, error: phasesError } = await adminSupabase
+        .from('phases')
         .select(`
-            lesson_id,
-            lessons (id, title, order_index),
-            phases!inner(id, title, order_index, course_id)
+            id,
+            order_index,
+            phase_lessons (
+                order_index,
+                lessons (
+                    id,
+                    title
+                )
+            )
         `)
-        .eq('phases.course_id', courseId)
-        .order('order_index', { foreignTable: 'phases', ascending: true })
+        .eq('course_id', courseId)
         .order('order_index', { ascending: true })
 
-    if (!courseLessons) return []
+    if (phasesError || !phases) return []
 
-    // 2. Get student progress for these lessons
-    const lessonIds = courseLessons.map((cl: any) => cl.lesson_id)
-    const { data: progress } = await supabase
+    // Flatten phases into a sorted list of lessons
+    const courseLessons: { lesson_id: string; title: string }[] = []
+    phases.forEach(phase => {
+        const sortedPhaseLessons = [...(phase.phase_lessons || [])].sort((a, b) => a.order_index - b.order_index)
+        sortedPhaseLessons.forEach((pl: any) => {
+            const lesson = Array.isArray(pl.lessons) ? pl.lessons[0] : pl.lessons
+            if (lesson) {
+                courseLessons.push({
+                    lesson_id: lesson.id,
+                    title: lesson.title
+                })
+            }
+        })
+    })
+
+    if (courseLessons.length === 0) return []
+
+    // 3. Get student progress for these lessons
+    const lessonIds = courseLessons.map(cl => cl.lesson_id)
+    const { data: progress } = await adminSupabase
         .from('lesson_progress')
         .select('*')
         .eq('user_id', userId)
@@ -698,11 +747,11 @@ export async function getStudentDetailedMastery(userId: string, courseId: string
 
     const progressMap = new Map(progress?.map(p => [p.lesson_id, p]) || [])
 
-    return courseLessons.map((cl: any) => {
+    return courseLessons.map(cl => {
         const lProgress = progressMap.get(cl.lesson_id)
         return {
             lesson_id: cl.lesson_id,
-            title: cl.lessons.title,
+            title: cl.title,
             is_completed: lProgress?.is_completed || false,
             score: lProgress?.highest_quiz_score || null,
             attempts: lProgress?.quiz_attempts || 0,

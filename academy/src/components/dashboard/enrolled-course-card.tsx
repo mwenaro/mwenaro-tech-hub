@@ -1,7 +1,9 @@
+"use client"
+
 import Link from 'next/link'
 import Image from 'next/image'
 import { Progress } from "@/components/ui/progress"
-import { PlayCircle, Award, BookOpen, CheckCircle2 } from "lucide-react"
+import { PlayCircle, Award, BookOpen, CheckCircle2, Trophy } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { Course } from "@/lib/courses"
 
@@ -26,13 +28,13 @@ export function EnrolledCourseCard({
     const href = isCompleted ? `/courses/${course.id}` : `/learn/${course.id}`
 
     return (
-        <Link href={href} className="group block">
-            <div className={cn(
-                "relative rounded-2xl border overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-white dark:bg-zinc-900",
-                isCompleted
-                    ? "border-green-200 dark:border-green-800/50"
-                    : "border-zinc-200 dark:border-zinc-800 hover:border-primary/30 dark:hover:border-primary/30"
-            )}>
+        <div className={cn(
+            "relative rounded-2xl border overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-white dark:bg-zinc-900 group",
+            isCompleted
+                ? "border-green-200 dark:border-green-800/50"
+                : "border-zinc-200 dark:border-zinc-800 hover:border-primary/30 dark:hover:border-primary/30"
+        )}>
+            <Link href={href} className="block">
                 {/* Thumbnail */}
                 <div className="relative h-44 w-full bg-muted overflow-hidden">
                     {course.image_url ? (
@@ -110,13 +112,17 @@ export function EnrolledCourseCard({
                             <span className="font-bold">{progress}%</span>
                         </div>
                     </div>
+                </div>
+            </Link>
 
-                    {/* CTA */}
+            {/* CTAs Section - Outside the main course link to prevent nesting */}
+            <div className="px-5 pb-5 space-y-2">
+                <Link href={href} className="block">
                     <div className={cn(
                         "flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-black transition-all",
                         isCompleted
-                            ? "bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 group-hover:bg-green-100 dark:group-hover:bg-green-900/30"
-                            : "bg-primary/5 text-primary group-hover:bg-primary group-hover:text-white"
+                            ? "bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30"
+                            : "bg-primary/5 text-primary hover:bg-primary hover:text-white"
                     )}>
                         {isCompleted ? (
                             <>
@@ -130,8 +136,16 @@ export function EnrolledCourseCard({
                             </>
                         )}
                     </div>
-                </div>
+                </Link>
+                
+                <Link 
+                    href={`/dashboard/courses/${course.id}/progress`}
+                    className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-xs font-bold border border-primary/10 hover:bg-primary/5 transition-all text-muted-foreground hover:text-primary"
+                >
+                    <Trophy className="w-3.5 h-3.5" />
+                    Mastery Roadmap
+                </Link>
             </div>
-        </Link>
+        </div>
     )
 }
