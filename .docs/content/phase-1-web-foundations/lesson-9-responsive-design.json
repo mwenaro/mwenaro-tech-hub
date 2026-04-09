@@ -1,184 +1,228 @@
 {
-    "title": "Responsive Design",
-    "has_project": false,
+    "title": "Responsive Design & Modern Logic",
+    "has_project": true,
     "video_url": "https://www.youtube.com/watch?v=srvUrASNj0s",
-    "content": "# 📱 Responsive Design & CSS Architecture\n\nOver 60% of global web traffic comes from mobile devices. Building a website that only looks good on a 15-inch MacBook is unacceptable. **Responsive Web Design (RWD)** is the practice of building fluid user interfaces that adapt, reshape, and scale flawlessly from a massive 4K TV down to a 4-inch iPhone screen.\n\nAs a professional, your code must naturally handle thousands of unpredictable screen resolutions.\n\n---\n\n## 1️⃣ The Prerequisite: The Viewport Meta Tag\n\nIf you build the most beautiful responsive website in the world but forget the following line of HTML inside your `<head>`, iPhones will ignore your CSS and aggressively zoom out the page to fit a desktop-sized canvas onto the phone screen.\n\n```html\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n```\n- `width=device-width`: Tells the browser, \"Make the canvas exactly as wide as the physical phone screen.\"\n- `initial-scale=1.0`: Tells the browser, \"Do not zoom in or out. Start at 100%.\"\n\n---\n\n## 2️⃣ The Core Philosophy: Mobile-First vs Desktop-First\n\nWhen writing CSS, you must pick a foundational starting point.\n\n### Desktop-First (The Outdated Way)\nYou write all your CSS to look gorgeous on your laptop. Then, you write `max-width` media queries to painstakingly crush your complex layout into a phone screen.\n\n### Mobile-First (The Professional Standard)\nYou start by writing CSS for a narrow, vertical phone screen (usually meaning elements naturally stack on top of each other via `display: block`).\nThen, you write `min-width` media queries to *add* complexity (like multi-column sidebars) only when the screen gets wide enough to support them.\n\n**Why Mobile-First?** Mobile phones have weak CPUs and slow 3G network connections. With Mobile-First CSS, phones download and parse a tiny amount of CSS. They do not have to parse complex desktop CSS only to overwrite it with mobile CSS a millisecond later.\n\n---\n\n## 3️⃣ Media Queries\n\nA **Media Query** is a conditional `if` statement for CSS. It asks the browser a question (e.g., \"Are you wider than 768px?\") and only applies the CSS rules if the answer is true.\n\n```css\n/* 📱 1. Base Styles (Assume Mobile Phone) */\n.sidebar {\n  display: none; /* Hide the sidebar on small phones to save space */\n}\n\n/* 💻 2. Tablet / Desktop Override */\n@media screen and (min-width: 768px) {\n  /* This block ONLY executes if the screen is at least 768px wide */\n  .sidebar {\n    display: block; /* The screen is big enough, so reveal the sidebar */\n  }\n}\n```\n\n### Standard Breakpoints\nWhile devices come in thousands of sizes, the industry has settled on a few standard \"breakpoints\" where layouts should shift:\n\n| Breakpoint Variable | Pixel Value | Typical Device Class |\n|---|---|---|\n| `sm` | `min-width: 640px` | Large Phones / Small Tablets in Portrait |\n| `md` | `min-width: 768px` | iPads / Tablets in Portrait |\n| `lg` | `min-width: 1024px` | Laptops / Tablets in Landscape |\n| `xl` | `min-width: 1280px` | Desktop Monitors |\n| `2xl`| `min-width: 1536px` | Massive 4K Ultrawide Screens |\n\n---\n\n## 4️⃣ Absolute vs. Relative Units\n\nResponsive design is impossible if you hardcode exact pixel sizes. If a box is `width: 500px`, and the user's phone is `375px` wide, the box bursts out of the screen, creating horizontal scrolling (which is the cardinal sin of web design).\n\n### The Fluid Philosophy\nEmbrace **Relative Units**:\n\n- **Use `%` (Percentages):**\n  Instead of `width: 500px`, use `max-width: 100%`. The box will be 500px on a laptop, but gracefully shrink to perfectly hug the edges of a 375px phone screen.\n\n- **Use `vh` / `vw` (Viewport Units):**\n  Instead of guessing how tall a hero banner should be, use `height: 100vh`. This tells the browser, \"Make this exactly 100% of the screen height, whether it's an iPhone or a TV.\"\n\n- **Use `rem` for Fonts:**\n  Base your fonts on the browser default (16px). `1rem = 16px`. If you want a heading to be `32px`, write `font-size: 2rem`.\n\n---\n\n## 5️⃣ Fluid Typography (`clamp`)\n\nIn modern CSS, you don't even need media queries for typography. You can use the magical `clamp()` mathematical function to tell a font to smoothly grow and shrink like a rubber band based on screen size.\n\n```css\nh1 {\n  /* clamp(MINIMUM, IDEAL_SCALING_MATH, MAXIMUM) */\n  font-size: clamp(2rem, 5vw, 4rem);\n}\n```\n\n1. **Minimum**: Never shrink below `2rem` (32px) on a tiny phone.\n2. **Ideal**: As the screen grows, try to make the font exactly `5%` of the viewport width.\n3. **Maximum**: But if the user is on a massive TV, hard-stop growing at `4rem` (64px) so it doesn't look ridiculous.\n\n---\n\n## 6️⃣ Organizing CSS at Scale (BEM Methodology)\n\nWhen building an enterprise app with 10,000 lines of CSS, global class names like `.button` become impossible to maintain. If you change `.button` to fix the login page, you accidentally break the checkout page.\n\n**BEM (Block, Element, Modifier)** is a strict naming convention that stops CSS from wildly overriding itself.\n\n```html\n<!-- BEM Structure: block__element--modifier -->\n\n<!-- The Block (The main independent component) -->\n<article class=\"card\">\n  \n  <!-- The Elements (Parts conceptually tied to the Block) -->\n  <img class=\"card__image\" src=\"profile.jpg\" />\n  <h2  class=\"card__title\">Mwero Abdalla</h2>\n  \n  <!-- The Modifier (A variation of an element) -->\n  <button class=\"card__btn card__btn--primary\">Follow</button>\n  <button class=\"card__btn card__btn--secondary\">Message</button>\n  \n</article>\n```\n\nBy aggressively scoping your CSS names mathematically, you ensure that `.card__btn` *can never, ever* accidentally affect the `.checkout__btn`.\n\n---\n\n## 💡 Summary Checklist for Responsive Web\n\n- [ ] I have included `<meta name=\"viewport\">` in my HTML document.\n- [ ] I built the interface for mobile first, ensuring vertical stacking works perfectly.\n- [ ] I used `min-width` media queries to expand the layout for tablets and desktops.\n- [ ] I completely avoided hardcoded `px` for widths, replacing them with `%` or `max-width`.\n- [ ] I am using scalable `rem` or `clamp()` for typography.\n- [ ] My class names are structured predictably using BEM logic to prevent CSS spaghetti conflicts.\n",
+    "content": "# 📱 Responsive Design & Modern CSS Logic\n\nOver 60% of global web traffic comes from mobile devices. As a modern engineer, you don't build \"mobile versions\" of a site; you build **elastic systems** that naturally adapt to any canvas. This lesson covers the shift from traditional media queries to the modern era of **Container Queries** and **Logical Properties**.\n\n---\n\n## 1️⃣ The Prerequisite: Viewport Architecture\n\nThe most important line for mobile browsers is the Viewport Meta Tag. Without it, mobile browsers assume your site is 980px wide and zoom out until it's unreadable.\n\n```html\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n```\n- `width=device-width`: Synchronizes the CSS canvas with the physical device width.\n- `initial-scale=1.0`: Prevents the browser from auto-zooming.\n\n---\n\n## 2️⃣ The Modern Shift: Logical Properties\n\nTraditional CSS uses physical directions (`left`, `right`, `top`, `bottom`). Modern CSS uses **Logical Properties** (`start`, `end`, `inline`, `block`). This ensures your layout remains responsive when switching from Left-to-Right languages (English) to Right-to-Left languages (Arabic).\n\n| Legacy Physical | Modern Logical | Purpose |\n| :--- | :--- | :--- |\n| `width` | `inline-size` | Size along the reading direction. |\n| `height` | `block-size` | Size perpendicular to the reading direction. |\n| `margin-left` | `margin-inline-start` | Padding at the start of a sentence. |\n| `padding-top` | `padding-block-start` | Padding at the top of a block. |\n\n*Tip: Start using `padding-inline: 2rem;` today. It handles both left and right padding in a single line.*\n\n---\n\n## 3️⃣ Media Queries vs. Container Queries\n\n### Media Queries (Viewport-First)\nA Media Query asks the browser: \"How big is the screen?\"\n```css\n@media screen and (min-width: 768px) {\n  .sidebar { display: grid; }\n}\n```\n\n### Container Queries (Component-First)\nA **Container Query** asks: \"How big is my parent container?\" This is the future of modular design. It allows a component (like a card) to look different depending on whether it's in a wide footer or a narrow sidebar.\n\n```css\n/* 1. Define the parent as a container */\n.parent-container {\n  container-type: inline-size;\n}\n\n/* 2. Style the child based on the container size */\n@container (min-width: 500px) {\n  .card { display: flex; }\n}\n```\n\n---\n\n## 4️⃣ Fluid Typography & Fluidity\n\nInstead of \"snapping\" to different font sizes at specific breakpoints, use **Elastic Typography** with `clamp()`.\n\n```css\nh1 {\n  /* clamp(MIN, IDEAL, MAX) */\n  font-size: clamp(1.5rem, 5vw + 1rem, 4rem);\n}\n```\n\n### The Fluid Checklist\n- [ ] Never hardcode `width: 800px;`. Use `max-width: 100%;` and `inline-size: 80ch;`.\n- [ ] Use `rem` for accessibility (it scales with user browser settings).\n- [ ] Use `vh` / `vw` for things that must adapt to screen tallness/width.\n\n---\n\n## 🛡️ Professional Responsive Debugging\n\nIf you see a horizontal scrollbar on mobile, your layout is broken. Use these tricks to find the culprit:\n1. **The Ghost Outliner:** Add `* { border: 1px solid red !important; }` to your CSS. This outlines every single element, making it obvious which one is \"poking out\" of the viewport.\n2. **Chrome Inspector Device Mode:** Use the responsive handle to slowly drag the screen width pixel-by-pixel to see exactly when the layout breaks.\n3. **Overflow Check:** Look for fixed `px` widths or large negative margins.\n\n---\n\n## 🛠️ Mastery Challenge: The Fluid Portfolio Component\n\n**Goal:** Create a card that is truly elastic.\n1. Create a `.profile-card` component.\n2. Use **Logical Properties** for padding (`padding-inline`, `padding-block`).\n3. Use `clamp()` for the card title font size.\n4. Set up a **Container Query** so that if the card is placed in a space wider than `600px`, it switches from a vertical stack to a horizontal layout with `display: flex`.\n5. Use a **Media Query** to change the background color of the page solely for dark-mode preference using `@media (prefers-color-scheme: dark)`.\n\n---\n\n## 🎓 Summary\nResponsive design has evolved from \"Media Queries everywhere\" to \"Modular Systems.\" By mastering **Logical Properties**, **Container Queries**, and **Fluid Math**, you build interfaces that don't just 'work' on mobile—they are engineered to thrive in an unpredictable device landscape.\n",
     "questions": [
         {
-            "question_text": "What does the 'min-width: 768px' media query condition target?",
+            "question_text": "What is the key difference between a Media Query and a Container Query?",
             "options": [
-                "Screens smaller than 768px",
-                "Screens exactly 768px",
-                "Screens 768px and larger",
-                "Only landscape orientations"
-            ],
-            "correct_answer": 2,
-            "explanation": "'min-width' means the CSS will apply once the screen reaches a minimum of 768px, targeting larger devices."
-        },
-        {
-            "question_text": "What is the primary tool used in CSS for Responsive Design?",
-            "options": [
-                "Flexbox",
-                "Media Queries",
-                "JavaScript",
-                "HTML5"
+                "Media Queries are for video; Container Queries are for images",
+                "Media Queries look at the total viewport size; Container Queries look at the parent element's size",
+                "Container Queries only work on mobile devices",
+                "Media Queries are deprecated and should not be used"
             ],
             "correct_answer": 1,
-            "explanation": "Media queries allow you to apply different styles based on device characteristics like screen width."
+            "explanation": "Container queries allow components to be truly modular regardless of where they are placed on the page."
         },
         {
-            "question_text": "What does a 'Mobile-First' approach mean in CSS?",
+            "question_text": "Which meta tag is required to ensure mobile browsers scale your site correctly to the device width?",
             "options": [
-                "Writing styles for desktop first and then shrinking them",
-                "Writing styles for small screens first and using 'min-width' queries for larger screens",
-                "Only building apps for mobile phones",
-                "Hiding the desktop version of a site"
-            ],
-            "correct_answer": 1,
-            "explanation": "Mobile-first is more efficient as mobile devices have less processing power and should load fewer styles initially."
-        },
-        {
-            "question_text": "Which meta tag is required for responsive websites to scale correctly on mobile devices?",
-            "options": [
-                "<meta name='mobile'>",
+                "<meta name='mobile-first'>",
                 "<meta name='viewport' content='width=device-width, initial-scale=1.0'>",
                 "<meta charset='UTF-8'>",
-                "<meta name='description'>"
+                "<meta name='handheld'>"
             ],
             "correct_answer": 1,
-            "explanation": "The viewport meta tag tells the browser how to control the page's dimensions and scaling."
+            "explanation": "This tag prevents mobile browsers from assuming a 980px desktop width."
         },
         {
-            "question_text": "What is a 'Breakpoint'?",
+            "question_text": "What is 'Mobile-First' design?",
             "options": [
-                "A bug in the code that stops execution",
-                "The specific screen width at which the layout changes using a media query",
-                "A coffee break for developers",
-                "A way to stop an animation"
+                "Building an app only for the iPhone",
+                "Writing base CSS for small screens first and adding complexity with min-width media queries",
+                "Hiding your website from desktop users",
+                "Prioritizing Apple devices over Android"
             ],
             "correct_answer": 1,
-            "explanation": "Breakpoints are typically set at common screen widths like 768px (tablet) or 1024px (laptop)."
+            "explanation": "Mobile-first ensures better performance for devices with limited processing power and slower connections."
         },
         {
-            "question_text": "Which CSS unit is typically used for responsive typography that scales with the screen?",
+            "question_text": "In Logical Properties, what is the equivalent of 'padding-left' and 'padding-right' in a standard Western (Left-To-Right) layout?",
             "options": [
-                "px",
-                "rem or vw",
-                "pt",
-                "cm"
-            ],
-            "correct_answer": 1,
-            "explanation": "rem (relative to root font) and vw (viewport width) are preferred for elasticity."
-        },
-        {
-            "question_text": "How do you target screens that are WIDER than 768px in a media query?",
-            "options": [
-                "@media (max-width: 768px)",
-                "@media (min-width: 768px)",
-                "@media (screen: 768px)",
-                "@media (width > 768px)"
-            ],
-            "correct_answer": 1,
-            "explanation": "min-width targets everything from that size up."
-        },
-        {
-            "question_text": "What happens if you don't use 'responsive design' on a modern website?",
-            "options": [
-                "The server will crash",
-                "The site will appear tiny and unreadable on smartphones",
-                "Search engines will rank it higher",
-                "JavaScript will stop working"
-            ],
-            "correct_answer": 1,
-            "explanation": "Non-responsive sites expect a large desktop screen and don't adapt to smaller viewports."
-        },
-        {
-            "question_text": "Which property is often set to '100%' for images to make them responsive?",
-            "options": [
-                "height",
-                "max-width",
-                "min-width",
-                "scale"
-            ],
-            "correct_answer": 1,
-            "explanation": "Setting 'max-width: 100%' ensures images never get wider than their container."
-        },
-        {
-            "question_text": "What is 'Fluid Layout'?",
-            "options": [
-                "A layout that uses pixels for everything",
-                "A layout that uses percentages instead of fixed units like pixels",
-                "A site that has animations on every page",
-                "A site that uses video backgrounds"
-            ],
-            "correct_answer": 1,
-            "explanation": "Fluid layouts expand and contract smoothly with the browser window."
-        },
-        {
-            "question_text": "What does the 'vh' unit represent?",
-            "options": [
-                "Variable Height",
-                "1% of the Viewport Height",
-                "Vertical Header",
-                "Value in Hex"
-            ],
-            "correct_answer": 1,
-            "explanation": "100vh always takes up the full height of the visible screen area."
-        },
-        {
-            "question_text": "Why is 'px' generally avoided for container widths in responsive design?",
-            "options": [
-                "It is deprecated",
-                "It is a fixed unit and doesn't change size based on the screen",
-                "It causes security vulnerabilities",
-                "Browsers can't read pixels anymore"
-            ],
-            "correct_answer": 1,
-            "explanation": "Fixed widths lead to horizontal scrolling on smaller screens."
-        },
-        {
-            "question_text": "Which CSS property is useful for hiding items only on mobile?",
-            "options": [
-                "visibility: collapse",
-                "display: none (inside a media query)",
-                "opacity: 0",
-                "scale: 0"
-            ],
-            "correct_answer": 1,
-            "explanation": "You can wrap 'display: none' in a query like '@media (max-width: 600px)'."
-        },
-        {
-            "question_text": "What is the benefit of a 12-column grid system (like Bootstrap used)?",
-            "options": [
-                "It is faster to render",
-                "12 is divisible by 2, 3, 4, and 6, making it extremely flexible for different layouts",
-                "It uses less memory",
-                "It is the only way to build grids"
-            ],
-            "correct_answer": 1,
-            "explanation": "This allows for easy 50/50, 33/33/33, or 25/75 splits."
-        },
-        {
-            "question_text": "What is 'Container Queries' (the modern alternative to Media Queries)?",
-            "options": [
-                "Queries about your Docker containers",
-                "Styles that change based on the size of the parent element, not the whole screen",
-                "Questions asked to a database",
-                "A new version of Flexbox"
-            ],
-            "correct_answer": 1,
-            "explanation": "Container queries are perfect for reusable components that shift layout based on where they are placed."
-        },
-        {
-            "question_text": "In a Flexbox row, how do you make items wrap on mobile but stay in a row on desktop?",
-            "options": [
-                "Change display: flex to display: block",
-                "Use 'flex-wrap: wrap' on the container",
-                "Use media queries to change 'flex-direction' from 'column' to 'row' at a breakpoint",
-                "Both B and C"
+                "padding-start / padding-end",
+                "padding-inline",
+                "padding-horizontal",
+                "Both A and B are correct"
             ],
             "correct_answer": 3,
-            "explanation": "Usually, you start with 'flex-direction: column' for mobile and switch to 'row' for larger screens."
+            "explanation": "padding-inline is a shorthand for both the start and end of the logical inline axis."
+        },
+        {
+            "question_text": "Why do professionals prefer 'rem' over 'px' for font sizes?",
+            "options": [
+                "REMs are faster to render",
+                "REMs respect the user's browser font-size settings, improving accessibility",
+                "REMs are only for mobile apps",
+                "REMs cannot be overridden by CSS"
+            ],
+            "correct_answer": 1,
+            "explanation": "Using relative units like REM ensures that if a user increases their base font size for better readability, your layout scales with it."
+        },
+        {
+            "question_text": "What does 'font-size: clamp(1rem, 5vw, 3rem)' do?",
+            "options": [
+                "Sets the font size to exactly 5vw",
+                "Ensures the font is never smaller than 1rem, never larger than 3rem, and scales at 5vw in between",
+                "Calculates the font size based on the number of characters in a string",
+                "Hides the text if the screen is too small"
+            ],
+            "correct_answer": 1,
+            "explanation": "Clamp provides smooth, elastic scaling without media query 'snapping'."
+        },
+        {
+            "question_text": "To use a Container Query, what must you first define on the parent element?",
+            "options": [
+                "display: grid",
+                "container-type (e.g., inline-size)",
+                "overflow: hidden",
+                "position: relative"
+            ],
+            "correct_answer": 1,
+            "explanation": "A container query can only work if the parent is explicitly established as a 'container' for its children."
+        },
+        {
+            "question_text": "Which unit represents 1% of the width of the visible screen area?",
+            "options": [
+                "vh",
+                "vw",
+                "%",
+                "fr"
+            ],
+            "correct_answer": 1,
+            "explanation": "vw stands for 'Viewport Width'."
+        },
+        {
+            "question_text": "How do you target screens that are LARGER than a specific breakpoint (e.g., 1024px)?",
+            "options": [
+                "@media (max-width: 1024px)",
+                "@media (min-width: 1024px)",
+                "@media (width > 1024px)",
+                "Both B and C (modern browsers support range syntax)"
+            ],
+            "correct_answer": 3,
+            "explanation": "Traditional 'min-width' and modern range syntax '> 1024' are both valid in modern CSS."
+        },
+        {
+            "question_text": "What is the result of 'inline-size: 100%' in a standard horizontal layout?",
+            "options": [
+                "The element takes full height",
+                "The element takes full width of its parent",
+                "The element centers itself",
+                "The element becomes invisible"
+            ],
+            "correct_answer": 1,
+            "explanation": "In most languages, the inline axis corresponds to the width (horizontal)."
+        },
+        {
+            "question_text": "Which CSS strategy helps find 'hidden' elements causing a horizontal scrollbar?",
+            "options": [
+                "Removing all images",
+                "Applying a universal border to all elements (* { border: 1px solid red; })",
+                "Changing the background color to white",
+                "Disabling JavaScript"
+            ],
+            "correct_answer": 1,
+            "explanation": "The 'Ghost Outliner' reveals exactly which element is wider than its container."
+        },
+        {
+            "question_text": "What does '@media (prefers-color-scheme: dark)' let you do?",
+            "options": [
+                "Change the browser's language",
+                "Apply styles based on the user's OS system setting for Dark Mode",
+                "Invert all colors on the page automatically",
+                "Check if the user is using a night-light filter"
+            ],
+            "correct_answer": 1,
+            "explanation": "This allows for seamless system-integrated theming without toggles."
+        },
+        {
+            "question_text": "Why is 'max-width: 100%' better for images than 'width: 100%'?",
+            "options": [
+                "It makes them transparent",
+                "It prevents them from stretching beyond their natural size while still allowing them to shrink",
+                "It speeds up image loading",
+                "There is no difference"
+            ],
+            "correct_answer": 1,
+            "explanation": "width: 100% can blow up small images and make them blurry; max-width protects their quality."
+        },
+        {
+            "question_text": "What is 'CSS Spaghetti'?",
+            "options": [
+                "A modular framework",
+                "An unorganized, repetitive, and unmaintainable CSS codebase",
+                "A performance optimization for loops",
+                "A naming convention for animations"
+            ],
+            "correct_answer": 1,
+            "explanation": "Architecture paradigms like BEM and Logical Properties are designed specifically to kill 'CSS Spaghetti'."
+        },
+        {
+            "question_text": "What does 'block-size' refer to in most Western languages?",
+            "options": [
+                "Width",
+                "Height",
+                "Padding",
+                "Font weight"
+            ],
+            "correct_answer": 1,
+            "explanation": "The block axis is perpendicular to the text flow (usually vertical)."
+        },
+        {
+            "question_text": "Which of these is a standard 'Medium' breakpoint for Tablets?",
+            "options": [
+                "320px",
+                "768px",
+                "1920px",
+                "640px"
+            ],
+            "correct_answer": 1,
+            "explanation": "768px is the industry standard for tablet portrait mode (iPad)."
+        },
+        {
+            "question_text": "What is the 'cardinal sin' of web design mentioned in the lesson?",
+            "options": [
+                "Using too many colors",
+                "Horizontal scrolling on mobile",
+                "Not having a logo",
+                "Using Sans-Serif fonts"
+            ],
+            "correct_answer": 1,
+            "explanation": "Horizontal scroll on mobile indicates a layout that failed to adapt to the viewport."
+        },
+        {
+            "question_text": "Can a single element have both Media Queries and Container Queries applied to its children?",
+            "options": [
+                "Yes, they often work together for maximum responsiveness",
+                "No, they cancel each other out",
+                "Yes, but only if you use Sass",
+                "No, Media Queries are only for external files"
+            ],
+            "correct_answer": 0,
+            "explanation": "Media queries for global changes and Container queries for internal component reshuffling is the elite standard."
+        },
+        {
+            "question_text": "What is the benefit of the 'clamp()' function over multiple media queries for font sizes?",
+            "options": [
+                "It is more secure",
+                "It provides a smooth, fluid scale between values rather than 'snapping' at breakpoints",
+                "It's easier for search engines to read",
+                "It works in older versions of Internet Explorer"
+            ],
+            "correct_answer": 1,
+            "explanation": "Elasticity creates a much more premium feel than stepped breakpoints."
+        },
+        {
+            "question_text": "What is 'Breakpoint Overload'?",
+            "options": [
+                "When the server crashes",
+                "When a developer writes too many media queries instead of using fluid units and grid/flex logic",
+                "When the CSS file is too large",
+                "A browser error in Safari"
+            ],
+            "correct_answer": 1,
+            "explanation": "Ideally, you should aim for 'Responsive by Nature' (using Grid/Flex) and only use a few breakpoints for structural shifts."
         }
     ]
 }
