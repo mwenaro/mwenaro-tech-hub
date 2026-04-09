@@ -1,228 +1,228 @@
 {
-    "title": "CSS Foundations: Pro Styling Basics",
+    "title": "CSS Foundations: High-Performance Architecture",
     "has_project": true,
     "video_url": "https://www.youtube.com/watch?v=1PnVor36_40",
-    "content": "# 🎨 CSS Foundations: Professional Styling Basics\n\nWhile HTML provides the skeleton, **CSS (Cascading Style Sheets)** is the skin, layout, and visual identity of your application. Professional CSS is not about guessing; it is a mathematical rendering system. Understanding the rules behind the \"Cascade\" and the \"Box\" is what separates a junior from a senior engineer.\n\n---\n\n## 🎯 Learning Objectives\n- Understand how the **Cascade** decided which styles win.\n- Master the **Box Model** to control spacing with precision.\n- Differentiate between **Block**, **Inline**, and **Inline-Block** elements.\n- Calculate **Specificity** to solve style conflicts.\n- Use **Relative Units** (`rem`, `vh`, `vw`) for accessible design.\n\n---\n\n## 1️⃣ The Selector Toolbox\n\nBefore you can style an element, you must target it. There are three primary ways to \"grab\" an element in CSS:\n\n1. **Element Selector** (`header`, `p`, `button`): Targets every single tag of that type. Use this for global resets.\n2. **Class Selector** (`.card`): Targets any element with that class name. This is the **standard way** to style professional apps.\n3. **ID Selector** (`#submit-btn`): Targets one specific element. Because IDs are unique, they are very powerful but difficult to reuse. **Avoid IDs for styling** whenever possible.\n\n```css\n/* Element */\nbutton { cursor: pointer; }\n\n/* Class (Starts with .) */\n.btn-primary { background: blue; }\n\n/* ID (Starts with #) */\n#main-cta { font-size: 2rem; }\n```\n\n---\n\n## 2️⃣ The Cascade & Specificity\n\nCSS handles conflicts using a mathematical score called **Specificity**. If two rules try to change the same property (like color), the one with the higher score wins.\n\n| Selector | Score | Weight |\n| :--- | :--- | :--- |\n| `*` (Universal) | 0 | Lowest |\n| `button` (Tag) | 1 | Low |\n| `.btn` (Class) | 10 | Medium |\n| `#btn` (ID) | 100 | High |\n| `style=\"\"` (Inline)| 1000 | Absolute |\n\n**Scenario:**\n```css\n.container button { color: red; } /* Score: 11 (10 class + 1 tag) */\n.btn { color: blue; }             /* Score: 10 (class) */\n```\nEven if `.btn` comes later in the code, the button will be **red** because 11 is greater than 10.\n\n---\n\n## 3️⃣ The Holy Grail: The CSS Box Model\n\nEvery HTML element is a rectangle. The browser calculates its size using four layers:\n\n```text\n+---------------------------+\n|          Margin           | Spacing OUTSIDE the element\n|  +---------------------+  |\n|  |       Border        |  | The boundary wall\n|  |  +---------------+  |  |\n|  |  |    Padding    |  |  | Spacing INSIDE (pushes content in)\n|  |  |  +---------+  |  |  |\n|  |  |  | CONTENT |  |  |  | Text, images, or child divs\n|  |  |  +---------+  |  |  |\n|  |  +---------------+  |  |\n|  +---------------------+  |\n+---------------------------+\n```\n\n### The Golden Rule: `border-box`\nBy default, padding and borders are added to the width of an element, causing it to \"burst\" out of its container. Professional projects use this reset to force padding and borders to push inward instead:\n\n```css\n* {\n  box-sizing: border-box;\n  margin: 0;\n  padding: 0;\n}\n```\nWith `border-box`, if you set `width: 300px`, the box stays exactly 300px wide, no matter how much padding you add.\n\n---\n\n## 4️⃣ Display & Units\n\n- **`display: block`**: Starts on a new line; takes 100% width (e.g., `div`, `p`, `h1`).\n- **`display: inline`**: Sits side-by-side; **cannot** have width or vertical margin (e.g., `span`, `a`).\n- **`display: inline-block`**: Sits side-by-side but allows width and height (perfect for buttons).\n\n### Units that Scale\nAvoid `px` for fonts. Use `rem` (relative to the user's browser setting). `1rem` is usually `16px`.\n- `padding: 1.5rem;` (24px)\n- `width: 50%;` (Half of the parent)\n- `height: 100vh;` (Full height of the screen)\n\n---\n\n## 🛠️ Mastery Challenge: The Designer's Profile Card\n\n**Goal:** Build a professional card that demonstrates Box Model mastery.\n1. Create a `div` with the class `.profile-card`.\n2. Set `box-sizing: border-box` globally.\n3. Give the card a **width of 350px**, **padding of 2rem**, and a **border of 1px**.\n4. Add a `margin: 50px auto` to center the card on the page.\n5. Use an **HSL color** for the background (e.g., `hsl(210, 15%, 95%)`).\n6. Inside the card, add an `<a>` tag and set it to `display: inline-block` so you can give it a custom height and padding.\n\n---\n\n## 🎓 Summary\nCSS Foundations is about control. By mastering the **Box Model** and **Specificity**, you stop \"guessing\" at styles and start engineering them. Remember: Always prefer Classes over IDs, and always set your `box-sizing` to `border-box`!\n",
+    "content": "# 🎨 CSS Foundations: High-Performance Architecture\n\nCSS is not just about \"making it look pretty.\" It is a sophisticated rendering engine that dictates how your application behaves across billions of devices. In this lesson, we move from \"guessing\" to **CSS Engineering**—mastering the advanced selectors, units, and box-model mechanics that power the web.\n\n---\n\n## 🎯 Learning Objectives\n- Connect CSS using the optimal **External Pipeline**.\n- Master **Combinators** and **Pseudo-selectors** to target complex UI patterns.\n- Categorize and use **Relative vs Absolute Units** with precision.\n- Engineer professional typography and **Background Systems**.\n- Use **Image Logic** (`object-fit`) for responsive media.\n- Build a custom **CSS Reset** based on the Box Model.\n\n---\n\n## 1️⃣ The Connection Pipeline\n\nProfessional applications must remain modular. We avoid \"Inline\" or \"Internal\" styling because they are impossible to maintain.\n\n### The External Standard\n```html\n<!-- Inside your <head> -->\n<link rel=\"stylesheet\" href=\"styles.css\">\n```\n**Why?** This allows the browser to download your styles once and **Cache** them. On every other page of your site, your styles load instantly without extra network hits.\n\n---\n\n## 2️⃣ The Selector Masterclass\n\nBeyond basic tags and classes, you need **Combinators** to target specific relationships between elements.\n\n### The Combinators\n- **Descendant (`div p`)**: Targets ALL `<p>` tags inside a `<div>` no matter how deep they are.\n- **Direct Child (`div > p`)**: Targets ONLY `<p>` tags that are immediate children of the parent.\n- **Adjacent Sibling (`h1 + p`)**: Targets the first `<p>` that comes exactly after an `h1`.\n- **General Sibling (`h1 ~ p`)**: Targets every `<p>` that comes after an `h1` at the same level.\n\n### Pseudo-Classes & Elements\n- **`:hover`**: Styles an element when the mouse is over it.\n- **`:nth-child(n)`**: Targets a specific item in a list (e.g., `:nth-child(odd)`).\n- **`::before` / `::after`**: Allows you to insert \"ghost\" content (like icons or decorative underlines) into an element via CSS alone.\n\n```css\n.nav-link:hover { color: gold; }\n.btn::before { content: \"🚀 \"; } /* Adds a rocket before the button text */\n```\n\n---\n\n## 3️⃣ The Unit Matrix\n\nUnderstanding units is the difference between a \"broken\" mobile site and a \"fluid\" one.\n\n| Category | Units | When to Use |\n| :--- | :--- | :--- |\n| **Absolute** | `px` | For tiny, fixed values like `border: 1px` or `box-shadow: 2px`. |\n| **Relative (Font)** | `rem`, `em` | **Primary Choice.** `rem` scales with user browser settings (Accessibility). |\n| **Relative (Screen)**| `%`, `vw`, `vh`| For containers that must scale to the width/height of the device. |\n\n---\n\n## 4️⃣ The Visual Engine: Text, Backgrounds, & Images\n\n### Professional Typography\n```css\nbody {\n  font-family: 'Inter', sans-serif; /* Priority fallback font stack */\n  line-height: 1.6;               /* The Golden Ratio for readability */\n  letter-spacing: 0.5px;         /* Adds breathing room between characters */\n  text-transform: uppercase;      /* Standardizes casing in navigation */\n}\n```\n\n### Background Geometry\n```css\n.hero-header {\n  background-image: url('pattern.png');\n  background-size: cover;      /* Forces the image to fill the box without stretching */\n  background-position: center; /* Keeps the focal point in the middle */\n  background-repeat: no-repeat;\n}\n```\n\n### Image Logic\nImages are content, but they behave like boxes. Use **`object-fit`** to handle how an image is cropped within its boundaries.\n```css\nimg {\n  max-width: 100%;       /* Never burst out of parent */\n  height: auto;          /* Maintain aspect ratio */\n  object-fit: cover;     /* Act like a background-size: cover for <img> tags */\n}\n```\n\n---\n\n## 5️⃣ The Box Model & Engineering Resets\n\nEvery project starts with a **Master Reset**. Without it, every browser (Chrome, Safari, Firefox) adds its own random margins and padding, making your design look different everywhere.\n\n```css\n/* The Standard Professional Reset */\n*, *::before, *::after {\n  box-sizing: border-box; /* Forces padding/border inward */\n  margin: 0;              \n  padding: 0;\n}\n\nbody {\n  min-height: 100vh;      /* Ensures the page always fills the screen */\n  scroll-behavior: smooth;\n}\n```\n\n---\n\n## 🛠️ Mastery Challenge: The Professional Profile Card\n\n**Goal:** Build a high-end card using deep foundational CSS.\n1. **Structure:** Create a card with a header image, profile avatar, title, and bio.\n2. **Visuals:** Use **`object-fit: cover`** for the header image to ensure it's not distorted.\n3. **Selectors:** Use an **`::after`** pseudo-element to build a small colored circle (online indicator) on the profile avatar.\n4. **Typography:** Use **HSL colors** for the text and set a **`line-height` of 1.5** for the bio.\n5. **Interaction:** Add a **`:hover`** effect that changes the card's box-shadow and background color.\n6. **Units:** Use **`rem`** for all padding and font-sizes.\n\n---\n\n## 🎓 Summary\nMastering CSS Foundations is about knowing the **Rules of Engagement.** By using specific combinators, relative units, and a proper reset, you ensure your UI is robust, accessible, and ready for advanced layouts like Flexbox and Grid.\n",
     "questions": [
         {
-            "question_text": "What does CSS stand for?",
+            "question_text": "What is the primary benefit of using External CSS (<link>) over Inline CSS?",
             "options": [
-                "Creative Style Sheets",
-                "Cascading Style Sheets",
-                "Computer Style Sheets",
-                "Colorful Style Sheets"
+                "It makes the page load faster due to browser caching",
+                "It allows you to style multiple pages with one file",
+                "It separates content (HTML) from presentation (CSS)",
+                "All of the above"
+            ],
+            "correct_answer": 3,
+            "explanation": "External CSS is the industry standard for maintainability, performance, and clean code."
+        },
+        {
+            "question_text": "Which CSS Combinator targets only the immediate children of a parent?",
+            "options": [
+                "div p (Space)",
+                "div > p (Child)",
+                "div + p (Adjacent)",
+                "div ~ p (General)"
             ],
             "correct_answer": 1,
-            "explanation": "Cascading refers to how styles are prioritized from different sources."
+            "explanation": "The '>' selector is strict and ignores deeper nested grandchildren."
         },
         {
-            "question_text": "In the CSS Box Model, which layer is responsible for creating space OUTSIDE the element's border?",
+            "question_text": "What does the pseudo-element '::before' allow you to do?",
             "options": [
-                "Padding",
-                "Margin",
-                "Content",
-                "Outline"
+                "Style the first letter of a paragraph",
+                "Insert decorative content before an element's actual content without using HTML",
+                "Make the element load faster",
+                "Select the element only if it's the first child"
             ],
             "correct_answer": 1,
-            "explanation": "Margin pushes other elements away from the current box."
+            "explanation": "Pseudo-elements like ::before and ::after are used for decorative UI elements like icons or underlines."
         },
         {
-            "question_text": "Which of these selectors has the highest specificity score?",
+            "question_text": "Why is 'rem' preferred over 'px' in professional CSS?",
             "options": [
-                "div (Tag)",
-                ".header (Class)",
-                "#main-nav (ID)",
-                "* (Universal)"
-            ],
-            "correct_answer": 2,
-            "explanation": "IDs are significantly more specific than classes or tags."
-        },
-        {
-            "question_text": "What is the primary benefit of 'box-sizing: border-box'?",
-            "options": [
-                "It makes the text bold",
-                "It makes padding and borders push inward, keeping the defined width accurate",
-                "It removes all margins from the page",
-                "It speeds up the browser rendering"
+                "Pixels are being deprecated",
+                "REMs are relative to the user's browser setting, ensuring accessibility for vision-impaired users",
+                "REMs produce smaller file sizes",
+                "All modern browsers require REM"
             ],
             "correct_answer": 1,
-            "explanation": "This prevents 'box bursting' where padding adds to the total width of an element."
+            "explanation": "Relative units ensure your UI respects the user's personal accessibility preferences."
         },
         {
-            "question_text": "Which display property allows an element to sit side-by-side with others but still accept width and height settings?",
+            "question_text": "What does 'object-fit: cover' do to an image tag?",
             "options": [
-                "block",
-                "inline",
-                "inline-block",
-                "none"
-            ],
-            "correct_answer": 2,
-            "explanation": "inline-block is the hybrid that gives you the best of both worlds."
-        },
-        {
-            "question_text": "A div has 'width: 200px', 'padding: 20px', and 'border: 5px'. If box-sizing is NOT border-box, what is the total width?",
-            "options": [
-                "200px",
-                "225px",
-                "250px",
-                "150px"
-            ],
-            "correct_answer": 2,
-            "explanation": "200 + 20(left) + 20(right) + 5(left) + 5(right) = 250px."
-        },
-        {
-            "question_text": "How do you select an element with the class 'btn' in CSS?",
-            "options": [
-                "#btn",
-                ".btn",
-                "btn",
-                "*btn"
+                "It stretches the image to fit the box",
+                "It crops the image to fill the entire container while maintaining its aspect ratio",
+                "It makes the image transparent",
+                "It removes the image background"
             ],
             "correct_answer": 1,
-            "explanation": "Classes are always prefixed with a dot (.) in CSS."
+            "explanation": "Object-fit is the contents-equivalent of background-size: cover."
         },
         {
-            "question_text": "Why is 'rem' preferred over 'px' for font-size?",
+            "question_text": "Which unit represents 1% of the total Viewport Width?",
             "options": [
-                "Because it is easier to type",
-                "Because it is relative to the root font size, making the site more accessible for users who resize their browser text",
-                "Because px is no longer supported",
-                "Because rem colors the text automatically"
-            ],
-            "correct_answer": 1,
-            "explanation": "Accessibility is the primary reason for using relative units like rem."
-        },
-        {
-            "question_text": "Which color format is considered the most 'human-readable' for adjusting brightness?",
-            "options": [
-                "Hex (#FF0000)",
-                "RGB (255, 0, 0)",
-                "HSL (0, 100%, 50%)",
-                "Cmyk"
-            ],
-            "correct_answer": 2,
-            "explanation": "HSL allows you to easily change the 'Lightness' percentage to create tints and shades."
-        },
-        {
-            "question_text": "What is the 'Cascade' in CSS?",
-            "options": [
-                "A type of animation",
-                "The algorithm that decides which style to apply when multiple rules target the same element",
-                "A way to link multiple CSS files",
-                "A JavaScript library"
-            ],
-            "correct_answer": 1,
-            "explanation": "The cascade takes into account order, specificity, and importance."
-        },
-        {
-            "question_text": "What is the specificity score of a selector like '.nav button'?",
-            "options": [
-                "1",
-                "10",
-                "11",
-                "101"
-            ],
-            "correct_answer": 2,
-            "explanation": "10 (class) + 1 (tag) = 11."
-        },
-        {
-            "question_text": "Which of these is a 'Block' level element by default?",
-            "options": [
-                "span",
-                "a",
-                "h1",
-                "img"
-            ],
-            "correct_answer": 2,
-            "explanation": "Headers (h1-h6) and paragraphs (p) take up the full width by default."
-        },
-        {
-            "question_text": "How do you target a specific element with an ID of 'main'?",
-            "options": [
-                ".main",
-                "#main",
-                "*main",
-                "main"
-            ],
-            "correct_answer": 1,
-            "explanation": "IDs are prefixed with the hash (#) symbol."
-        },
-        {
-            "question_text": "In the Box Model, which layer sits between the Padding and the Margin?",
-            "options": [
-                "Content",
-                "Border",
-                "Shadow",
-                "Outline"
-            ],
-            "correct_answer": 1,
-            "explanation": "The Border is the physical wall between inner space (padding) and outer space (margin)."
-        },
-        {
-            "question_text": "What is the result of 'margin: 0 auto;' on a block element with a set width?",
-            "options": [
-                "It disappears",
-                "It centers the element horizontally within its parent",
-                "It adds 10px of space to all sides",
-                "It makes the borders transparent"
-            ],
-            "correct_answer": 1,
-            "explanation": "'auto' for left and right margins splits the remaining space evenly to center the box."
-        },
-        {
-            "question_text": "What is the 'Specificity nuclear option' that should generally be avoided?",
-            "options": [
-                "Using IDs",
-                "Using Inline styles",
-                "Using !important",
-                "Using absolute positioning"
-            ],
-            "correct_answer": 2,
-            "explanation": "!important overrides everything, but makes debugging stylesheets extremely difficult."
-        },
-        {
-            "question_text": "Which unit represents 1% of the total Viewport Height?",
-            "options": [
-                "vw",
                 "vh",
+                "vw",
                 "rem",
                 "%"
             ],
             "correct_answer": 1,
-            "explanation": "vh stands for Viewport Height."
+            "explanation": "vw stands for Viewport Width."
         },
         {
-            "question_text": "What is the value of 'padding' inside the box model if only 'padding: 10px 20px;' is written?",
+            "question_text": "How do you add a custom line-height of 1.6 to ensure readability?",
             "options": [
-                "10px on all sides",
-                "10px top/bottom, 20px left/right",
-                "20px top/bottom, 10px left/right",
-                "Only top and left are set"
+                "line: 1.6",
+                "font-height: 1.6",
+                "line-height: 1.6",
+                "spacing: 1.6"
             ],
-            "correct_answer": 1,
-            "explanation": "This is a shorthand where the first value is vertical and the second is horizontal."
+            "correct_answer": 2,
+            "explanation": "Line-height is crucial for maintaining the 'Golden Ratio' in readable text blocks."
         },
         {
-            "question_text": "Can you set the width and height of a 'display: inline' element?",
+            "question_text": "Which selector has the highest specificity?",
             "options": [
-                "Yes, always",
-                "No, the browser will ignore those instructions",
-                "Only if it has a border",
-                "Only if it is also an image"
+                ".card p",
+                "#header.title",
+                "div.active",
+                "header"
             ],
             "correct_answer": 1,
-            "explanation": "Inline elements only take the width of their content; you must use inline-block or block to set dimensions."
+            "explanation": "An ID (#header) plus a Class (.title) is significantly more powerful than the others."
         },
         {
-            "question_text": "Which property is used to remove the underlines from <a> tags?",
+            "question_text": "What is the purpose of a CSS Reset using '*', '*::before', '*::after'?",
             "options": [
-                "text-style: none",
-                "text-decoration: none",
-                "font-underline: none",
-                "border: none"
+                "To fix bugs in Internet Explorer",
+                "To remove default browser inconsistencies (like margin/padding) and force 'border-box' everywhere",
+                "To make the website more secure",
+                "To load the CSS faster"
             ],
             "correct_answer": 1,
-            "explanation": "text-decoration handles lines like underline, overline, and line-through."
+            "explanation": "Global resets ensure a consistent baseline for your design across all browsers."
+        },
+        {
+            "question_text": "What does the 'background-size: cover' property do?",
+            "options": [
+                "It makes the background image as small as possible",
+                "It ensures the background image covers the entire element, even if it has to crop the edges",
+                "It makes the background color invisible",
+                "It repeats the background image in a grid"
+            ],
+            "correct_answer": 1,
+            "explanation": "Cover is used to create full-bleed elements without distortion."
+        },
+        {
+            "question_text": "In HSL color format, what does the third value (Percentage) control?",
+            "options": [
+                "Hue (Color type)",
+                "Saturation (Vibrancy)",
+                "Lightness (Brightness)",
+                "Opacity (Transparency)"
+            ],
+            "correct_answer": 2,
+            "explanation": "HSL stands for Hue, Saturation, and Lightness."
+        },
+        {
+            "question_text": "Which Combinator targets siblings that come AFTER an element, but not necessarily immediately after?",
+            "options": [
+                "A + B (Adjacent)",
+                "A ~ B (General Sibling)",
+                "A > B (Direct)",
+                "A B (Descendant)"
+            ],
+            "correct_answer": 1,
+            "explanation": "General Sibling (~) is broader than Adjacent Sibling (+)."
+        },
+        {
+            "question_text": "What is 'Specificity'?",
+            "options": [
+                "The weight assigned to a CSS rule depending on its selector type",
+                "The speed of a CSS file",
+                "The name of a new layout engine",
+                "The number of lines in a CSS file"
+            ],
+            "correct_answer": 0,
+            "explanation": "Specificity math allows the browser to resolve style conflicts."
+        },
+        {
+            "question_text": "Why should you generally avoid using 'IDs' for styling?",
+            "options": [
+                "Because they are hard to read",
+                "Because their high specificity makes them almost impossible to override without using !important",
+                "Because they are not supported in old browsers",
+                "Because they make the HTML file too large"
+            ],
+            "correct_answer": 1,
+            "explanation": "Classes are preferred because they are reusable and have lower, more manageable specificity."
+        },
+        {
+            "question_text": "Which property is used to capitalize every word in a title automatically?",
+            "options": [
+                "font-format: capitalize",
+                "text-transform: capitalize",
+                "casing: upper",
+                "font-uppercase: all"
+            ],
+            "correct_answer": 1,
+            "explanation": "text-transform can change content to all uppercase, lowercase, or capitalized."
+        },
+        {
+            "question_text": "What is the default 'display' value of a <div> element?",
+            "options": [
+                "inline",
+                "flex",
+                "block",
+                "inline-block"
+            ],
+            "correct_answer": 2,
+            "explanation": "Divs are block-level elements that naturally take up 100% of their parent's width."
+        },
+        {
+            "question_text": "What does the 'box-sizing: border-box' property accomplish?",
+            "options": [
+                "It adds a border around every div",
+                "It forces padding and borders to be part of the total width/height, rather than being added to it",
+                "It removes all padding from an element",
+                "It changes the margin size automatically"
+            ],
+            "correct_answer": 1,
+            "explanation": "This makes layout math much simpler and predictable."
+        },
+        {
+            "question_text": "How do you select the third item in a list using CSS?",
+            "options": [
+                "li:3rd-child",
+                "li:nth-child(3)",
+                "li:item(3)",
+                "li:index(2)"
+            ],
+            "correct_answer": 1,
+            "explanation": "The nth-child pseudo-class allows for algorithmic selection of elements."
+        },
+        {
+            "question_text": "What happens to 'margin' and 'padding' when you set 'display: none'?",
+            "options": [
+                "They become zero",
+                "The element and its spacing disappear completely and the surrounding layout collapses into that space",
+                "The element disappears but the gaps remain",
+                "They double in size"
+            ],
+            "correct_answer": 1,
+            "explanation": "Unlike visibility:hidden, display:none removes the element from the layout entirely."
+        },
+        {
+            "question_text": "Which relative unit is based on the font-size of the current element's parent?",
+            "options": [
+                "rem",
+                "em",
+                "px",
+                "vw"
+            ],
+            "correct_answer": 1,
+            "explanation": "em is relative to the parent; rem is relative to the root (html)."
         }
     ]
 }
