@@ -20,31 +20,39 @@ import {
     SelectValue,
 } from '@/components/ui/select'
 import { 
-    Search, 
-    Users, 
-    BookOpen, 
-    GraduationCap, 
-    Filter, 
+    Search,
+    Users,
+    BookOpen,
+    GraduationCap,
+    Filter,
     ArrowUpDown,
     CheckCircle2,
-    Clock
+    Clock,
+    LayoutGrid,
+    List
 } from 'lucide-react'
-import { EnrolledStudent } from '@/lib/instructor'
+import { EnrolledStudent, CohortAnalytics } from '@/lib/instructor'
+import { CohortPulseGrid } from './cohort-pulse-grid'
+import { StudentMasterySlideover } from './student-mastery-slideover'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 interface StudentDirectoryClientProps {
     initialStudents: EnrolledStudent[]
+    initialAnalytics: CohortAnalytics[]
 }
 
 type SortField = 'name' | 'progress' | 'grade' | 'enrolled_at'
 type SortOrder = 'asc' | 'desc'
 
-export function StudentDirectoryClient({ initialStudents }: StudentDirectoryClientProps) {
+export function StudentDirectoryClient({ initialStudents, initialAnalytics }: StudentDirectoryClientProps) {
     const [searchQuery, setSearchQuery] = useState('')
     const [cohortFilter, setCohortFilter] = useState('all')
     const [courseFilter, setCourseFilter] = useState('all')
     const [statusFilter, setStatusFilter] = useState('all')
     const [sortField, setSortField] = useState<SortField>('enrolled_at')
     const [sortOrder, setSortOrder] = useState<SortOrder>('desc')
+    const [viewMode, setViewMode] = useState<'list' | 'pulse'>('list')
+    const [selectedStudent, setSelectedStudent] = useState<any | null>(null)
 
     // Get unique courses and cohorts for filtering
     const courses = useMemo(() => Array.from(new Set(initialStudents.map(s => s.course_title))), [initialStudents])
@@ -113,6 +121,30 @@ export function StudentDirectoryClient({ initialStudents }: StudentDirectoryClie
 
     return (
         <div className="space-y-8">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <Tabs value={viewMode} onValueChange={(v: any) => setViewMode(v)} className="w-full sm:w-auto">
+                    <TabsList className="grid w-full grid-cols-2 h-12 p-1 bg-zinc-100 dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800">
+                        <TabsTrigger value="list" className="rounded-xl data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-800 data-[state=active]:shadow-lg font-black text-[10px] uppercase tracking-widest gap-2">
+                            <List className="w-4 h-4" />
+                            Directory
+                        </TabsTrigger>
+                        <TabsTrigger value="pulse" className="rounded-xl data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-800 data-[state=active]:shadow-lg font-black text-[10px] uppercase tracking-widest gap-2">
+                            <LayoutGrid className="w-4 h-4" />
+                            Pulse View
+                        </TabsTrigger>
+                    </TabsList>
+                </Tabs>
+                
+                <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-primary/5 rounded-2xl border border-primary/10">
+                    <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                    <span className="text-[10px] font-black uppercase text-primary tracking-widest">Real-time Mastery Tracking Active</span>
+                </div>
+            </div>
+
+            {viewMode === 'pulse' ? (
+                <CohortPulseGrid cohorts={initialAnalytics} />
+            ) : (
+                <>
             {/* Stats Overview */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <Card className="p-4 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800">
@@ -243,7 +275,17 @@ export function StudentDirectoryClient({ initialStudents }: StudentDirectoryClie
                         <TableBody>
                             {filteredAndSortedStudents.length > 0 ? (
                                 filteredAndSortedStudents.map((student) => (
-                                    <TableRow key={student.id} className="border-zinc-100 dark:border-zinc-800/50 hover:bg-zinc-50/50 dark:hover:bg-zinc-800/30 transition-colors">
+                                    <TableRow 
+                                        key={student.id} 
+                                        className="border-zinc-100 dark:border-zinc-800/50 hover:bg-zinc-50/50 dark:hover:bg-zinc-800/30 transition-colors cursor-pointer"
+                                        onClick={() => setSelectedStudent({
+                                            user_id: student.id,
+                                            full_name: student.full_name,
+                                            email: student.email,
+                                            cohort_name: student.cohort_name,
+                                            course_id: student.course_id
+                                        })}
+                                    >
                                         <TableCell>
                                             <div className="flex items-center gap-4">
                                                 <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-sm">
@@ -327,6 +369,16 @@ export function StudentDirectoryClient({ initialStudents }: StudentDirectoryClie
                     </Table>
                 </div>
             </Card>
+            </>
+            )}
+
+            {selectedStudent && (
+                <StudentMasterySlideover 
+                    isOpen={!!selectedStudent}
+                    onOpenChange={(open) => !open && setSelectedStudent(null)}
+                    student={selectedStudent}
+                />
+            )}
         </div>
     )
 }

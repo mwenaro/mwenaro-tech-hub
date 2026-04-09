@@ -15,7 +15,34 @@ if (!supabaseUrl || !supabaseServiceKey) {
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-async function syncCourse(courseSlug: string) {
+// --- Command Line Arguments ---
+const args = process.argv.slice(2);
+const lessonFlag = args.find(arg => arg.startsWith('--lesson='));
+const forceFlag = args.includes('--force');
+const targetLessonFile = lessonFlag ? lessonFlag.split('=')[1] : null;
+
+/**
+ * Check if an entity is safe to update.
+ * If updated_from is 'dashboard', it returns false unless force=true.
+ */
+async function isSafeToUpdate(table: string, id: string, force: boolean): Promise<boolean> {
+    if (force) return true;
+
+    const { data, error } = await supabase
+        .from(table)
+        .select('updated_from')
+        .eq('id', id)
+        .single();
+
+    if (error || !data) return true; // Default to safe if not found or no column yet
+    
+    if (data.updated_from === 'dashboard') {
+        return false;
+    }
+    return true;
+}
+
+async function syncCourse(courseSlug: string, force: boolean) {
     console.log(`\n🚀 Starting sync for course: ${courseSlug}`);
 
     const coursePath = path.join(process.cwd(), '..', '.docs', 'courses', `${courseSlug}.json`);
@@ -27,67 +54,42 @@ async function syncCourse(courseSlug: string) {
     const courseData = JSON.parse(fs.readFileSync(coursePath, 'utf8'));
     const { title, description, image_url, course_overview, course_outline, difficulty, duration, price, modules } = courseData;
 
-    // 1. Fetch/Update Course and Get Real ID
+    // 1. Fetch/Upsert Course
     console.log(`Matching course by slug: ${courseSlug}...`);
-    const { data: course, error: fetchError } = await supabase
-        .from('courses')
-        .upsert({
-            slug: courseSlug,
-            title,
-            description,
-            image_url,
-            course_overview,
-            course_outline,
-            level: difficulty,
-            duration,
-            price
-        }, { onConflict: 'slug' })
-        .select()
-        .single();
-
-    if (fetchError || !course) {
-        console.error('Error fetching/upserting course:', fetchError);
-        return;
+    
+    // Check if course exists to verify safety
+    const { data: existingCourse } = await supabase.from('courses').select('id').eq('slug', courseSlug).single();
+    if (existingCourse && !await isSafeToUpdate('courses', existingCourse.id, force)) {
+        console.warn(`⚠️ Skipping course '${title}' (Dashboard Edits Detected). Use --force to overwrite.`);
+    } else {
+        const { error: cError } = await supabase
+            .from('courses')
+            .upsert({
+                slug: courseSlug,
+                title,
+                description,
+                image_url,
+                course_overview,
+                course_outline,
+                level: difficulty,
+                duration,
+                price,
+                updated_from: 'files'
+            }, { onConflict: 'slug' });
+        
+        if (cError) {
+            console.error('Error upserting course:', cError);
+            return;
+        }
     }
 
+    const { data: course } = await supabase.from('courses').select('id').eq('slug', courseSlug).single();
+    if (!course) return;
     const dbCourseId = course.id;
-    console.log(`Using database ID: ${dbCourseId} for ${title}`);
 
-    // 2. Identify Old Data
-    console.log('Identifying old structural data...');
-    const { data: oldPhases } = await supabase
-        .from('phases')
-        .select('id')
-        .eq('course_id', dbCourseId);
+    // 2. Sync Phases & Lessons (Non-destructive)
+    console.log('Syncing curriculum hierarchy...');
 
-    const phaseIds = oldPhases?.map(p => p.id) || [];
-
-    const { data: oldPhaseLessons } = await supabase
-        .from('phase_lessons')
-        .select('lesson_id')
-        .in('phase_id', phaseIds);
-
-    const lessonIds = oldPhaseLessons?.map(l => l.lesson_id) || [];
-
-    // 3. Purge Old Data (Order matters for FK constraints if not cascading)
-    console.log(`Purging ${lessonIds.length} lessons and ${phaseIds.length} phases...`);
-
-    if (lessonIds.length > 0) {
-        await supabase.from('quiz_submissions').delete().in('lesson_id', lessonIds);
-        await supabase.from('questions').delete().in('lesson_id', lessonIds);
-        await supabase.from('lesson_progress').delete().in('lesson_id', lessonIds);
-        await supabase.from('phase_lessons').delete().in('lesson_id', lessonIds);
-        await supabase.from('lessons').delete().in('id', lessonIds);
-    }
-
-    if (phaseIds.length > 0) {
-        await supabase.from('phases').delete().eq('course_id', dbCourseId);
-    }
-
-    // 4. Rebuild Hierarchy
-    console.log('Rebuilding curriculum structure...');
-
-    // Group modules by Phase
     const phasesMap = new Map<string, any[]>();
     modules.forEach((mod: any) => {
         if (!phasesMap.has(mod.phase)) {
@@ -98,24 +100,45 @@ async function syncCourse(courseSlug: string) {
 
     let phaseOrder = 1;
     for (const [phaseTitle, phaseModules] of phasesMap.entries()) {
-        console.log(`  Inserting Phase: ${phaseTitle}`);
-        const { data: phase, error: pError } = await supabase
+        // Upsert Phase
+        let phaseId: string;
+        const { data: existingPhase } = await supabase
             .from('phases')
-            .insert({
-                course_id: dbCourseId,
-                title: phaseTitle,
-                order_index: phaseOrder++
-            })
-            .select()
+            .select('id')
+            .eq('course_id', dbCourseId)
+            .eq('title', phaseTitle)
             .single();
 
-        if (pError) {
-            console.error(`Error inserting phase ${phaseTitle}:`, pError);
-            continue;
+        if (existingPhase && !await isSafeToUpdate('phases', existingPhase.id, force)) {
+            console.warn(`  ⚠️ Skipping Phase '${phaseTitle}' (Dashboard Edits Detected).`);
+            phaseId = existingPhase.id;
+        } else {
+            const { data: phase, error: pError } = await supabase
+                .from('phases')
+                .upsert({
+                    course_id: dbCourseId,
+                    title: phaseTitle,
+                    order_index: phaseOrder++,
+                    updated_from: 'files'
+                }, { onConflict: 'course_id, title' })
+                .select()
+                .single();
+
+            if (pError || !phase) {
+                console.error(`  Error upserting phase ${phaseTitle}:`, pError);
+                continue;
+            }
+            phaseId = phase.id;
         }
 
         let lessonOrder = 1;
         for (const mod of phaseModules) {
+            // Check if this is the targeted lesson (if flag provided)
+            if (targetLessonFile && mod.source_file !== targetLessonFile) {
+                lessonOrder++;
+                continue;
+            }
+
             console.log(`    Processing Lesson: ${mod.title}`);
             const lessonFilePath = path.join(process.cwd(), '..', '.docs', 'content', mod.source_file);
             if (!fs.existsSync(lessonFilePath)) {
@@ -125,38 +148,54 @@ async function syncCourse(courseSlug: string) {
 
             const lessonContent = JSON.parse(fs.readFileSync(lessonFilePath, 'utf8'));
 
-            // Insert Lesson
+            // Check if lesson exists
+            const { data: existingLesson } = await supabase
+                .from('lessons')
+                .select('id')
+                .eq('title', lessonContent.title)
+                .single();
+
+            if (existingLesson && !await isSafeToUpdate('lessons', existingLesson.id, force)) {
+                console.warn(`      ⚠️ Skipping Lesson '${mod.title}' (Dashboard Edits Detected).`);
+                continue;
+            }
+
+            // Upsert Lesson
             const { data: lesson, error: lError } = await supabase
                 .from('lessons')
-                .insert({
+                .upsert({
+                    id: existingLesson?.id, // Keep ID if exists
                     title: lessonContent.title,
                     content: lessonContent.content || '',
                     video_url: lessonContent.video_url || '',
                     has_project: lessonContent.has_project || false,
-                    duration_minutes: lessonContent.duration_minutes || 30
-                })
+                    duration_minutes: lessonContent.duration_minutes || 30,
+                    updated_from: 'files'
+                }, { onConflict: 'title' })
                 .select()
                 .single();
 
-            if (lError) {
-                console.error(`      Error inserting lesson ${mod.title}:`, lError);
+            if (lError || !lesson) {
+                console.error(`      Error upserting lesson ${mod.title}:`, lError);
                 continue;
             }
 
-            // Link to Phase
+            // Link to Phase (Upsert Join Record)
             const { error: plError } = await supabase
                 .from('phase_lessons')
-                .insert({
-                    phase_id: phase.id,
+                .upsert({
+                    phase_id: phaseId,
                     lesson_id: lesson.id,
                     order_index: lessonOrder++
-                });
+                }, { onConflict: 'phase_id, lesson_id' });
 
             if (plError) console.error(`      Error linking lesson to phase:`, plError);
 
-            // Insert Quiz Questions
+            // Sync Quiz Questions (Clear and Re-insert for target lesson only)
+            console.log(`      Syncing ${lessonContent.questions?.length || 0} quiz questions...`);
+            await supabase.from('questions').delete().eq('lesson_id', lesson.id);
+            
             if (lessonContent.questions && lessonContent.questions.length > 0) {
-                console.log(`      Inserting ${lessonContent.questions.length} quiz questions...`);
                 const questionsToInsert = lessonContent.questions.map((q: any) => ({
                     lesson_id: lesson.id,
                     question_text: q.question_text,
@@ -178,9 +217,17 @@ async function syncCourse(courseSlug: string) {
 }
 
 async function runSync() {
-    const coursesToSync = ['fullstack', 'web-foundations', 'react-frontend', 'backend-api'];
+    console.log('--- Mwenaro Safe Sync CLI ---');
+    if (targetLessonFile) {
+        console.log(`🎯 Targeting single lesson: ${targetLessonFile}`);
+    }
+    if (forceFlag) {
+        console.log(`⚡ Force mode enabled. Overwriting dashboard edits.`);
+    }
+
+    const coursesToSync = ['fullstack', 'web-foundations', 'react-frontend', 'backend-api', 'specialized-mastery'];
     for (const slug of coursesToSync) {
-        await syncCourse(slug);
+        await syncCourse(slug, forceFlag);
     }
 }
 
