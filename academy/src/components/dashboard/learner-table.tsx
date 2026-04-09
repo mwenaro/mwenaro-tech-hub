@@ -20,6 +20,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import Link from "next/link"
 import { Search, Filter, AlertCircle, TrendingUp, GraduationCap } from "lucide-react"
 import { EnrolledStudent } from "@/lib/instructor"
 
@@ -95,8 +96,16 @@ export function LearnerTable({ students }: LearnerTableProps) {
                     <TableBody>
                         {filteredStudents.length > 0 ? (
                             filteredStudents.map((student) => (
-                                <TableRow key={student.id} className="hover:bg-white/5 transition-colors group cursor-default border-b border-white/5 last:border-0">
+                                <TableRow 
+                                    key={student.id} 
+                                    className="hover:bg-white/5 transition-colors group cursor-pointer border-b border-white/5 last:border-0 relative"
+                                >
                                     <TableCell className="py-4">
+                                        <Link 
+                                            href={`/admin/learners/${student.user_id}?courseId=${student.course_id}`}
+                                            className="absolute inset-0 z-10"
+                                            aria-label={`View roadmap for ${student.full_name}`}
+                                        />
                                         <div className="flex items-center gap-3">
                                             <Avatar className="h-10 w-10 border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-primary/20">
                                                 <AvatarFallback className="font-bold text-xs">
