@@ -49,7 +49,4 @@ const commentSchema = new Schema<IComment>(
   }
 );
 
-commentSchema.index({ projectId: 1 });
-commentSchema.index({ createdAt: -1 });
-
-export const Comment = mongoose.models.Comment || mongoose.model<IComment>('Comment', commentSchema);
+export const Comment = mongoose.models?.Comment || mongoose.model<IComment>('Comment', commentSchema);

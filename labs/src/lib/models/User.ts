@@ -82,10 +82,6 @@ const userSchema = new Schema<IUser>(
   }
 );
 
-userSchema.index({ email: 1 });
-userSchema.index({ role: 1 });
-userSchema.index({ inviteCode: 1 });
-
 userSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
   const user = this as IUser;
   return bcrypt.compare(candidatePassword, user.password);
@@ -97,4 +93,4 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
-export const User = mongoose.models.User || mongoose.model<IUser>('User', userSchema);
+export const User = mongoose.models?.User || mongoose.model<IUser>('User', userSchema);

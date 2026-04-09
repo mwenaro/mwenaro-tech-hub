@@ -1,34 +1,41 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAuthFromCookies } from '@/lib/auth';
-import { connectDB } from '@/lib/mongodb';
-import { User } from '@/lib/models';
+import jwt from 'jsonwebtoken';
+
+const JWT_SECRET = process.env.JWT_SECRET!;
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  const publicPaths = ['/login', '/register', '/api/auth/login', '/api/auth/register', '/api/auth/invite'];
+  const publicPaths = ['/login', '/register', '/api/auth/login', '/api/auth/register', '/api/auth/invite', '/', '/about', '/contact', '/icon.svg', '/sitemap.xml', '/robots.txt'];
   const isPublicPath = publicPaths.some(path => pathname.startsWith(path));
 
   if (isPublicPath) {
     return NextResponse.next();
   }
 
-  if (pathname.startsWith('/admin')) {
-    const auth = await getAuthFromCookies();
-    if (!auth || auth.role !== 'admin') {
+  const cookieStore = request.cookies;
+  const accessToken = cookieStore.get('access_token')?.value;
+  const refreshToken = cookieStore.get('refresh_token')?.value;
+
+  if (!accessToken && !refreshToken) {
+    if (pathname.startsWith('/admin') || pathname.startsWith('/dashboard') || pathname.startsWith('/projects') || pathname.startsWith('/payments')) {
       return NextResponse.redirect(new URL('/login', request.url));
     }
-    return NextResponse.next();
   }
 
-  if (pathname.startsWith('/api/')) {
-    if (pathname.startsWith('/api/auth/')) {
+  if (accessToken) {
+    try {
+      const payload = jwt.verify(accessToken, JWT_SECRET) as { role: string };
+      
+      if (pathname.startsWith('/admin') && payload.role !== 'admin') {
+        return NextResponse.redirect(new URL('/login', request.url));
+      }
+      
       return NextResponse.next();
-    }
-
-    const auth = await getAuthFromCookies();
-    if (!auth) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    } catch {
+      if (pathname.startsWith('/admin') || pathname.startsWith('/dashboard') || pathname.startsWith('/projects') || pathname.startsWith('/payments')) {
+        return NextResponse.redirect(new URL('/login', request.url));
+      }
     }
   }
 

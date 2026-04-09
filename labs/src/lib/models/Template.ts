@@ -80,7 +80,4 @@ const templateSchema = new Schema<ITemplate>(
   }
 );
 
-templateSchema.index({ type: 1 });
-templateSchema.index({ isDefault: 1 });
-
-export const Template = mongoose.models.Template || mongoose.model<ITemplate>('Template', templateSchema);
+export const Template = mongoose.models?.Template || mongoose.model<ITemplate>('Template', templateSchema);

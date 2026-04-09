@@ -76,9 +76,4 @@ const paymentSchema = new Schema<IPayment>(
   }
 );
 
-paymentSchema.index({ projectId: 1 });
-paymentSchema.index({ clientId: 1 });
-paymentSchema.index({ status: 1 });
-paymentSchema.index({ createdAt: -1 });
-
-export const Payment = mongoose.models.Payment || mongoose.model<IPayment>('Payment', paymentSchema);
+export const Payment = mongoose.models?.Payment || mongoose.model<IPayment>('Payment', paymentSchema);

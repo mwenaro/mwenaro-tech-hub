@@ -194,8 +194,4 @@ const projectSchema = new Schema<IProject>(
   }
 );
 
-projectSchema.index({ clientId: 1 });
-projectSchema.index({ status: 1 });
-projectSchema.index({ createdAt: -1 });
-
-export const Project = mongoose.models.Project || mongoose.model<IProject>('Project', projectSchema);
+export const Project = mongoose.models?.Project || mongoose.model<IProject>('Project', projectSchema);
