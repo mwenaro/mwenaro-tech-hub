@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { CheckCircle2, XCircle, ChevronRight, HelpCircle } from 'lucide-react'
 import Link from 'next/link'
-import { submitQuiz, LessonProgress, requestRetrial } from '@/lib/progress'
+import { submitQuiz, LessonProgress } from '@/lib/progress'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
@@ -34,12 +34,9 @@ export function LessonQuiz({ questions, nextLessonHref, lessonId, onSuccess, use
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [quizProgress, setQuizProgress] = useState<LessonProgress | undefined>(initialProgress)
-    const [isRequestingRetrial, setIsRequestingRetrial] = useState(false)
-
+    
     const attempts = quizProgress?.quiz_attempts || 0
-    const extraAttempts = quizProgress?.extra_attempts_granted || 0
-    const maxAttempts = 3 + extraAttempts
-    const retrialRequested = quizProgress?.retrial_requested || false
+    const maxAttempts = 3
     const highestScore = quizProgress?.highest_quiz_score || 0
     const isCompleted = quizProgress?.is_completed || false
 
@@ -73,8 +70,7 @@ export function LessonQuiz({ questions, nextLessonHref, lessonId, onSuccess, use
                         ...prev,
                         quiz_attempts: (prev.quiz_attempts || 0) + 1,
                         highest_quiz_score: Math.max(prev.highest_quiz_score || 0, res.score),
-                        is_completed: res.passed || (prev.quiz_attempts + 1 >= 5),
-                        retrial_requested: false
+                        is_completed: res.passed || (prev.quiz_attempts + 1 >= 3)
                     } : undefined)
 
                     if (res.passed && onSuccess) {
@@ -104,23 +100,7 @@ export function LessonQuiz({ questions, nextLessonHref, lessonId, onSuccess, use
         onQuizStart?.()
     }
 
-    const handleRequestRetrial = async () => {
-        if (!lessonId) return
-        setIsRequestingRetrial(true)
-        try {
-            const res = await requestRetrial(lessonId)
-            if (res.success) {
-                setQuizProgress(prev => prev ? { ...prev, retrial_requested: true } : prev)
-                toast.success('Retrial requested! Please wait for instructor approval.')
-            } else {
-                toast.error(res.message)
-            }
-        } catch (e) {
-            toast.error('Failed to request retrial')
-        } finally {
-            setIsRequestingRetrial(false)
-        }
-    }
+
 
     if (!isStarted) {
         return (
@@ -141,30 +121,15 @@ export function LessonQuiz({ questions, nextLessonHref, lessonId, onSuccess, use
                         </p>
                     </div>
 
-                    {attempts >= maxAttempts && !isCompleted ? (
-                        <div className="space-y-4">
-                            {!retrialRequested ? (
-                                <button
-                                    onClick={handleRequestRetrial}
-                                    disabled={isRequestingRetrial}
-                                    className="px-10 py-4 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-black text-lg rounded-2xl hover:opacity-90 transition-all hover:-translate-y-1 shadow-2xl"
-                                >
-                                    {isRequestingRetrial ? 'Requesting...' : 'Request 2 More Attempts'}
-                                </button>
-                            ) : (
-                                <div className="p-4 rounded-xl bg-primary/10 border border-primary/20 text-primary font-bold">
-                                    Retrial requested! Please wait for instructor approval.
-                                </div>
-                            )}
+                        <div className="p-4 rounded-xl bg-primary/10 border border-primary/20 text-primary font-bold">
+                            Max attempts (3) reached. You have been allowed to proceed.
                         </div>
-                    ) : (
                         <button
                             onClick={() => { setIsStarted(true); onQuizStart?.() }}
                             className="px-10 py-4 bg-primary text-white font-black text-lg rounded-2xl hover:bg-primary/90 transition-all hover:-translate-y-1 shadow-2xl shadow-primary/30"
                         >
                             {isCompleted ? 'Review Module Quiz' : 'Take Module Quiz'}
                         </button>
-                    )}
                 </div>
             </div>
         )
@@ -276,8 +241,8 @@ export function LessonQuiz({ questions, nextLessonHref, lessonId, onSuccess, use
                                 {isSubmitting ? 'Submitting...' : 'Submit Quiz'}
                             </button>
                         ) : (
-                            <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-600 font-bold text-center">
-                                Max attempts reached. {retrialRequested ? 'Wait for approval.' : 'Request more below.'}
+                            <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-600 font-bold text-center">
+                                Max trials (3) reached.
                             </div>
                         )}
 
