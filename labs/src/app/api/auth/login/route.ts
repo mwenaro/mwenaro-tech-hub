@@ -4,9 +4,25 @@ import { User } from '@/lib/models';
 import { generateTokens, setAuthCookies, getAuthFromCookies } from '@/lib/auth';
 import bcrypt from 'bcryptjs';
 
+async function ensureAdminExists() {
+  const adminExists = await User.findOne({ role: 'admin' });
+  if (!adminExists) {
+    const hashedPassword = await bcrypt.hash('Password', 12);
+    await User.create({
+      email: 'admin@labs.mwenaro.com',
+      password: hashedPassword,
+      name: 'Admin',
+      role: 'admin',
+      isActive: true,
+    });
+    console.log('Created default admin user');
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     await connectDB();
+    await ensureAdminExists();
     
     const body = await request.json();
     const { email, password } = body;
