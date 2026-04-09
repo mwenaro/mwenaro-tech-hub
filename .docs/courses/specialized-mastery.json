@@ -1,0 +1,21 @@
+{
+    "slug": "specialized-mastery",
+    "title": "Specialized Engineering Mastery",
+    "description": "Deep-dives into advanced technical architectures, system design patterns, and high-performance engineering topics for curious and veteran developers.",
+    "price": 0.00,
+    "total_modules": 1,
+    "duration": 2,
+    "difficulty": "Advanced",
+    "course_overview": "# Beyond the Foundations\n\nWelcome to the specialized mastery track. This course is a curated collection of deep-dives into advanced technical domains that aren't covered in the standard blueprint. \n\n### What focus areas are inside:\n- **Architectural Styling**: Scalable Tailwind patterns and custom design system engines.\n- **System Performance**: Advanced optimization strategies for production-grade software.\n- **Polymorphic Components**: Building high-end UI libraries from scratch.\n\nThis track is designed for students who want to move beyond 'following the tutorial' and start 'building the tools' that other developers use.",
+    "course_outline": "### 🛡️ Specialized Topics\nAdvanced lessons focusing on architecture, automation, and system performance.",
+    "modules": [
+        {
+            "order": 1,
+            "title": "Advanced Tailwind CSS: Architectural Mastery",
+            "phase": "Specialized Topics",
+            "slug": "advanced-tailwind-mastery",
+            "source_file": "specialized-topics/advanced-tailwind-mastery.json",
+            "quiz_count": 10
+        }
+    ]
+}

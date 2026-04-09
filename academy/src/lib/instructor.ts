@@ -1,3 +1,4 @@
+'use server'
 import { createClient } from './supabase/server'
 import { createAdminClient } from './supabase/admin'
 import { User } from '@supabase/supabase-js'
@@ -21,6 +22,27 @@ export interface SubmissionWithDetails {
     ai_status: string | null
 }
 
+export interface CohortAnalytics {
+    id: string
+    name: string
+    course_title: string
+    student_count: number
+    avg_progress: number
+    avg_grade: number
+    completion_rate: number
+    at_risk_count: number
+}
+
+export interface StudentMasteryItem {
+    lesson_id: string
+    title: string
+    is_completed: boolean
+    score: number | null
+    attempts: number
+    project_submitted: boolean
+    project_rating: number | null
+}
+
 /**
  * Check if the current user is an instructor
  */
@@ -32,7 +54,7 @@ export async function isInstructor(): Promise<boolean> {
 
     // Check role in user metadata
     const role = user.user_metadata?.role || 'student'
-    return role === 'instructor'
+    return role === 'instructor' || role === 'admin'
 }
 
 /**
@@ -50,11 +72,14 @@ export async function getAllSubmissions(): Promise<SubmissionWithDetails[]> {
         throw new Error('Unauthorized: Instructor access required')
     }
 
-    // 1. Get Cohorts assigned to this instructor
-    const { data: myCohorts, error: cohortError } = await supabase
-        .from('cohorts')
-        .select('id')
-        .eq('instructor_id', user.id)
+    // 1. Get Cohorts assigned to this instructor (or all if admin)
+    let cohortQuery = supabase.from('cohorts').select('id')
+    
+    if (role !== 'admin') {
+        cohortQuery = cohortQuery.eq('instructor_id', user.id)
+    }
+
+    const { data: myCohorts, error: cohortError } = await cohortQuery
 
     if (cohortError) {
         console.error('Error fetching cohorts:', cohortError)
@@ -329,6 +354,7 @@ export interface EnrolledStudent {
     email: string
     full_name: string | null
     course_title: string
+    course_id: string
     cohort_name: string
     enrolled_at: string
     is_completed: boolean
@@ -342,8 +368,11 @@ export interface EnrolledStudent {
 export async function getInstructorStudents(instructorId: string): Promise<EnrolledStudent[]> {
     const supabase = await createClient()
 
-    // 1. Get cohorts led by this instructor
-    const { data: cohorts } = await supabase
+    const { data: { user } } = await supabase.auth.getUser()
+    const role = user?.user_metadata?.role || 'student'
+
+    // 1. Get cohorts led by this instructor (or all for admin)
+    let cohortQuery = supabase
         .from('cohorts')
         .select(`
             id,
@@ -351,7 +380,12 @@ export async function getInstructorStudents(instructorId: string): Promise<Enrol
             course_id,
             courses (title)
         `)
-        .eq('instructor_id', instructorId)
+    
+    if (role !== 'admin') {
+        cohortQuery = cohortQuery.eq('instructor_id', instructorId)
+    }
+
+    const { data: cohorts } = await cohortQuery
 
     if (!cohorts || cohorts.length === 0) return []
 
@@ -443,6 +477,7 @@ export async function getInstructorStudents(instructorId: string): Promise<Enrol
             email: email,
             full_name: fullName,
             course_title: cohort?.course_title || 'Unknown',
+            course_id: e.course_id,
             cohort_name: cohort?.name || 'Unknown',
             enrolled_at: e.enrolled_at,
             is_completed: progressPercent === 100,
@@ -559,4 +594,143 @@ export async function createSession(data: {
     
     // Revalidate session paths if needed
     // revalidatePath('/instructor/sessions')
+}
+
+/**
+ * Get aggregate analytics for all cohorts lead by this instructor (or all for admin)
+ */
+export async function getCohortAnalytics(): Promise<CohortAnalytics[]> {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return []
+
+    const role = user.user_metadata?.role || 'student'
+    if (role !== 'admin' && role !== 'instructor') return []
+
+    // 1. Fetch cohorts
+    let cohortQuery = supabase
+        .from('cohorts')
+        .select(`
+            id,
+            name,
+            course_id,
+            courses (title)
+        `)
+    
+    if (role !== 'admin') {
+        cohortQuery = cohortQuery.eq('instructor_id', user.id)
+    }
+
+    const { data: cohorts } = await cohortQuery
+    if (!cohorts || cohorts.length === 0) return []
+
+    const students = await getInstructorStudents(user.id)
+    
+    const analytics: CohortAnalytics[] = cohorts.map(cohort => {
+        const cohortStudents = students.filter(s => s.cohort_name === cohort.name)
+        const studentCount = cohortStudents.length
+        
+        if (studentCount === 0) {
+            return {
+                id: cohort.id,
+                name: cohort.name,
+                course_title: (cohort.courses as any)?.title || 'Unknown',
+                student_count: 0,
+                avg_progress: 0,
+                avg_grade: 0,
+                completion_rate: 0,
+                at_risk_count: 0
+            }
+        }
+
+        const avgProgress = Math.round(cohortStudents.reduce((acc, curr) => acc + curr.progress, 0) / studentCount)
+        const avgGrade = Math.round(cohortStudents.reduce((acc, curr) => acc + curr.average_grade, 0) / studentCount)
+        const completionRate = Math.round((cohortStudents.filter(s => s.is_completed).length / studentCount) * 100)
+        
+        // "At Risk" = students lagging behind cohort average by > 25% or progress < 10% after enrollment
+        const atRiskCount = cohortStudents.filter(s => s.progress < (avgProgress * 0.75) || s.progress < 5).length
+
+        return {
+            id: cohort.id,
+            name: cohort.name,
+            course_title: (cohort.courses as any)?.title || 'Unknown',
+            student_count: studentCount,
+            avg_progress: avgProgress,
+            avg_grade: avgGrade,
+            completion_rate: completionRate,
+            at_risk_count: atRiskCount
+        }
+    })
+
+    return analytics
+}
+
+/**
+ * Get detailed mastery roadmap for a specific student in a course
+ */
+export async function getStudentDetailedMastery(userId: string, courseId: string): Promise<StudentMasteryItem[]> {
+    const supabase = await createClient()
+    
+    // Authorization check
+    if (!await isInstructor()) throw new Error('Unauthorized')
+
+    // 1. Get all lessons for this course
+    const { data: courseLessons } = await supabase
+        .from('phase_lessons')
+        .select(`
+            lesson_id,
+            lessons (id, title, order_index),
+            phases!inner(id, title, order_index, course_id)
+        `)
+        .eq('phases.course_id', courseId)
+        .order('order_index', { foreignTable: 'phases', ascending: true })
+        .order('order_index', { ascending: true })
+
+    if (!courseLessons) return []
+
+    // 2. Get student progress for these lessons
+    const lessonIds = courseLessons.map((cl: any) => cl.lesson_id)
+    const { data: progress } = await supabase
+        .from('lesson_progress')
+        .select('*')
+        .eq('user_id', userId)
+        .in('lesson_id', lessonIds)
+
+    const progressMap = new Map(progress?.map(p => [p.lesson_id, p]) || [])
+
+    return courseLessons.map((cl: any) => {
+        const lProgress = progressMap.get(cl.lesson_id)
+        return {
+            lesson_id: cl.lesson_id,
+            title: cl.lessons.title,
+            is_completed: lProgress?.is_completed || false,
+            score: lProgress?.highest_quiz_score || null,
+            attempts: lProgress?.quiz_attempts || 0,
+            project_submitted: !!lProgress?.project_repo_link,
+            project_rating: lProgress?.project_rating || null
+        }
+    })
+}
+
+/**
+ * Send a nudge (notification) to a student
+ */
+export async function nudgeStudent(userId: string, cohortName: string, message: string) {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('Unauthorized')
+
+    if (!await isInstructor()) throw new Error('Unauthorized')
+
+    const { createNotification } = await import('./notifications')
+    
+    await createNotification({
+        user_id: userId,
+        type: 'system',
+        title: `Message from Instructor (${cohortName})`,
+        content: message,
+        link: '/dashboard'
+    })
+
+    return { success: true }
 }

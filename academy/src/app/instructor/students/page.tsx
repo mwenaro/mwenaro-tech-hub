@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { getInstructorStudents } from '@/lib/instructor'
+import { getInstructorStudents, getCohortAnalytics } from '@/lib/instructor'
 import { StudentDirectoryClient } from '@/components/student-directory-client'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -15,34 +15,41 @@ export default async function InstructorStudentsPage() {
     }
 
     const role = user.user_metadata?.role || 'student'
-    if (role !== 'instructor') {
+    if (role !== 'instructor' && role !== 'admin') {
         redirect('/dashboard')
     }
 
-    const students = await getInstructorStudents(user.id)
+    const [students, analytics] = await Promise.all([
+        getInstructorStudents(user.id),
+        getCohortAnalytics()
+    ])
 
     return (
         <div className="min-h-screen bg-gray-50/50 dark:bg-zinc-950 p-8">
             <div className="max-w-7xl mx-auto">
-                <div className="flex items-center justify-between mb-12">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
                     <div>
                         <div className="flex items-center gap-3 mb-2">
-                            <div className="p-2 bg-primary/10 rounded-lg">
+                            <div className="p-2 bg-primary/10 rounded-xl border border-primary/20">
                                 <Users className="w-6 h-6 text-primary" />
                             </div>
-                            <h1 className="text-4xl font-black tracking-tight text-zinc-900 dark:text-white">Class Directory</h1>
+                            <h1 className="text-4xl font-black tracking-tighter text-zinc-900 dark:text-white uppercase italic">
+                                Academy Pulse
+                            </h1>
                         </div>
-                        <p className="text-zinc-500 font-medium ml-1">Manage your student roster and track enrollment activity.</p>
+                        <p className="text-zinc-500 font-bold uppercase text-[10px] tracking-widest ml-1">
+                            Cohort Health Monitoring & Individual Mastery Tracking
+                        </p>
                     </div>
-                    <Link href="/instructor/dashboard">
-                        <Button variant="ghost" className="font-bold h-12 px-6 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-900">
+                    <Link href={role === 'admin' ? '/admin' : '/instructor/dashboard'}>
+                        <Button variant="ghost" className="font-bold h-12 px-6 rounded-2xl hover:bg-zinc-100 dark:hover:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
                             <ArrowLeft className="w-4 h-4 mr-2" />
                             Back to Hub
                         </Button>
                     </Link>
                 </div>
 
-                <StudentDirectoryClient initialStudents={students} />
+                <StudentDirectoryClient initialStudents={students} initialAnalytics={analytics} />
             </div>
         </div>
     )
