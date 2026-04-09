@@ -3,6 +3,7 @@ import { NavBar, Footer, Button, Card } from "@mwenaro/ui";
 import { ArrowRight } from "lucide-react";
 import { labsContent } from "@mwenaro/content/labs-content";
 import { Metadata } from 'next'
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Custom Software Development Agency | Mwenaro Labs",
@@ -30,12 +31,16 @@ export default function LabsPage() {
                         {hero.subtext}
                     </p>
                     <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-6 animate-reveal [animation-delay:400ms]">
-                        <Button size="lg" className="rounded-full px-12 h-16 text-lg shadow-[0_8px_30px_rgb(232,93,59,0.3)] hover:shadow-[0_12px_40px_rgb(232,93,59,0.4)] hover:-translate-y-1 transition-all duration-300 group">
-                            {hero.primaryCTA.text} <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={20} />
-                        </Button>
-                        <Button variant="outline" size="lg" className="rounded-full px-12 h-16 text-lg border-zinc-200 dark:border-zinc-800 text-foreground hover:bg-zinc-100 dark:hover:bg-zinc-900 shadow-sm transition-all duration-300">
-                            {hero.secondaryCTA.text}
-                        </Button>
+                        <Link href="/register">
+                            <Button size="lg" className="rounded-full px-12 h-16 text-lg shadow-[0_8px_30px_rgb(232,93,59,0.3)] hover:shadow-[0_12px_40px_rgb(232,93,59,0.4)] hover:-translate-y-1 transition-all duration-300 group">
+                                {hero.primaryCTA.text} <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={20} />
+                            </Button>
+                        </Link>
+                        <Link href="/login">
+                            <Button variant="outline" size="lg" className="rounded-full px-12 h-16 text-lg border-zinc-200 dark:border-zinc-800 text-foreground hover:bg-zinc-100 dark:hover:bg-zinc-900 shadow-sm transition-all duration-300">
+                                {hero.secondaryCTA.text}
+                            </Button>
+                        </Link>
                     </div>
                 </div>
             </section>
