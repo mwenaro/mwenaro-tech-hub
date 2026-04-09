@@ -1,228 +1,228 @@
 {
-    "title": "Modern Layouts: Flexbox & Grid Mastery",
+    "title": "Modern Layouts: The Three Pillars",
     "has_project": true,
     "video_url": "https://www.youtube.com/watch?v=kUMe1FH4CHE",
-    "content": "# 📐 Modern Layouts: Flexbox & CSS Grid Mastery\n\nBuilding layouts in CSS once required complex hacks like `floats` or `absolute` positioning. Today, modern CSS provides two robust layout engines designed for specific architectural needs. As a professional, your goal is to understand the **mechanics** of these engines to build predictable, maintainable user interfaces.\n\n---\n\n## 1️⃣ The Architect's Decision Tree\n\nBefore writing a single line of CSS, you must choose the right engine for the task.\n\n| If the layout is... | Use | Reason |\n| :--- | :--- | :--- |\n| **Linear (1D)** | **Flexbox** | Best for aligning items in a single row OR column (e.g., Navbars, groups of buttons). |\n| **Structural (2D)** | **CSS Grid** | Best for building a full-page skeleton with both rows AND columns (e.g., Dashboards, card grids). |\n| **Mixed** | **Both** | Professionals often use a Grid for the page structure and Flexbox for the components *inside* that grid. |\n\n---\n\n## 2️⃣ Flexbox: The Linear Engine\n\nFlexbox is designed for distributing space along a single axis. It excels at content-driven layouts.\n\n### The Parent Context (Container)\n- `flex-direction`: Sets the main axis (`row` or `column`).\n- `justify-content`: Aligns items along the **Main Axis**.\n- `align-items`: Aligns items along the **Cross Axis**.\n- `gap`: The modern way to add spacing between items (replacing margins).\n\n### The Item Context (Children)\n- `flex-basis`: The initial size of an item before space is distributed (the professional alternative to `width`).\n- `flex-grow`: Dictates if an item should expand to fill empty space.\n- `align-self`: Allows an individual item to override its parent's `align-items` instruction.\n\n```css\n.navbar {\n  display: flex;\n  justify-content: space-between; /* Logo left, Nav right */\n  align-items: center;            /* Vertical centering */\n  gap: 1.5rem;                   /* Modern spacing */\n}\n\n.navbar__cta {\n  align-self: flex-start;         /* This button stays at the top */\n}\n```\n\n---\n\n## 3️⃣ CSS Grid: The Structural Engine\n\nGrid allows you to define a rigid coordinate system. It is \"container-first,\" meaning the parent dictates exactly where the children go.\n\n### Defining the Skeleton\n- `grid-template-columns`: Defines vertical tracks (use `fr` for flexible fractions).\n- `grid-template-areas`: The most intuitive way to draw a layout using text strings.\n\n```css\n.dashboard {\n  display: grid;\n  grid-template-areas: \n    \"header header\"\n    \"sidebar content\"\n    \"footer footer\";\n  grid-template-columns: 250px 1fr;\n  gap: 20px;\n}\n\nheader { grid-area: header; }\n.sidebar { grid-area: sidebar; }\n.main-content { grid-area: content; }\n```\n\n### Auto-Responsive Mastery: Fill vs Fit\nOne of the most powerful features of Grid is creating responsive layouts without media queries using `minmax()`.\n\n- **`auto-fill`**: Creates as many tracks as possible, even if they are empty. Use this for keeping a strict grid look even with low content.\n- **`auto-fit`**: Creates tracks and then collapses empty ones. **This is the industry standard** for responsive card grids—it stretches the remaining items to fill the row.\n\n```css\n.card-grid {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));\n}\n```\n\n---\n\n## 💡 Professional Gotchas & Common Mistakes\n\n❌ **Using Flexbox for full-page structures.** It forces you to nest too many divs and makes source code difficult to read.\n❌ **Forgetting `flex-wrap: wrap`.** By default, Flexbox will crush your items onto one line until they break. Use `wrap` for elastic galleries.\n❌ **Using % for Grid columns.** Always prefer `fr` (Fractional Units); it mathematically handles gutters and gaps better than percentages.\n\n---\n\n## 🛠️ Mastery Challenge: The Responsive Dashboard\n\n**Goal:** Build a dashboard layout that works on desktop.\n1. Create a parent `.dashboard` using **CSS Grid**.\n2. Use `grid-template-areas` to define a `header`, `sidebar`, and `main` area.\n3. Make the sidebar `250px` wide and the main area `1fr`.\n4. Inside the `main` area, create a `.stat-grid` using `repeat(auto-fit, minmax(200px, 1fr))`.\n5. Inside the header, use **Flexbox** to center a logo and push a profile icon to the far right using `justify-content: space-between`.\n\n---\n\n## 🎓 Summary\nEngineering a layout is about choosing the right mental model. Use **Grid** for the skeleton and **Flexbox** for the alignment within the bones. Master these two, and you will never need a CSS framework like Bootstrap to handle your layouts again.\n",
+    "content": "# 📐 Modern Layouts: The Three Pillars\n\nDesigning a professional website requires mastering the relationship between elements and their space. In this lesson, we will climb the **Layout Ladder**—starting with how to manually move individual items, to building intelligent, systemic grids that adapt to any screen.\n\n---\n\n## 🎯 Learning Objectives\n- Understand the **Normal Document Flow** (Block vs Inline).\n- Master **Positioning** (`absolute`, `relative`, `sticky`) to break the flow.\n- Build linear layouts with **Flexbox**.\n- Architect 2D page structures with **CSS Grid**.\n- Use **Z-index** to manage layers (the 3rd dimension).\n\n---\n\n## 1️⃣ Breaking the Flow: CSS Positioning\n\nBy default, browsers place elements one after another (the **Normal Flow**). Sometimes, you need to break this rule to create overlays, sticky headers, or floating badges.\n\n### The Parent-Child Anchor (`relative` & `absolute`)\nThis is the #1 tool for UI components. To place an item *anywhere* inside a specific box, you must anchor the parent.\n\n- **Parent**: `position: relative;` (Acts as the anchor).\n- **Child**: `position: absolute;` (Breaks free to move anywhere inside the parent).\n\n```css\n.card { \n  position: relative; /* The Anchor */\n}\n\n.card__badge {\n  position: absolute;\n  top: 10px;\n  right: 10px; /* Moves exactly 10px from the card's edges */\n}\n```\n\n### The Scrollers (`fixed` & `sticky`)\n- **Fixed**: Sticks the element to the **viewport** (the screen). It stays put even when the user scrolls (e.g., a \"Chat with us\" button).\n- **Sticky**: A hybrid. The element scrolls normally until it hits a specific edge, then it \"sticks\" (e.g., a table header or a navigation bar).\n\n### Z-Index (Stacking Layers)\nWhen elements overlap, `z-index` decides which one is on top. \n*Note: Z-index only works on elements that have a position (relative, absolute, etc.).*\n\n---\n\n## 2️⃣ Pillar 2: Flexbox (1D Alignment)\n\nFlexbox is for aligning a group of items in a single line (a Row or a Column). It is **linear**.\n\n```\n[ Item ] [ Item ] [ Item ]  <-- One Dimension (Row)\n```\n\n### Key Mechanics\n- `justify-content`: Space distribution along the **Main Axis**.\n- `align-items`: Alignment along the **Cross Axis**.\n- `flex-basis`: The ideal starting size of an item (replaces `width`).\n- `gap`: Adds spacing between items without touching the edges.\n\n```css\n.navbar {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  gap: 2rem;\n}\n```\n\n---\n\n## 3️⃣ Pillar 3: CSS Grid (2D Architecture)\n\nGrid is for building the large-scale **skeleton** of your site. It handles both Rows and Columns simultaneously.\n\n```\n[ Header       ]\n[ Side | Main  ]  <-- Two Dimensions\n[ Footer       ]\n```\n\n### Elite Features: Areas & Auto-Fit\n- **`grid-template-areas`**: Allows you to name your layout sections like a map.\n- **`auto-fit` + `minmax()`**: Create responsive grids that wrap perfectly without media queries.\n\n```css\n.gallery {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));\n  gap: 20px;\n}\n```\n\n---\n\n## 🧠 The Architect's Decision Tree\n\n| Your Goal | The Solution |\n| :--- | :--- |\n| **Structural Page Skeleton** | Use **CSS Grid** |\n| **Linear Alignment (Nav, Buttons)** | Use **Flexbox** |\n| **Badges, Overlays, Floating Buttons** | Use **Absolute / Fixed Positioning** |\n| **Sticky Header / Sidebar** | Use **Sticky Positioning** |\n\n---\n\n## ❌ Common Layout Mistakes\n- **Absolute without Relative**: If you forget `position: relative` on the parent, your `absolute` child will fly to the top of the entire webpage.\n- **Sass Soup (Over-Nesting)**: Don't nest Flexbox more than 3 layers deep. Use Grid for the outer structure instead.\n- **Fixed Units in Grid**: Avoid `px` in grid templates; always prefer `fr` (Fractional Units) for elasticity.\n\n---\n\n## 🛠️ Mastery Challenge: The Responsive Dashboard\n\n**Goal:** Build a dashboard that uses all three pillars.\n1. **Grid**: Use `grid-template-areas` to create a `header`, `nav`, and `main` layout.\n2. **Positioning**: Make the `header` `sticky` so it stays at the top as you scroll.\n3. **Flexbox**: Use Flexbox inside the `nav` to align vertical links.\n4. **Absolute**: Place a red \"Notification Notification\" dot (`absolute`) on a profile icon in the header.\n\n### Starter Code Snippet:\n```html\n<div class=\"layout\">\n  <header class=\"header\">Header <!-- Sticky + Flex -->\n    <div class=\"profile\">👤 <span class=\"dot\"></span></div> <!-- Absolute Dot -->\n  </header>\n  <nav class=\"sidebar\">Nav Links</nav>\n  <main class=\"content\">Main Content Area</main>\n</div>\n```\n\n---\n\n## 🎓 Summary\nA professional layout is a **combination** of these three pillars. Grid builds the house, Flexbox arranges the furniture, and Positioning handles the wall decorations. Master the documents flow, and you master the web.\n",
     "questions": [
         {
-            "question_text": "You want to build a horizontal navigation bar where the logo is on the left and the menu is on the right. Which approach is best?",
+            "question_text": "To place a small 'sale' badge exactly in the top-right corner of a product card, what is the best strategy?",
             "options": [
-                "CSS Grid with 2 columns",
-                "Flexbox with justify-content: space-between",
-                "Absolute positioning on both elements",
-                "Float: left and Float: right"
+                "Use CSS Grid with 9 cells",
+                "Set the Card to position:relative and the Badge to position:absolute",
+                "Use Flexbox with justify-content: flex-end",
+                "Use float: right"
             ],
             "correct_answer": 1,
-            "explanation": "Flexbox is designed for 1D alignment tasks exactly like this."
+            "explanation": "Absolute positioning inside a relative parent is the 'Anchor-and-Hook' pattern for badges."
         },
         {
-            "question_text": "What is the primary difference between Flexbox and CSS Grid?",
+            "question_text": "What happens if you use 'position: absolute' but NONE of the parent elements have a position set?",
+            "options": [
+                "The element disappears",
+                "The element positions itself relative to the <body> (the entire page)",
+                "The element centers itself",
+                "An error is thrown in the console"
+            ],
+            "correct_answer": 1,
+            "explanation": "Absolute elements look up the parent tree for the first positioned ancestor; if none exist, they default to the viewport/body."
+        },
+        {
+            "question_text": "When should you use 'position: fixed'?",
+            "options": [
+                "For a sidebar that scrolls with the content",
+                "For a 'Back to Top' button that stays in the same place on the screen while scrolling",
+                "For centering an image",
+                "For building a 3-column grid"
+            ],
+            "correct_answer": 1,
+            "explanation": "Fixed positioning is relative to the viewport, not the document flow."
+        },
+        {
+            "question_text": "What is the key difference between Flexbox and CSS Grid?",
             "options": [
                 "Flexbox is only for mobile; Grid is for desktop",
-                "Flexbox is 1-Dimensional (linear); Grid is 2-Dimensional (structural)",
-                "Grid is faster to render than Flexbox",
-                "There is no difference; they are interchangeable"
+                "Flexbox is 1D (Single Axis); Grid is 2D (Rows AND Columns)",
+                "Grid is faster to render",
+                "Flexbox is newer"
             ],
             "correct_answer": 1,
-            "explanation": "Flexbox handles rows OR columns; Grid handles rows AND columns simultaneously."
+            "explanation": "This is the core architectural distinction: Linear vs Structural."
         },
         {
-            "question_text": "Which property allows an individual flex item to align differently than its siblings along the cross-axis?",
+            "question_text": "Which property aligns items along the CROSS-axis in Flexbox?",
             "options": [
+                "justify-content",
                 "align-items",
-                "align-self",
-                "justify-self",
-                "flex-direction"
+                "flex-direction",
+                "gap"
             ],
             "correct_answer": 1,
-            "explanation": "align-self is used on the child to override the alignment set by the parent."
+            "explanation": "justify-content is for the main axis; align-items is for the cross axis."
         },
         {
-            "question_text": "In a responsive card grid, what is the advantage of 'auto-fit' over 'auto-fill'?",
+            "question_text": "What does 'z-index' control?",
             "options": [
-                "It makes the cards wider if there is extra space at the end of a row",
-                "It forces the cards to have a fixed pixel width",
-                "It adds empty columns at the end of the row",
-                "It prevents the cards from wrapping to new lines"
-            ],
-            "correct_answer": 0,
-            "explanation": "auto-fit collapses empty tracks and stretches the remaining items to fill the row."
-        },
-        {
-            "question_text": "What does 'grid-template-areas' allow you to do?",
-            "options": [
-                "Calculate the distance between elements",
-                "Define the layout structure visually using named strings",
-                "Set the background color of specific cells",
-                "Animate the grid transition"
+                "The transparency of an element",
+                "The vertical stacking order (layers) of overlapping elements",
+                "The zoom level of the page",
+                "The horizontal spacing"
             ],
             "correct_answer": 1,
-            "explanation": "This is a highly readable way to 'draw' your layout skeleton in code."
+            "explanation": "Z-index represents the Z-axis (depth) toward the user."
         },
         {
-            "question_text": "Which unit is preferred for defining Grid columns because it handles gaps and margins mathematically?",
+            "question_text": "In CSS Grid, what is the 'fr' unit?",
             "options": [
-                "px",
-                "%",
-                "fr",
-                "em"
+                "Fixed Resolution",
+                "Fraction of the available space",
+                "Frame rate",
+                "Font Ratio"
+            ],
+            "correct_answer": 1,
+            "explanation": "FR units are flexible and handle mathematical space distribution better than percentages."
+        },
+        {
+            "question_text": "To create a 'Sticky Header' that only stays at the top of its container, you should use:",
+            "options": [
+                "position: fixed",
+                "position: sticky",
+                "display: grid",
+                "z-index: 999"
+            ],
+            "correct_answer": 1,
+            "explanation": "Sticky is the modern hybrid of relative and fixed positioning."
+        },
+        {
+            "question_text": "Which grid setting creates as many columns as will fit and stretches the items to fill the row?",
+            "options": [
+                "repeat(auto-fill, 200px)",
+                "repeat(auto-fit, minmax(200px, 1fr))",
+                "grid-template-columns: 1fr 1fr 1fr",
+                "display: flex"
+            ],
+            "correct_answer": 1,
+            "explanation": "auto-fit + minmax is the professional 'no-media-query' responsive grid pattern."
+        },
+        {
+            "question_text": "What is the 'Normal Document Flow'?",
+            "options": [
+                "The speed at which a page loads",
+                "The default way browsers place Block elements vertically and Inline elements horizontally",
+                "A type of CSS framework",
+                "The JavaScript execution order"
+            ],
+            "correct_answer": 1,
+            "explanation": "Understanding the natural flow is required before you can effectively 'break' it with positioning."
+        },
+        {
+            "question_text": "Can 'z-index' be used on an element with 'position: static' (the default)?",
+            "options": [
+                "Yes, it works on everything",
+                "No, the element must be positioned (relative, absolute, etc.) for z-index to take effect",
+                "Yes, but only in Chrome",
+                "Only if the element has a background color"
+            ],
+            "correct_answer": 1,
+            "explanation": "Statics are ignored by the z-index property; positioning is a prerequisite for layering."
+        },
+        {
+            "question_text": "What is the #1 mistake beginners make with 'position: absolute'?",
+            "options": [
+                "Setting the color wrong",
+                "Forgetting to set 'position: relative' on the intended parent container",
+                "Using it too often",
+                "Setting it to z-index: 0"
+            ],
+            "correct_answer": 1,
+            "explanation": "Without a positioned parent, 'absolute' items fly to the top of the body/viewport."
+        },
+        {
+            "question_text": "In Flexbox, how do you make items wrap to a new line when they run out of space?",
+            "options": [
+                "display: inline-block",
+                "flex-wrap: wrap",
+                "overflow: auto",
+                "grid-column: span 2"
+            ],
+            "correct_answer": 1,
+            "explanation": "By default, flexbox tries to fit everything on one line (nowrap)."
+        },
+        {
+            "question_text": "Which property allows you to name layout areas (like 'header', 'sidebar') to bridge the gap between design and code?",
+            "options": [
+                "grid-template-columns",
+                "grid-template-areas",
+                "layout-map",
+                "name-grid"
+            ],
+            "correct_answer": 1,
+            "explanation": "Grid Template Areas is the most intuitive way to architect a 2D skeleton."
+        },
+        {
+            "question_text": "What does 'justify-content: space-evenly' do in Flexbox?",
+            "options": [
+                "Stacks items in the center",
+                "Distributes items so that the space between them and the space at the edges is exactly the same",
+                "Picks a random spacing",
+                "Distributes all space to the first item"
+            ],
+            "correct_answer": 1,
+            "explanation": "Space-evenly is the 'perfect distribution' algorithm."
+        },
+        {
+            "question_text": "What is a 'Line-Based Placement' in CSS Grid?",
+            "options": [
+                "Drawing borders around every cell",
+                "Positioning items by referring to their grid line numbers (e.g. 1 / 3)",
+                "Using a drawing tablet to code",
+                "Aligning everything to the left margin"
+            ],
+            "correct_answer": 1,
+            "explanation": "Lines are the numbered boundaries between cells; in a 3-column grid, there are 4 lines."
+        },
+        {
+            "question_text": "Why do professionals use 'gap' instead of 'margin' in Flexbox/Grid containers?",
+            "options": [
+                "Gap is faster",
+                "Margin is being deprecated",
+                "Gap handles spacing between items without creating extra space at the outer boundaries of the container",
+                "Gaps can have gradients"
             ],
             "correct_answer": 2,
-            "explanation": "The 'fr' (fractional) unit splits remaining available space efficiently."
-        },
-        {
-            "question_text": "You have a 3-column grid. How do you make an item span all 3 columns using line numbers?",
-            "options": [
-                "grid-column: 1 / 3",
-                "grid-column: 1 / 4",
-                "grid-column: all",
-                "grid-span: 3"
-            ],
-            "correct_answer": 1,
-            "explanation": "The lines are the boundaries; in a 3-column grid, there are 4 lines."
-        },
-        {
-            "question_text": "In Flexbox, how do you change the main axis from horizontal to vertical?",
-            "options": [
-                "flex-orientation: vertical",
-                "flex-direction: column",
-                "display: block",
-                "align-items: vertical"
-            ],
-            "correct_answer": 1,
-            "explanation": "Setting 'column' flips the axis 90 degrees."
+            "explanation": "Gap solves the 'last-item-margin' problem without needing complex :last-child selectors."
         },
         {
             "question_text": "What is 'flex-basis'?",
             "options": [
-                "The minimum font size in a container",
-                "The initial, ideal size of a flex item before space is distributed",
-                "The gap between two flex items",
-                "A way to hide flex items on mobile"
+                "The minimum height of a container",
+                "The initial, ideal size of a flex item before space is grown or shrunk",
+                "The total number of items in a row",
+                "A CSS reset for flexbox"
             ],
             "correct_answer": 1,
-            "explanation": "It's the professional alternative to 'width' within a flex context."
+            "explanation": "It's the professional alternative to 'width' for flexible items."
         },
         {
-            "question_text": "What happens if you set 'display: flex' on a parent but don't set 'flex-wrap'?",
+            "question_text": "Which value of 'display' makes an element a block-level container while keeping it in the normal flow?",
             "options": [
-                "Items will automatically stack vertically",
-                "Items will try to fit on one single row, potentially shrinking or overflowing",
-                "Items will disappear",
-                "The browser will throw a CSS error"
+                "display: none",
+                "display: block",
+                "display: flex",
+                "display: grid"
             ],
             "correct_answer": 1,
-            "explanation": "The default is 'nowrap', which can lead to layout crushing or horizontal overflow."
+            "explanation": "Block elements start on a new line and take up the full available width by default."
         },
         {
-            "question_text": "Which Grid property is a shorthand for aligning items both vertically and horizontally?",
+            "question_text": "What is the 'Master Combo' for layout used by professional engineers?",
             "options": [
-                "grid-align",
-                "place-items",
-                "center-everything",
-                "justify-all"
-            ],
-            "correct_answer": 1,
-            "explanation": "place-items: center is the modern 1-line centering master."
-        },
-        {
-            "question_text": "In a 7-1 Sass architecture, where should your layout-specific grid styles live?",
-            "options": [
-                "abstracts/_mixins.scss",
-                "layout/_grid.scss",
-                "base/_reset.scss",
-                "components/_buttons.scss"
-            ],
-            "correct_answer": 1,
-            "explanation": "Global structural styles belong in the layout/ folder."
-        },
-        {
-            "question_text": "Why do professionals prefer 'gap' over 'margin' for spacing in Modern Layouts?",
-            "options": [
-                "Gaps are faster to load",
-                "Gaps only apply between items, so you don't have to 'unset' the margin on the last item",
-                "Margins are deprecated",
-                "Gaps allow for animation"
-            ],
-            "correct_answer": 1,
-            "explanation": "The gap property neatly handles internal spacing without affecting external boundaries."
-        },
-        {
-            "question_text": "What is a 'Grid Track'?",
-            "options": [
-                "A line in a CSS animation",
-                "The space between two adjacent grid lines (a row or column)",
-                "A way to load external data into a grid",
-                "The background color of a cell"
-            ],
-            "correct_answer": 1,
-            "explanation": "Tracks are the columns and rows that make up the grid structure."
-        },
-        {
-            "question_text": "You want a sidebar that is exactly 300px and a content area that takes the rest of the screen. What is the grid-template-columns value?",
-            "options": [
-                "300px 100%",
-                "300px 1fr",
-                "1fr 300px",
-                "repeat(2, 300px)"
-            ],
-            "correct_answer": 1,
-            "explanation": "Mixing fixed units and flexible 'fr' units is the standard for app layouts."
-        },
-        {
-            "question_text": "Which property is used on a Grid Item to define which named area from 'grid-template-areas' it should occupy?",
-            "options": [
-                "grid-column",
-                "grid-area",
-                "region",
-                "area-name"
-            ],
-            "correct_answer": 1,
-            "explanation": "The name must match the one used in the parent's template strings."
-        },
-        {
-            "question_text": "What is the 'Cross-Axis' in a default 'flex-direction: row' container?",
-            "options": [
-                "Horizontal axis",
-                "Vertical axis",
-                "Z-axis (depth)",
-                "There is no cross-axis"
-            ],
-            "correct_answer": 1,
-            "explanation": "If the main axis is horizontal, the cross-axis is vertical (and vice-versa)."
-        },
-        {
-            "question_text": "Which value of 'justify-content' creates equal space between items but NO space at the edges?",
-            "options": [
-                "space-around",
-                "space-between",
-                "space-evenly",
-                "center"
-            ],
-            "correct_answer": 1,
-            "explanation": "Space-between pushes the edge items to the boundaries."
-        },
-        {
-            "question_text": "Can you nest a Flexbox container inside a CSS Grid cell?",
-            "options": [
-                "Yes, this is a standard professional practice",
-                "No, browsers don't support mixing layout engines",
-                "Yes, but only if you use a framework like Bootstrap",
-                "No, it crashes the render engine"
+                "Grid for a skeleton + Flexbox for internal alignment",
+                "Only using Absolute positioning",
+                "Using float: left for everything",
+                "Using tables for layouts"
             ],
             "correct_answer": 0,
-            "explanation": "Grid for the outer skeleton and Flexbox for the inner alignment is the 'Golden Combo' of modern CSS."
-        },
-        {
-            "question_text": "What is 'minmax(200px, 1fr)' in a grid template?",
-            "options": [
-                "A way to set the font size",
-                "A command to never shrink below 200px but grow to fill 1fr of space if available",
-                "A calculation for the gap size",
-                "A way to hide items if the screen is smaller than 200px"
-            ],
-            "correct_answer": 1,
-            "explanation": "Minmax creates flexible tracks that respect a hard minimum size, preventing layout breakage."
+            "explanation": "Using the '3 Pillars' in combination—Grid for the house, Flexbox for the furniture—is the industry standard."
         }
     ]
 }
