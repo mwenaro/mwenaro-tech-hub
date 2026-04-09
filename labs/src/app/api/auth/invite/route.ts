@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/mongodb';
 import { User } from '@/lib/models';
 import { getAuthFromCookies } from '@/lib/auth';
+import { sendInviteEmail } from '@/lib/email';
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcryptjs';
 
@@ -32,7 +33,7 @@ export async function POST(request: NextRequest) {
     }
 
     const inviteCode = uuidv4();
-    const inviteExpiry = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+    const inviteExpiry = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
     await User.create({
       email: email.toLowerCase(),
@@ -45,14 +46,25 @@ export async function POST(request: NextRequest) {
       inviteExpiry,
     });
 
-    const inviteLink = `${process.env.NEXT_PUBLIC_LABS_URL}/register?invite=${inviteCode}`;
+    const inviteLink = `${process.env.NEXT_PUBLIC_LABS_URL || 'http://localhost:3000'}/register?invite=${inviteCode}`;
     
-    // TODO: Send invite email
-    
+    const adminUser = await User.findById(auth.userId);
+    const emailResult = await sendInviteEmail(
+      email.toLowerCase(),
+      inviteLink,
+      adminUser?.name || 'Admin'
+    );
+
+    if (!emailResult.success) {
+      console.error('Failed to send invite email:', emailResult.error);
+    }
+
     return NextResponse.json({
       success: true,
       inviteLink,
-      message: 'Invitation sent successfully',
+      message: emailResult.success 
+        ? 'Invitation sent successfully'
+        : 'Invitation created but email failed to send',
     });
   } catch (error) {
     console.error('Invite error:', error);
