@@ -104,9 +104,9 @@ export function AdminSidebar({ user, ...props }: AdminSidebarProps) {
             icon: FileQuestion,
         },
         {
-            title: "Cohorts",
-            url: "/admin/cohorts",
-            icon: UsersRound,
+            title: "Learners",
+            url: "/admin/learners",
+            icon: Users,
         },
         {
             title: "Manual Payments",
