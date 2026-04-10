@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded' | 'cancelled';
-export type PaymentMethod = 'stripe' | 'mpesa' | 'bank_transfer';
+export type PaymentMethod = 'stripe' | 'mpesa' | 'bank_transfer' | 'cash' | 'mobile_money';
 
 export interface IPayment extends Document {
   _id: mongoose.Types.ObjectId;
@@ -17,6 +17,8 @@ export interface IPayment extends Document {
   mpesaReceiptNumber?: string;
   mpesaCheckoutRequestId?: string;
   bankReference?: string;
+  cashReference?: string;
+  mobileMoneyReference?: string;
   description?: string;
   dueDate?: Date;
   paidAt?: Date;
@@ -57,13 +59,15 @@ const paymentSchema = new Schema<IPayment>(
     },
     method: {
       type: String,
-      enum: ['stripe', 'mpesa', 'bank_transfer'],
+      enum: ['stripe', 'mpesa', 'bank_transfer', 'cash', 'mobile_money'],
     },
     stripePaymentId: String,
     stripeSessionId: String,
     mpesaReceiptNumber: String,
     mpesaCheckoutRequestId: String,
     bankReference: String,
+    cashReference: String,
+    mobileMoneyReference: String,
     description: String,
     dueDate: Date,
     paidAt: Date,
