@@ -260,7 +260,7 @@ export default function ProjectDetailPage() {
                     </div>
                   </div>
                 )}
-                {project.timeline.startDate && (
+                {project.timeline?.startDate && (
                   <div className="flex items-center gap-3">
                     <Calendar className="text-zinc-400" size={18} />
                     <div>
