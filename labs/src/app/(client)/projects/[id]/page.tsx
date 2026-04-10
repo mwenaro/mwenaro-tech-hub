@@ -1,9 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type FormEvent, type ChangeEvent } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Card, Button } from '@mwenaro/ui';
-import { ArrowLeft, Clock, CheckCircle, AlertCircle, DollarSign, MessageSquare, Calendar } from 'lucide-react';
+import { ArrowLeft, Clock, CheckCircle, AlertCircle, DollarSign, MessageSquare, Calendar, Send } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 
 interface Project {
   _id: string;
@@ -90,30 +92,56 @@ export default function ProjectDetailPage() {
   const [project, setProject] = useState<Project | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'overview' | 'milestones' | 'updates' | 'activity'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'milestones' | 'updates' | 'comments' | 'activity'>('overview');
+  const [newComment, setNewComment] = useState('');
+  const [submittingComment, setSubmittingComment] = useState(false);
+
+  const fetchProject = async () => {
+    try {
+      const res = await fetch(`/api/projects/${params.id}`);
+      const data = await res.json();
+
+      if (data.error) {
+        router.push('/dashboard');
+        return;
+      }
+
+      setProject(data.project);
+      setComments(data.comments || []);
+    } catch (error) {
+      console.error('Fetch error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchProject = async () => {
-      try {
-        const res = await fetch(`/api/projects/${params.id}`);
-        const data = await res.json();
-
-        if (data.error) {
-          router.push('/dashboard');
-          return;
-        }
-
-        setProject(data.project);
-        setComments(data.comments || []);
-      } catch (error) {
-        console.error('Fetch error:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchProject();
   }, [params.id, router]);
+
+  const handleAddComment = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!newComment.trim()) return;
+
+    setSubmittingComment(true);
+    try {
+      const res = await fetch(`/api/projects/${params.id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: newComment }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setComments([data.comment, ...comments]);
+        setNewComment('');
+      }
+    } catch (error) {
+      console.error('Comment error:', error);
+    } finally {
+      setSubmittingComment(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -146,7 +174,7 @@ export default function ProjectDetailPage() {
       </div>
 
       <div className="flex gap-2 mb-6 border-b">
-        {(['overview', 'milestones', 'updates', 'activity'] as const).map((tab) => (
+        {(['overview', 'milestones', 'updates', 'comments', 'activity'] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -313,6 +341,49 @@ export default function ProjectDetailPage() {
               ))}
             </div>
           )}
+        </div>
+      )}
+
+      {activeTab === 'comments' && (
+        <div className="space-y-6">
+          <Card className="p-6">
+            <h2 className="text-lg font-bold mb-4">Discussion</h2>
+            <form onSubmit={handleAddComment} className="mb-6">
+              <div className="flex gap-2">
+                <Textarea
+                  value={newComment}
+                  onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setNewComment(e.target.value)}
+                  placeholder="Write a comment..."
+                  rows={2}
+                  className="flex-1"
+                />
+                <Button type="submit" disabled={!newComment.trim() || submittingComment}>
+                  <Send size={18} />
+                </Button>
+              </div>
+            </form>
+
+            {comments.length === 0 ? (
+              <p className="text-center text-zinc-500 py-8">No comments yet. Start the conversation!</p>
+            ) : (
+              <div className="space-y-4">
+                {comments.map((comment) => (
+                  <div key={comment._id} className="p-4 bg-zinc-50 dark:bg-zinc-900 rounded-lg">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary">
+                        {comment.userId?.name?.charAt(0) || '?'}
+                      </div>
+                      <span className="font-medium">{comment.userId?.name || 'Unknown'}</span>
+                      <span className="text-xs text-zinc-400">
+                        {new Date(comment.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <p className="text-zinc-600 dark:text-zinc-400">{comment.content}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </Card>
         </div>
       )}
 

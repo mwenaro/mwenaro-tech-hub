@@ -89,3 +89,55 @@ export async function PATCH(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const auth = await getAuthFromCookies();
+    if (!auth) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { id } = await params;
+    const body = await request.json();
+    const { content } = body;
+
+    if (!content) {
+      return NextResponse.json({ error: 'Comment content required' }, { status: 400 });
+    }
+
+    await connectDB();
+
+    const project = await Project.findById(id);
+    if (!project) {
+      return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+    }
+
+    const comment = await Comment.create({
+      projectId: project._id,
+      userId: auth.userId,
+      content,
+    });
+
+    await Project.findByIdAndUpdate(id, {
+      $push: {
+        activities: {
+          type: 'comment',
+          userId: auth.userId,
+          content: `Added a comment: "${content.substring(0, 50)}${content.length > 50 ? '...' : ''}"`,
+          createdAt: new Date(),
+        },
+      },
+    });
+
+    const populatedComment = await Comment.findById(comment._id)
+      .populate('userId', 'name email role');
+
+    return NextResponse.json({ comment: populatedComment });
+  } catch (error) {
+    console.error('Add comment error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
