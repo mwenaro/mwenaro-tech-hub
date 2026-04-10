@@ -4,6 +4,7 @@ import { ForgeHero } from "@/components/forge/forge-hero";
 import { PromptOptimizer } from "@/components/forge/prompt-optimizer";
 import { TechStackVisualizer } from "@/components/forge/tech-stack-visualizer";
 import { ComponentPreviewer } from "@/components/forge/component-previewer";
+import { AIStrategist } from "@/components/forge/ai-strategist";
 
 export const metadata: Metadata = {
   title: "The Forge | Mwenaro Labs",
@@ -67,6 +68,22 @@ export default function ForgePage() {
             </p>
           </div>
           <ComponentPreviewer />
+        </div>
+
+        {/* Experiment 4: AI Strategist */}
+        <div id="ai-strategist">
+          <div className="mb-8">
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-500 text-xs font-black uppercase tracking-widest mb-4">
+              💬 Experiment 04 — AI
+            </span>
+            <h2 className="text-4xl md:text-5xl font-black tracking-tight text-foreground">
+              AI Project Strategist
+            </h2>
+            <p className="text-zinc-500 dark:text-zinc-400 mt-3 text-lg max-w-2xl">
+              Chat with our AI technical architect to map out the perfect tech stack and roadmap for your next digital product.
+            </p>
+          </div>
+          <AIStrategist />
         </div>
       </section>
 

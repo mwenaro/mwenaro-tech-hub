@@ -106,6 +106,7 @@ export function ForgeHero() {
             { label: '🤖 Prompt Optimizer', href: '#prompt-optimizer' },
             { label: '🌐 Stack Vitals', href: '#stack-visualizer' },
             { label: '🎨 Design Previewer', href: '#component-previewer' },
+            { label: '💬 AI Strategist', href: '#ai-strategist' },
           ].map((item) => (
             <a
               key={item.href}

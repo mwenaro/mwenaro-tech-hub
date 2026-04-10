@@ -6,11 +6,12 @@ import { chronicleEntries } from "@mwenaro/content/chronicle-content";
 import { ArrowLeft, Clock, Tag } from "lucide-react";
 
 interface Props {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const entry = chronicleEntries.find((e) => e.slug === params.slug);
+  const { slug } = await params;
+  const entry = chronicleEntries.find((e) => e.slug === slug);
   if (!entry) return {};
   return {
     title: `${entry.title} | Labs Chronicle`,
@@ -45,8 +46,9 @@ const CATEGORY_STYLES: Record<string, string> = {
   AI: "bg-emerald-500/10 text-emerald-500 border-emerald-500/30",
 };
 
-export default function ChronicleEntryPage({ params }: Props) {
-  const entry = chronicleEntries.find((e) => e.slug === params.slug);
+export default async function ChronicleEntryPage({ params }: Props) {
+  const { slug } = await params;
+  const entry = chronicleEntries.find((e) => e.slug === slug);
   if (!entry) notFound();
 
   const date = new Date(entry.date).toLocaleDateString("en-KE", {

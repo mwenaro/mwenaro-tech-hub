@@ -44,7 +44,7 @@ Return ONLY a JSON object with these fields:
     const systemInstruction = modeInstructions[mode] || modeInstructions.refine;
 
     const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash",
+      model: "gemini-2.0-flash",
       systemInstruction,
     });
 
@@ -61,15 +61,44 @@ Return ONLY a JSON object with these fields:
 
     return NextResponse.json(parsed);
   } catch (err: any) {
-    console.error("[forge/prompt-optimizer] error:", err);
+    console.error("[forge/prompt-optimizer] error:", err?.message || err);
+
+    // Gemini rate limit / quota exceeded
+    if (
+      err?.status === 429 ||
+      err?.message?.includes("Quota exceeded") ||
+      err?.message?.includes("Too Many Requests") ||
+      err?.message?.includes("RESOURCE_EXHAUSTED")
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "The AI is taking a breather — free tier rate limit hit. Please try again in 30 seconds.",
+        },
+        { status: 429 }
+      );
+    }
+
+    // Gemini auth / key error
+    if (err?.status === 401 || err?.status === 403) {
+      return NextResponse.json(
+        {
+          error:
+            "AI service authentication failed. Please check the API key configuration.",
+        },
+        { status: 503 }
+      );
+    }
+
     if (err instanceof SyntaxError) {
       return NextResponse.json(
         { error: "AI returned unexpected output. Please try again." },
         { status: 500 }
       );
     }
+
     return NextResponse.json(
-      { error: "Something went wrong. Please try again later." },
+      { error: "Something went wrong. Please try again in a moment." },
       { status: 500 }
     );
   }
