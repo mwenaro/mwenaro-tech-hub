@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const publicPaths = ['/login', '/register', '/api/auth/login', '/api/auth/register', '/api/auth/invite', '/', '/about', '/contact', '/icon.svg', '/sitemap.xml', '/robots.txt'];
