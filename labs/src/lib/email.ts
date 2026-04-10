@@ -1,12 +1,12 @@
 import nodemailer from 'nodemailer';
 
 const transporter = nodemailer.createTransport({
-  host: 'mail.mwenaro.com',
-  port: 465,
-  secure: true,
+  host: process.env.SMTP_HOST || 'mail.mwenaro.com',
+  port: parseInt(process.env.SMTP_PORT || '465'),
+  secure: process.env.SMTP_PORT !== '587',
   auth: {
-    user: 'plugnpay@mwenaro.com',
-    pass: 'Pa$$word@1211',
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
   },
 });
 
@@ -19,9 +19,6 @@ export interface EmailOptions {
 
 export async function sendEmail({ to, subject, html, text }: EmailOptions) {
   try {
-    console.log('Sending email to:', to);
-    console.log('SMTP config:', { host: process.env.SMTP_HOST, port: process.env.SMTP_PORT, user: process.env.SMTP_USER });
-    
     const info = await transporter.sendMail({
       from: process.env.SMTP_FROM || 'Mwenaro Labs <noreply@mwenaro.com>',
       to,
@@ -29,10 +26,10 @@ export async function sendEmail({ to, subject, html, text }: EmailOptions) {
       html,
       text: text || html.replace(/<[^>]*>/g, ''),
     });
-    console.log('Email sent successfully:', info.messageId);
+    console.log('Email sent:', info.messageId);
     return { success: true, messageId: info.messageId };
   } catch (error) {
-    console.error('Email error details:', error);
+    console.error('Email error:', error);
     return { success: false, error: String(error) };
   }
 }
