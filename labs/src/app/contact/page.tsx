@@ -1,17 +1,78 @@
+'use client';
+
+import { useState, type FormEvent, type ChangeEvent } from 'react';
+import { useRouter } from 'next/navigation';
 import { NavBar, Footer, Button } from "@mwenaro/ui";
 import { Code2, Rocket, MessagesSquare } from "lucide-react";
-
-import { Metadata } from 'next'
-
-export const metadata: Metadata = {
-  title: "Start a Project | Contact Mwenaro Labs Engineering",
-  description: "Discuss your next big technical challenge or product idea with Mwenaro Labs. Schedule a consultation for project discovery or a technical audit today.",
-  alternates: {
-    canonical: "/contact",
-  },
-};
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function ContactPage() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
+
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    company: '',
+    email: '',
+    budget: '',
+    description: '',
+  });
+
+  const handleChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || 'Failed to send inquiry');
+        return;
+      }
+
+      setSuccess(true);
+    } catch {
+      setError('Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (success) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <NavBar currentApp="labs" ctaLabel="Get Started" ctaHref="/register" />
+        <main className="flex-1 flex items-center justify-center px-6">
+          <div className="text-center max-w-md">
+            <div className="w-20 h-20 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mx-auto mb-6">
+              <MessagesSquare className="w-10 h-10 text-green-600 dark:text-green-400" />
+            </div>
+            <h1 className="text-3xl font-bold mb-4">Inquiry Sent!</h1>
+            <p className="text-zinc-500 mb-8">Thank you for reaching out. Our team will get back to you within 24 hours.</p>
+            <Button onClick={() => router.push('/')}>Back to Home</Button>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <NavBar currentApp="labs" />
@@ -65,46 +126,88 @@ export default function ContactPage() {
                   <h2 className="text-2xl font-black tracking-tight text-foreground">Project Details</h2>
                 </div>
                 
-                <form className="space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  {error && (
+                    <div className="p-3 bg-red-50 dark:bg-red-950 text-red-600 dark:text-red-400 rounded-lg text-sm">
+                      {error}
+                    </div>
+                  )}
                   <div className="grid grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <label className="text-sm font-bold text-zinc-700 dark:text-zinc-300">First Name</label>
-                      <input type="text" className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all font-medium" placeholder="Jane" />
+                      <Label htmlFor="firstName">First Name</Label>
+                      <Input
+                        id="firstName"
+                        value={formData.firstName}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange('firstName', e.target.value)}
+                        placeholder="Jane"
+                        required
+                      />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-bold text-zinc-700 dark:text-zinc-300">Last Name</label>
-                      <input type="text" className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all font-medium" placeholder="Smith" />
+                      <Label htmlFor="lastName">Last Name</Label>
+                      <Input
+                        id="lastName"
+                        value={formData.lastName}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange('lastName', e.target.value)}
+                        placeholder="Smith"
+                        required
+                      />
                     </div>
                   </div>
                   
                   <div className="space-y-2">
-                    <label className="text-sm font-bold text-zinc-700 dark:text-zinc-300">Company / Organization</label>
-                    <input type="text" className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all font-medium" placeholder="Acme Corp" />
+                    <Label htmlFor="company">Company / Organization</Label>
+                    <Input
+                      id="company"
+                      value={formData.company}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange('company', e.target.value)}
+                      placeholder="Acme Corp"
+                    />
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-sm font-bold text-zinc-700 dark:text-zinc-300">Work Email</label>
-                    <input type="email" className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all font-medium" placeholder="jane@acme.com" />
+                    <Label htmlFor="email">Work Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange('email', e.target.value)}
+                      placeholder="jane@acme.com"
+                      required
+                    />
                   </div>
                   
                   <div className="space-y-2">
-                    <label className="text-sm font-bold text-zinc-700 dark:text-zinc-300">Project Budget Range</label>
-                    <select className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all font-medium appearance-none">
-                      <option>Under $10,000</option>
-                      <option>$10,000 - $50,000</option>
-                      <option>$50,000 - $100,000</option>
-                      <option>Over $100,000</option>
-                      <option>Not sure yet</option>
+                    <Label htmlFor="budget">Project Budget Range</Label>
+                    <select
+                      id="budget"
+                      value={formData.budget}
+                      onChange={(e: ChangeEvent<HTMLSelectElement>) => handleChange('budget', e.target.value)}
+                      className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all font-medium appearance-none"
+                    >
+                      <option value="">Select a budget range</option>
+                      <option value="under_10k">Under $10,000</option>
+                      <option value="10k_50k">$10,000 - $50,000</option>
+                      <option value="50k_100k">$50,000 - $100,000</option>
+                      <option value="over_100k">Over $100,000</option>
+                      <option value="not_sure">Not sure yet</option>
                     </select>
                   </div>
                   
                   <div className="space-y-2">
-                    <label className="text-sm font-bold text-zinc-700 dark:text-zinc-300">Project Description</label>
-                    <textarea rows={5} className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all font-medium resize-none" placeholder="Give us a brief overview of what you're trying to build..."></textarea>
+                    <Label htmlFor="description">Project Description</Label>
+                    <Textarea
+                      id="description"
+                      value={formData.description}
+                      onChange={(e: ChangeEvent<HTMLTextAreaElement>) => handleChange('description', e.target.value)}
+                      placeholder="Give us a brief overview of what you're trying to build..."
+                      rows={5}
+                      required
+                    />
                   </div>
                   
-                  <Button type="button" size="lg" className="w-full rounded-xl py-4 font-bold text-lg shadow-lg shadow-primary/20 mt-4">
-                    Send Inquiry
+                  <Button type="submit" size="lg" className="w-full rounded-xl py-4 font-bold text-lg shadow-lg shadow-primary/20 mt-4" disabled={loading}>
+                    {loading ? 'Sending...' : 'Send Inquiry'}
                   </Button>
                 </form>
               </div>
