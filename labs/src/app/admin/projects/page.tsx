@@ -200,7 +200,7 @@ export default function AdminProjectsPage() {
                 </div>
                 <div className="flex items-center gap-2 text-zinc-500">
                   <Calendar size={14} />
-                  <span>{project.timeline.startDate ? new Date(project.timeline.startDate).toLocaleDateString() : 'Not set'}</span>
+                  <span>{project.timeline?.startDate ? new Date(project.timeline.startDate).toLocaleDateString() : 'Not set'}</span>
                 </div>
               </div>
 
