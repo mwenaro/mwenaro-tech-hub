@@ -28,6 +28,8 @@ export const SITE_LINKS: Record<string, NavLink[]> = {
   ],
   labs: [
     { name: "Home", href: "/", active: "labs" },
+    { name: "The Forge", href: "/forge" },
+    { name: "Chronicle", href: "/chronicle" },
     { name: "About", href: "/about" },
     { name: "Contact", href: "/contact" },
     { name: "Hub", href: ecosystem.hub },
