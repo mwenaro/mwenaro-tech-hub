@@ -40,6 +40,10 @@ Format the response in Markdown.`;
       parts: [{ text: msg.content }],
     }));
 
+    if (formattedHistory.length > 0 && formattedHistory[0].role === "model") {
+      formattedHistory.shift();
+    }
+
     const chat = model.startChat({
       history: formattedHistory,
     });
