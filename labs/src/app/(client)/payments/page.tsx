@@ -3,7 +3,9 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, Button } from '@mwenaro/ui';
-import { CreditCard, CheckCircle, Clock, AlertCircle, Download, ArrowRight } from 'lucide-react';
+import { CreditCard, CheckCircle, Clock, Download, ArrowRight, X, Banknote, Smartphone, Building } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 interface Payment {
   _id: string;
@@ -11,6 +13,9 @@ interface Payment {
   currency: string;
   status: string;
   method: string;
+  bankReference?: string;
+  cashReference?: string;
+  mobileMoneyReference?: string;
   description: string;
   dueDate: string;
   paidAt: string;
@@ -37,10 +42,29 @@ const statusLabels: Record<string, string> = {
   cancelled: 'Cancelled',
 };
 
+const methodLabels: Record<string, string> = {
+  stripe: 'Card',
+  mpesa: 'M-Pesa',
+  bank_transfer: 'Bank Transfer',
+  cash: 'Cash',
+  mobile_money: 'Mobile Money',
+};
+
+const paymentMethods = [
+  { id: 'cash', label: 'Cash', icon: Banknote, desc: 'Pay with cash at our office' },
+  { id: 'mobile_money', label: 'Mobile Money', icon: Smartphone, desc: 'Send via M-Pesa, MTN, Airtel' },
+  { id: 'bank_transfer', label: 'Bank Transfer', icon: Building, desc: 'Direct bank transfer' },
+];
+
 export default function PaymentsPage() {
   const router = useRouter();
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
+  const [selectedMethod, setSelectedMethod] = useState('');
+  const [reference, setReference] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     const fetchPayments = async () => {
@@ -57,6 +81,67 @@ export default function PaymentsPage() {
 
     fetchPayments();
   }, []);
+
+  const handlePayClick = (payment: Payment) => {
+    setSelectedPayment(payment);
+    setShowPaymentModal(true);
+    setSelectedMethod('');
+    setReference('');
+  };
+
+  const handleSubmitPayment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedPayment || !selectedMethod) return;
+
+    setSubmitting(true);
+    try {
+      const res = await fetch('/api/payments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          paymentId: selectedPayment._id,
+          method: selectedMethod,
+          reference,
+        }),
+      });
+
+      if (res.ok) {
+        setPayments(payments.map(p => 
+          p._id === selectedPayment._id ? { ...p, status: 'pending', method: selectedMethod } : p
+        ));
+        setShowPaymentModal(false);
+        alert('Payment proof submitted! We will verify and update your payment status.');
+      }
+    } catch (error) {
+      console.error('Payment error:', error);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDownloadReceipt = (payment: Payment) => {
+    const receiptContent = `
+PAYMENT RECEIPT
+==============
+Project: ${payment.projectId?.title || 'N/A'}
+Amount: ${payment.currency} ${payment.amount.toLocaleString()}
+Status: ${statusLabels[payment.status]}
+Method: ${methodLabels[payment.method] || 'N/A'}
+${payment.bankReference ? `Bank Ref: ${payment.bankReference}` : ''}
+${payment.cashReference ? `Cash Ref: ${payment.cashReference}` : ''}
+${payment.mobileMoneyReference ? `MM Ref: ${payment.mobileMoneyReference}` : ''}
+Date Paid: ${payment.paidAt ? new Date(payment.paidAt).toLocaleDateString() : 'N/A'}
+Date Created: ${new Date(payment.createdAt).toLocaleDateString()}
+    `.trim();
+
+    const blob = new Blob([receiptContent], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `receipt-${payment._id}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   const stats = {
     total: payments.length,
@@ -143,6 +228,7 @@ export default function PaymentsPage() {
                   <th className="text-left p-4 font-medium text-sm text-zinc-500">Project</th>
                   <th className="text-left p-4 font-medium text-sm text-zinc-500">Amount</th>
                   <th className="text-left p-4 font-medium text-sm text-zinc-500">Status</th>
+                  <th className="text-left p-4 font-medium text-sm text-zinc-500">Method</th>
                   <th className="text-left p-4 font-medium text-sm text-zinc-500">Due Date</th>
                   <th className="text-left p-4 font-medium text-sm text-zinc-500">Paid Date</th>
                   <th className="text-left p-4 font-medium text-sm text-zinc-500">Actions</th>
@@ -165,6 +251,9 @@ export default function PaymentsPage() {
                       </span>
                     </td>
                     <td className="p-4 text-sm text-zinc-500">
+                      {methodLabels[payment.method] || '-'}
+                    </td>
+                    <td className="p-4 text-sm text-zinc-500">
                       {payment.dueDate ? new Date(payment.dueDate).toLocaleDateString() : '-'}
                     </td>
                     <td className="p-4 text-sm text-zinc-500">
@@ -172,11 +261,11 @@ export default function PaymentsPage() {
                     </td>
                     <td className="p-4">
                       {payment.status === 'pending' ? (
-                        <Button size="sm">
+                        <Button size="sm" onClick={() => handlePayClick(payment)}>
                           Pay Now <ArrowRight size={16} className="ml-1" />
                         </Button>
                       ) : payment.status === 'paid' ? (
-                        <Button size="sm" variant="ghost">
+                        <Button size="sm" variant="ghost" onClick={() => handleDownloadReceipt(payment)}>
                           <Download size={16} className="mr-1" /> Receipt
                         </Button>
                       ) : null}
@@ -187,6 +276,65 @@ export default function PaymentsPage() {
             </table>
           </div>
         </Card>
+      )}
+
+      {showPaymentModal && selectedPayment && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <Card className="w-full max-w-md p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold">Make Payment</h2>
+              <button onClick={() => setShowPaymentModal(false)} className="text-zinc-400 hover:text-zinc-600">
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="mb-6 p-4 bg-zinc-50 dark:bg-zinc-900 rounded-lg">
+              <p className="text-sm text-zinc-500">Amount Due</p>
+              <p className="text-2xl font-bold">${selectedPayment.amount.toLocaleString()}</p>
+              <p className="text-sm text-zinc-500">{selectedPayment.projectId?.title}</p>
+            </div>
+
+            <form onSubmit={handleSubmitPayment} className="space-y-4">
+              <div>
+                <Label className="mb-2 block">Select Payment Method</Label>
+                <div className="space-y-2">
+                  {paymentMethods.map((method) => (
+                    <button
+                      key={method.id}
+                      type="button"
+                      onClick={() => setSelectedMethod(method.id)}
+                      className={`w-full flex items-center gap-3 p-4 rounded-lg border-2 transition-colors ${
+                        selectedMethod === method.id
+                          ? 'border-primary bg-primary/10'
+                          : 'border-zinc-200 dark:border-zinc-800 hover:border-zinc-300'
+                      }`}
+                    >
+                      <method.icon className="w-6 h-6" />
+                      <div className="text-left">
+                        <p className="font-medium">{method.label}</p>
+                        <p className="text-sm text-zinc-500">{method.desc}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="reference">Reference/Transaction ID (Optional)</Label>
+                <Input
+                  id="reference"
+                  value={reference}
+                  onChange={(e) => setReference(e.target.value)}
+                  placeholder="Enter your transaction reference"
+                />
+              </div>
+
+              <Button type="submit" className="w-full" disabled={!selectedMethod || submitting}>
+                {submitting ? 'Submitting...' : 'Submit Payment Proof'}
+              </Button>
+            </form>
+          </Card>
+        </div>
       )}
     </div>
   );
