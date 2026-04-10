@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import OpenAI from "openai";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+// Initialize OpenAI client to point to OpenRouter
+const openai = new OpenAI({
+  baseURL: "https://openrouter.ai/api/v1",
+  apiKey: process.env.OPENROUTER_API_KEY || "",
+});
 
 export async function POST(req: NextRequest) {
   try {
@@ -14,9 +18,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (!process.env.GEMINI_API_KEY) {
+    if (!process.env.OPENROUTER_API_KEY) {
       return NextResponse.json(
-        { error: "AI service is not configured." },
+        { error: "AI service is not configured. Missing OPENROUTER_API_KEY." },
         { status: 503 }
       );
     }
@@ -43,19 +47,23 @@ Return ONLY a JSON object with these fields:
 
     const systemInstruction = modeInstructions[mode] || modeInstructions.refine;
 
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.0-flash",
-      systemInstruction,
+    const completion = await openai.chat.completions.create({
+      model: "qwen/qwen-2.5-7b-instruct:free",
+      messages: [
+        { role: "system", content: systemInstruction },
+        { 
+          role: "user", 
+          content: `Here is the user's prompt to optimize:\n\n"${prompt.trim()}"\n\nRespond with ONLY a valid JSON object, no markdown or extra text.` 
+        }
+      ],
+      // Ensure we get valid JSON since we asked for it
+      response_format: { type: "json_object" },
     });
 
-    const result = await model.generateContent(
-      `Here is the user's prompt to optimize:\n\n"${prompt.trim()}"\n\nRespond with ONLY a valid JSON object, no markdown or extra text.`
-    );
+    const text = completion.choices[0]?.message?.content?.trim() || "{}";
 
-    const text = result.response.text().trim();
-
-    // Strip markdown code fences if Gemini returns them
-    const cleaned = text.replace(/^```json\n?/, "").replace(/\n?```$/, "").trim();
+    // Strip markdown code fences if the model still returns them despite instructions
+    const cleaned = text.replace(/^```(json)?\n?/, "").replace(/\n?```$/, "").trim();
 
     const parsed = JSON.parse(cleaned);
 
@@ -63,28 +71,25 @@ Return ONLY a JSON object with these fields:
   } catch (err: any) {
     console.error("[forge/prompt-optimizer] error:", err?.message || err);
 
-    // Gemini rate limit / quota exceeded
     if (
       err?.status === 429 ||
-      err?.message?.includes("Quota exceeded") ||
-      err?.message?.includes("Too Many Requests") ||
-      err?.message?.includes("RESOURCE_EXHAUSTED")
+      err?.message?.includes("rate limit") ||
+      err?.message?.includes("quota")
     ) {
       return NextResponse.json(
         {
           error:
-            "The AI is taking a breather — free tier rate limit hit. Please try again in 30 seconds.",
+            "The AI is taking a breather — rate limit hit. Please try again in a few seconds.",
         },
         { status: 429 }
       );
     }
 
-    // Gemini auth / key error
     if (err?.status === 401 || err?.status === 403) {
       return NextResponse.json(
         {
           error:
-            "AI service authentication failed. Please check the API key configuration.",
+            "AI service authentication failed. Please check the OpenRouter API key configuration.",
         },
         { status: 503 }
       );

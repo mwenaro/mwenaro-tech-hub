@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import OpenAI from "openai";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+// Initialize OpenAI client to point to OpenRouter
+const openai = new OpenAI({
+  baseURL: "https://openrouter.ai/api/v1",
+  apiKey: process.env.OPENROUTER_API_KEY || "",
+});
 
 export async function POST(req: NextRequest) {
   try {
@@ -14,9 +18,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (!process.env.GEMINI_API_KEY) {
+    if (!process.env.OPENROUTER_API_KEY) {
       return NextResponse.json(
-        { error: "AI service is not configured." },
+        { error: "AI service is not configured. Missing OPENROUTER_API_KEY." },
         { status: 503 }
       );
     }
@@ -30,26 +34,22 @@ If they ask about Mwenaro Labs, explain it's the R&D division of the Mwenaro Tec
 
 Format the response in Markdown.`;
 
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.0-flash",
-      systemInstruction,
+    // OpenRouter uses standard OpenAI messages array format
+    const messages = [
+      { role: "system", content: systemInstruction },
+      ...history.map((msg: any) => ({
+        role: msg.role === "model" ? "assistant" : "user",
+        content: msg.content
+      })),
+      { role: "user", content: message }
+    ];
+
+    const completion = await openai.chat.completions.create({
+      model: "qwen/qwen-2.5-7b-instruct:free",
+      messages: messages as any,
     });
 
-    const formattedHistory = history.map((msg: any) => ({
-      role: msg.role === "user" ? "user" : "model",
-      parts: [{ text: msg.content }],
-    }));
-
-    if (formattedHistory.length > 0 && formattedHistory[0].role === "model") {
-      formattedHistory.shift();
-    }
-
-    const chat = model.startChat({
-      history: formattedHistory,
-    });
-
-    const result = await chat.sendMessage(message);
-    const text = result.response.text().trim();
+    const text = completion.choices[0]?.message?.content?.trim() || "";
 
     return NextResponse.json({ reply: text });
   } catch (err: any) {
@@ -57,19 +57,18 @@ Format the response in Markdown.`;
 
     if (
       err?.status === 429 ||
-      err?.message?.includes("Quota exceeded") ||
-      err?.message?.includes("Too Many Requests") ||
-      err?.message?.includes("RESOURCE_EXHAUSTED")
+      err?.message?.includes("rate limit") ||
+      err?.message?.includes("quota")
     ) {
       return NextResponse.json(
-        { error: "The AI is taking a breather — free tier rate limit hit. Please try again in 30 seconds." },
+        { error: "The AI is taking a breather — rate limit hit. Please try again in 30 seconds." },
         { status: 429 }
       );
     }
 
     if (err?.status === 401 || err?.status === 403) {
       return NextResponse.json(
-        { error: "AI service authentication failed." },
+        { error: "AI service authentication failed. Check OPENROUTER_API_KEY." },
         { status: 503 }
       );
     }

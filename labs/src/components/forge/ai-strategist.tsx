@@ -95,7 +95,7 @@ export function AIStrategist() {
             <h3 className="text-sm font-bold text-foreground">AI Strategist</h3>
             <div className="flex items-center gap-1.5 mt-0.5">
               <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-              <span className="text-[10px] text-zinc-500 font-medium uppercase tracking-widest">Gemini 2.0 Flash</span>
+              <span className="text-[10px] text-zinc-500 font-medium uppercase tracking-widest">Qwen 2.5 7B</span>
             </div>
           </div>
         </div>
