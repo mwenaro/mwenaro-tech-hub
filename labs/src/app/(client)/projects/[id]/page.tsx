@@ -3,7 +3,7 @@
 import { useEffect, useState, type FormEvent, type ChangeEvent } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Card, Button } from '@mwenaro/ui';
-import { ArrowLeft, Clock, CheckCircle, AlertCircle, DollarSign, MessageSquare, Calendar, Send } from 'lucide-react';
+import { ArrowLeft, Clock, CheckCircle, AlertCircle, DollarSign, MessageSquare, Calendar, Send, Edit, Plus, X, Save } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 
@@ -13,6 +13,18 @@ interface Project {
   description: string;
   type: string;
   status: string;
+  pendingChanges?: {
+    title?: string;
+    description?: string;
+    proposalDetails?: {
+      problem: string;
+      targetUsers: string;
+      features: { name: string; description: string; priority: string }[];
+      budget: { min: number; max: number; currency: string };
+      timeline: string;
+    };
+    submittedAt?: string;
+  };
   proposalDetails: {
     problem: string;
     targetUsers: string;
@@ -54,6 +66,7 @@ interface Comment {
 
 const statusColors: Record<string, string> = {
   draft: 'bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300',
+  pending: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
   submitted: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
   under_review: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
   accepted: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
@@ -65,6 +78,7 @@ const statusColors: Record<string, string> = {
 
 const statusLabels: Record<string, string> = {
   draft: 'Draft',
+  pending: 'Pending Review',
   submitted: 'Submitted',
   under_review: 'Under Review',
   accepted: 'Accepted',
@@ -95,6 +109,23 @@ export default function ProjectDetailPage() {
   const [activeTab, setActiveTab] = useState<'overview' | 'milestones' | 'updates' | 'comments' | 'activity'>('overview');
   const [newComment, setNewComment] = useState('');
   const [submittingComment, setSubmittingComment] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState({
+    title: '',
+    description: '',
+    type: 'web',
+    problem: '',
+    targetUsers: '',
+    timeline: '',
+    budgetMin: 0,
+    budgetMax: 0,
+    features: [] as { name: string; description: string; priority: string }[],
+  });
+  const [saving, setSaving] = useState(false);
+  const [newFeature, setNewFeature] = useState({ name: '', description: '', priority: 'must_have' });
+
+  const canEdit = project && ['draft', 'pending', 'rejected'].includes(project.status);
+  const hasPendingChanges = project?.pendingChanges?.submittedAt;
 
   const fetchProject = async () => {
     try {
@@ -118,6 +149,72 @@ export default function ProjectDetailPage() {
   useEffect(() => {
     fetchProject();
   }, [params.id, router]);
+
+  useEffect(() => {
+    if (project) {
+      setEditForm({
+        title: project.title,
+        description: project.description,
+        type: project.type,
+        problem: project.proposalDetails.problem,
+        targetUsers: project.proposalDetails.targetUsers,
+        timeline: project.proposalDetails.timeline,
+        budgetMin: project.proposalDetails.budget.min,
+        budgetMax: project.proposalDetails.budget.max,
+        features: project.proposalDetails.features,
+      });
+    }
+  }, [project]);
+
+  const handleAddFeature = () => {
+    if (newFeature.name.trim()) {
+      setEditForm(prev => ({
+        ...prev,
+        features: [...prev.features, { ...newFeature }],
+      }));
+      setNewFeature({ name: '', description: '', priority: 'must_have' });
+    }
+  };
+
+  const handleRemoveFeature = (index: number) => {
+    setEditForm(prev => ({
+      ...prev,
+      features: prev.features.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleSaveEdit = async () => {
+    setSaving(true);
+    try {
+      const res = await fetch('/api/projects', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          projectId: project?._id,
+          title: editForm.title,
+          description: editForm.description,
+          type: editForm.type,
+          proposalDetails: {
+            problem: editForm.problem,
+            targetUsers: editForm.targetUsers,
+            timeline: editForm.timeline,
+            budget: { min: editForm.budgetMin, max: editForm.budgetMax, currency: 'USD' },
+            features: editForm.features,
+          },
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setProject(data.project);
+        setIsEditing(false);
+      }
+    } catch (error) {
+      console.error('Save error:', error);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const handleAddComment = async (e: FormEvent) => {
     e.preventDefault();
@@ -168,9 +265,22 @@ export default function ProjectDetailPage() {
           <h1 className="text-3xl font-bold">{project.title}</h1>
           <p className="text-zinc-500 mt-1 capitalize">{project.type} Project</p>
         </div>
-        <span className={`px-4 py-2 rounded-full text-sm font-medium ${statusColors[project.status]}`}>
-          {statusLabels[project.status]}
-        </span>
+        <div className="flex items-center gap-3">
+          {hasPendingChanges && (
+            <span className="px-3 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 rounded-full text-sm">
+              Pending Approval
+            </span>
+          )}
+          {canEdit && !isEditing && (
+            <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
+              <Edit size={16} className="mr-2" />
+              Edit Project
+            </Button>
+          )}
+          <span className={`px-4 py-2 rounded-full text-sm font-medium ${statusColors[project.status]}`}>
+            {statusLabels[project.status]}
+          </span>
+        </div>
       </div>
 
       <div className="flex gap-2 mb-6 border-b">
@@ -189,7 +299,88 @@ export default function ProjectDetailPage() {
         ))}
       </div>
 
-      {activeTab === 'overview' && (
+      {activeTab === 'overview' && isEditing && (
+        <Card className="p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-lg font-bold">Edit Project</h2>
+            <div className="flex gap-2">
+              <Button variant="ghost" onClick={() => setIsEditing(false)}>Cancel</Button>
+              <Button onClick={handleSaveEdit} disabled={saving}>
+                <Save size={16} className="mr-2" />
+                {saving ? 'Saving...' : project.status === 'draft' ? 'Submit for Review' : 'Save Changes'}
+              </Button>
+            </div>
+          </div>
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium mb-1 block">Project Title</label>
+              <Input value={editForm.title} onChange={(e) => setEditForm(prev => ({ ...prev, title: e.target.value }))} />
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-1 block">Description</label>
+              <Textarea value={editForm.description} onChange={(e) => setEditForm(prev => ({ ...prev, description: e.target.value }))} rows={3} />
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-1 block">Project Type</label>
+              <select className="w-full p-2 rounded-lg border" value={editForm.type} onChange={(e) => setEditForm(prev => ({ ...prev, type: e.target.value }))}>
+                <option value="web">Web Application</option>
+                <option value="mobile">Mobile Application</option>
+                <option value="both">Web + Mobile</option>
+                <option value="api">API / Backend</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-1 block">Problem to Solve</label>
+              <Textarea value={editForm.problem} onChange={(e) => setEditForm(prev => ({ ...prev, problem: e.target.value }))} rows={2} placeholder="Describe the problem you're trying to solve..." />
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-1 block">Target Users</label>
+              <Input value={editForm.targetUsers} onChange={(e) => setEditForm(prev => ({ ...prev, targetUsers: e.target.value }))} placeholder="Who is this for?" />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium mb-1 block">Min Budget ($)</label>
+                <Input type="number" value={editForm.budgetMin} onChange={(e) => setEditForm(prev => ({ ...prev, budgetMin: Number(e.target.value) }))} />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-1 block">Max Budget ($)</label>
+                <Input type="number" value={editForm.budgetMax} onChange={(e) => setEditForm(prev => ({ ...prev, budgetMax: Number(e.target.value) }))} />
+              </div>
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-1 block">Timeline</label>
+              <Input value={editForm.timeline} onChange={(e) => setEditForm(prev => ({ ...prev, timeline: e.target.value }))} placeholder="e.g., 3 months" />
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-2 block">Features</label>
+              <div className="space-y-2 mb-3">
+                {editForm.features.map((feature, i) => (
+                  <div key={i} className="flex items-center gap-2 p-2 bg-zinc-50 dark:bg-zinc-900 rounded-lg">
+                    <div className="flex-1">
+                      <p className="font-medium text-sm">{feature.name}</p>
+                      <p className="text-xs text-zinc-500">{feature.description}</p>
+                    </div>
+                    <span className={`px-2 py-0.5 rounded text-xs ${priorityColors[feature.priority]}`}>{priorityLabels[feature.priority]}</span>
+                    <button onClick={() => handleRemoveFeature(i)} className="text-zinc-400 hover:text-red-500"><X size={16} /></button>
+                  </div>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                <Input placeholder="Feature name" value={newFeature.name} onChange={(e) => setNewFeature(prev => ({ ...prev, name: e.target.value }))} className="flex-1" />
+                <Input placeholder="Description" value={newFeature.description} onChange={(e) => setNewFeature(prev => ({ ...prev, description: e.target.value }))} className="flex-1" />
+                <select className="p-2 rounded-lg border" value={newFeature.priority} onChange={(e) => setNewFeature(prev => ({ ...prev, priority: e.target.value }))}>
+                  <option value="must_have">Must Have</option>
+                  <option value="nice_to_have">Nice to Have</option>
+                  <option value="can_wait">Can Wait</option>
+                </select>
+                <Button type="button" variant="outline" onClick={handleAddFeature}><Plus size={16} /></Button>
+              </div>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {activeTab === 'overview' && !isEditing && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
             <Card className="p-6">

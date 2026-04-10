@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export type ProjectType = 'web' | 'mobile' | 'both' | 'api';
-export type ProjectStatus = 'draft' | 'submitted' | 'under_review' | 'accepted' | 'rejected' | 'active' | 'completed' | 'cancelled';
+export type ProjectStatus = 'draft' | 'pending' | 'submitted' | 'under_review' | 'accepted' | 'rejected' | 'active' | 'completed' | 'cancelled';
 export type PaymentModel = 'milestone' | 'upfront' | 'retainer';
 export type FeaturePriority = 'must_have' | 'nice_to_have' | 'can_wait';
 
@@ -88,6 +88,12 @@ export interface IProject extends Document {
   attachments: IAttachment[];
   templateType?: string;
   activities: IActivity[];
+  pendingChanges?: {
+    title?: string;
+    description?: string;
+    proposalDetails?: IProject['proposalDetails'];
+    submittedAt?: Date;
+  };
   rejectionReason?: string;
   adminNotes?: string;
   createdAt: Date;
@@ -117,7 +123,7 @@ const projectSchema = new Schema<IProject>(
     },
     status: {
       type: String,
-      enum: ['draft', 'submitted', 'under_review', 'accepted', 'rejected', 'active', 'completed', 'cancelled'],
+      enum: ['draft', 'pending', 'submitted', 'under_review', 'accepted', 'rejected', 'active', 'completed', 'cancelled'],
       default: 'draft',
     },
     proposalDetails: {
@@ -186,6 +192,26 @@ const projectSchema = new Schema<IProject>(
       content: String,
       createdAt: { type: Date, default: Date.now }
     }],
+    pendingChanges: {
+      title: String,
+      description: String,
+      proposalDetails: {
+        problem: String,
+        targetUsers: String,
+        features: [{
+          name: String,
+          description: String,
+          priority: { type: String, enum: ['must_have', 'nice_to_have', 'can_wait'] }
+        }],
+        budget: {
+          min: Number,
+          max: Number,
+          currency: String
+        },
+        timeline: String
+      },
+      submittedAt: Date
+    },
     rejectionReason: String,
     adminNotes: String
   },
