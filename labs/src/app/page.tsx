@@ -18,7 +18,7 @@ export default function LabsPage() {
 
     return (
         <main className="min-h-screen bg-background selection:bg-primary/20">
-            <NavBar currentApp="labs" />
+            <NavBar currentApp="labs" ctaLabel="Get Started" ctaHref="/register" />
 
             {/* HERO */}
             <section className="relative pt-48 pb-32 px-6 text-center lg:pt-56 lg:pb-40 overflow-hidden bg-zinc-50 dark:bg-zinc-950">
@@ -36,7 +36,7 @@ export default function LabsPage() {
                                 {hero.primaryCTA.text} <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={20} />
                             </Button>
                         </Link>
-                        <Link href="/login">
+                        <Link href="/contact">
                             <Button variant="outline" size="lg" className="rounded-full px-12 h-16 text-lg border-zinc-200 dark:border-zinc-800 text-foreground hover:bg-zinc-100 dark:hover:bg-zinc-900 shadow-sm transition-all duration-300">
                                 {hero.secondaryCTA.text}
                             </Button>
@@ -93,9 +93,11 @@ export default function LabsPage() {
                         {finalCTA.subtext}
                     </p>
                     <div className="flex justify-center animate-reveal [animation-delay:400ms]">
-                        <Button size="lg" className="rounded-full px-14 h-16 text-lg font-bold bg-primary text-white shadow-[0_8px_30px_rgb(232,93,59,0.3)] hover:shadow-[0_12px_40px_rgb(232,93,59,0.5)] hover:-translate-y-1 transition-all duration-300">
-                            {finalCTA.cta.text}
-                        </Button>
+                        <Link href="/contact">
+                            <Button size="lg" className="rounded-full px-14 h-16 text-lg font-bold bg-primary text-white shadow-[0_8px_30px_rgb(232,93,59,0.3)] hover:shadow-[0_12px_40px_rgb(232,93,59,0.5)] hover:-translate-y-1 transition-all duration-300">
+                                {finalCTA.cta.text}
+                            </Button>
+                        </Link>
                     </div>
                 </div>
             </section>
