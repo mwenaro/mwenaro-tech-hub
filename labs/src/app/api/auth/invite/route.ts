@@ -34,6 +34,7 @@ export async function POST(request: NextRequest) {
 
     const inviteCode = uuidv4();
     const inviteExpiry = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    const tempPassword = await bcrypt.hash(uuidv4(), 12);
 
     await User.create({
       email: email.toLowerCase(),
@@ -44,6 +45,7 @@ export async function POST(request: NextRequest) {
       invitedBy: auth.userId,
       inviteCode,
       inviteExpiry,
+      password: tempPassword,
     });
 
     const inviteLink = `${process.env.NEXT_PUBLIC_LABS_URL || 'http://localhost:3000'}/register?invite=${inviteCode}`;
