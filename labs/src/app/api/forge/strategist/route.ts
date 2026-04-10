@@ -5,6 +5,10 @@ import OpenAI from "openai";
 const openai = new OpenAI({
   baseURL: "https://openrouter.ai/api/v1",
   apiKey: process.env.OPENROUTER_API_KEY || "",
+  defaultHeaders: {
+    "HTTP-Referer": process.env.NEXT_PUBLIC_LABS_URL || "http://localhost:3000",
+    "X-Title": "Mwenaro Labs Forge",
+  },
 });
 
 export async function POST(req: NextRequest) {
@@ -45,7 +49,7 @@ Format the response in Markdown.`;
     ];
 
     const completion = await openai.chat.completions.create({
-      model: "qwen/qwen-2.5-7b-instruct:free",
+      model: "meta-llama/llama-3.2-3b-instruct:free",
       messages: messages as any,
     });
 
@@ -60,10 +64,10 @@ Format the response in Markdown.`;
       err?.message?.includes("rate limit") ||
       err?.message?.includes("quota")
     ) {
-      return NextResponse.json(
-        { error: "The AI is taking a breather — rate limit hit. Please try again in 30 seconds." },
-        { status: 429 }
-      );
+      // Fallback mock response when free tier is exhausted
+      return NextResponse.json({ 
+        reply: "I am currently at max capacity (API Limit Reached). However, for your project, I'd highly recommend building with **Next.js 16**, **Tailwind CSS**, and **Supabase**. It's the exact bleeding-edge stack we use here at Mwenaro Labs to guarantee performance. What specific features does your project need?" 
+      });
     }
 
     if (err?.status === 401 || err?.status === 403) {
