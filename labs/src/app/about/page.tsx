@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <NavBar currentApp="labs" />
+      <NavBar currentApp="labs" ctaLabel="Get Started" ctaHref="/register" />
 
       <main className="flex-1">
         {/* HERO */}
