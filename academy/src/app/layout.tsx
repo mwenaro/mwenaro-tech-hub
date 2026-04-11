@@ -8,6 +8,7 @@ import { Toaster } from "@/components/ui/sonner"
 import { ecosystem } from "@mwenaro/config/ecosystem";
 import { AcademyOrganizationSchema } from "@/components/structured-data";
 import { InviteTracker } from "@/components/invite-tracker";
+import { AcademyAIWrapper } from "@/components/academy/ai-wrapper";
 import { Suspense } from "react";
 const inter = Inter({ subsets: ["latin"] });
 
@@ -94,6 +95,7 @@ export default function RootLayout({
         <div className="flex min-h-screen flex-col">
           <NavBar currentApp="academy" />
           <main className="flex-1">{children}</main>
+          <AcademyAIWrapper />
           <ChatWidget />
           <FooterWrapper />
           <Toaster />
