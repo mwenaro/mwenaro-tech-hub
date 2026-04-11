@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Card } from '@mwenaro/ui';
-import { Send, Bot, User, Loader2, RefreshCw, X, MessageSquare, Sparkles } from 'lucide-react';
+import { Send, Bot, User, Loader2, RefreshCw, X, MessageSquare, Sparkles, Copy, Check } from 'lucide-react';
 import { useAIContext } from '@/context/AIContext';
 
 interface Message {
@@ -19,6 +19,7 @@ export function AIScribe() {
   const [input, setInput] = useState('');
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState('');
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -72,24 +73,30 @@ export function AIScribe() {
     }
   };
 
+  const handleCopy = async (text: string, index: number) => {
+    await navigator.clipboard.writeText(text);
+    setCopiedIndex(index);
+    setTimeout(() => setCopiedIndex(null), 2000);
+  };
+
   const renderMarkdown = (text: string) => {
     return text.split('\n').map((line, i) => {
       let formattedLine = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
       if (formattedLine.trim().startsWith('- ')) {
-        formattedLine = `<li class="ml-4 list-disc">${formattedLine.trim().substring(2)}</li>`;
+        formattedLine = `<li class="ml-4 list-disc text-foreground/90">${formattedLine.trim().substring(2)}</li>`;
         return <div key={i} dangerouslySetInnerHTML={{ __html: formattedLine }} />;
       }
-      return <p key={i} className={line.trim() === '' ? 'h-3' : ''} dangerouslySetInnerHTML={{ __html: formattedLine }} />;
+      return <p key={i} className={`text-foreground/90 ${line.trim() === '' ? 'h-2' : 'mb-2'}`} dangerouslySetInnerHTML={{ __html: formattedLine }} />;
     });
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-4">
+    <div className={`fixed z-50 flex flex-col items-end transition-all duration-500 right-6 ${isOpen ? 'top-8 bottom-8' : 'bottom-6'}`}>
       {/* Chat Window */}
       {isOpen && (
-        <Card className="flex flex-col w-[380px] h-[550px] shadow-2xl border-primary/20 bg-white dark:bg-zinc-900 overflow-hidden animate-in slide-in-from-bottom-5 fade-in duration-300">
+        <div className="flex flex-col w-[420px] h-full shadow-2xl border border-primary/20 bg-white dark:bg-zinc-900 rounded-2xl overflow-hidden animate-in slide-in-from-right-5 fade-in duration-300">
           {/* Header */}
-          <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-200/50 dark:border-zinc-800/50 bg-primary/5">
+          <div className="flex-shrink-0 flex items-center justify-between px-5 py-4 border-b border-zinc-200/50 dark:border-zinc-800/50 bg-primary/5">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white">
                 <Sparkles size={16} />
@@ -121,7 +128,7 @@ export function AIScribe() {
 
           {/* Context Banner */}
           {contextData && (
-             <div className="px-4 py-2 bg-primary/10 border-b border-primary/10 text-[10px] text-primary font-bold flex items-center gap-2">
+             <div className="flex-shrink-0 px-4 py-2 bg-primary/10 border-b border-primary/10 text-[10px] text-primary font-bold flex items-center gap-2">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
@@ -131,8 +138,10 @@ export function AIScribe() {
           )}
 
           {/* Chat Area */}
-          <div className="flex-1 overflow-y-auto p-5 space-y-6 scrollbar-thin scrollbar-thumb-zinc-200 dark:scrollbar-thumb-zinc-700">
-            {messages.map((msg, i) => (
+          <div className="flex-1 min-h-0 overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-300 dark:scrollbar-thumb-zinc-600 scrollbar-track-transparent hover:scrollbar-thumb-zinc-400 dark:hover:scrollbar-thumb-zinc-500">
+            <div className="p-5 pb-20 space-y-8">
+              <div className="h-4 w-full flex-shrink-0" /> {/* Top Spacer to prevent clipping */}
+              {messages.map((msg, i) => (
               <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div className={`flex gap-3 max-w-[90%] ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
                   <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 mt-1 ${
@@ -142,7 +151,7 @@ export function AIScribe() {
                   }`}>
                     {msg.role === 'user' ? <User size={14} /> : <Bot size={14} />}
                   </div>
-                  <div className={`p-4 rounded-2xl text-sm leading-relaxed ${
+                  <div className={`p-4 rounded-2xl text-sm leading-relaxed group relative ${
                     msg.role === 'user'
                       ? 'bg-primary text-white rounded-tr-sm'
                       : 'bg-zinc-100 dark:bg-zinc-800 text-foreground rounded-tl-sm'
@@ -152,6 +161,17 @@ export function AIScribe() {
                     ) : (
                       <div className="prose-sm dark:prose-invert">
                         {renderMarkdown(msg.content)}
+                        <button
+                          onClick={() => handleCopy(msg.content, i)}
+                          className="absolute -bottom-6 right-0 p-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-500 hover:text-primary opacity-0 group-hover:opacity-100 transition-all flex items-center gap-1 text-[10px] font-bold"
+                          title="Copy response"
+                        >
+                          {copiedIndex === i ? (
+                            <><Check size={10} className="text-green-500" /> Copied</>
+                          ) : (
+                            <><Copy size={10} /> Copy</>
+                          )}
+                        </button>
                       </div>
                     )}
                   </div>
@@ -179,11 +199,12 @@ export function AIScribe() {
                 {error}
               </div>
             )}
-            <div ref={messagesEndRef} />
+              <div ref={messagesEndRef} className="h-4 w-full flex-shrink-0" />
+            </div>
           </div>
 
           {/* Input Area */}
-          <div className="p-4 bg-zinc-50 dark:bg-zinc-950 border-t border-zinc-200/50 dark:border-zinc-800/50">
+          <div className="flex-shrink-0 p-4 bg-zinc-50 dark:bg-zinc-950 border-t border-zinc-200/50 dark:border-zinc-800/50">
             <div className="relative flex items-center">
               <textarea
                 value={input}
@@ -203,20 +224,23 @@ export function AIScribe() {
               </button>
             </div>
           </div>
-        </Card>
+        </div>
       )}
 
       {/* Toggle Button */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${
-          isOpen 
-            ? 'bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rotate-90' 
-            : 'bg-primary text-white hover:scale-110 hover:shadow-primary/30 active:scale-95'
-        }`}
-      >
-        {isOpen ? <X size={24} /> : <MessageSquare size={24} />}
-      </button>
+      <div className="flex-shrink-0">
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${
+            isOpen 
+              ? 'bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rotate-90' 
+              : 'bg-primary text-white hover:scale-110 hover:shadow-primary/30 active:scale-95'
+          }`}
+        >
+          {isOpen ? <X size={24} /> : <MessageSquare size={24} />}
+        </button>
+      </div>
     </div>
+
   );
 }
