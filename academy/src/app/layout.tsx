@@ -3,7 +3,6 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { NavBar } from "@mwenaro/ui";
 import { FooterWrapper } from "@/components/footer-wrapper";
-import { ChatWidget } from "@/components/chat-widget";
 import { Toaster } from "@/components/ui/sonner"
 import { ecosystem } from "@mwenaro/config/ecosystem";
 import { AcademyOrganizationSchema } from "@/components/structured-data";
@@ -96,7 +95,6 @@ export default function RootLayout({
           <NavBar currentApp="academy" />
           <main className="flex-1">{children}</main>
           <AcademyAIWrapper />
-          <ChatWidget />
           <FooterWrapper />
           <Toaster />
         </div>
