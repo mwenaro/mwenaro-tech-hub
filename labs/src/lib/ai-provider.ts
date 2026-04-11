@@ -20,7 +20,7 @@ export async function generateAICompletion(
         apiKey: process.env.GROQ_API_KEY, 
         baseURL: "https://api.groq.com/openai/v1" 
       }),
-      model: "llama3-8b-8192", 
+      model: "llama-3.1-8b-instant", 
     });
   }
 
@@ -52,7 +52,7 @@ export async function generateAICompletion(
           "X-Title": "Mwenaro Labs Forge",
         },
       }),
-      model: "deepseek/deepseek-chat:free",
+      model: "meta-llama/llama-3.2-3b-instruct:free",
     });
   }
 

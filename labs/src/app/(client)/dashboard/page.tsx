@@ -26,8 +26,11 @@ interface Payment {
   status: string;
 }
 
+import { useAIContext } from '@/context/AIContext';
+
 export default function ClientDashboard() {
   const router = useRouter();
+  const { setAIContext } = useAIContext();
   const [user, setUser] = useState<User | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [payments, setPayments] = useState<Payment[]>([]);
@@ -54,6 +57,15 @@ export default function ClientDashboard() {
         setUser(userData.user);
         setProjects(projectsData.projects || []);
         setPayments(paymentsData.payments || []);
+
+        // Set AI Context for the Scribe
+        setAIContext({
+          user: userData.user,
+          projectsSummary: {
+            total: (projectsData.projects || []).length,
+            active: (projectsData.projects || []).filter((p: any) => p.status === 'active').length,
+          }
+        });
       } catch (error) {
         console.error('Fetch error:', error);
       } finally {

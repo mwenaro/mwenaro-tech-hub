@@ -34,7 +34,10 @@ const statusColors: Record<string, string> = {
   cancelled: 'bg-zinc-100 text-zinc-500',
 };
 
+import { useAIContext } from '@/context/AIContext';
+
 export default function AdminProjectsPage() {
+  const { setAIContext } = useAIContext();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
@@ -110,6 +113,14 @@ export default function AdminProjectsPage() {
   const openPendingModal = (project: Project) => {
     setSelectedProject(project);
     setShowPendingModal(true);
+    setAIContext({
+      type: 'project_review',
+      project: {
+        title: project.title,
+        description: project.description,
+        pendingChanges: project.pendingChanges
+      }
+    });
   };
 
   const filteredProjects = projects.filter(p => 
