@@ -3,9 +3,89 @@
 import OpenAI from 'openai'
 import { createClient } from './supabase/server'
 
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY || 'mock_key'
+// Chat client can use Groq for speed or OpenRouter as fallback
+const chatClient = new OpenAI({
+    apiKey: process.env.GROQ_API_KEY || process.env.OPENROUTER_API_KEY || process.env.OPENAI_API_KEY || 'mock_key',
+    baseURL: process.env.GROQ_API_KEY ? 'https://api.groq.com/openai/v1' : (process.env.OPENROUTER_API_KEY ? 'https://openrouter.ai/api/v1' : undefined)
 })
+
+// Embedding client MUST use OpenRouter or OpenAI (Groq does not support embeddings)
+const embeddingClient = new OpenAI({
+    apiKey: process.env.OPENROUTER_API_KEY || process.env.OPENAI_API_KEY || 'mock_key',
+    baseURL: process.env.OPENROUTER_API_KEY ? 'https://openrouter.ai/api/v1' : undefined
+})
+
+/**
+ * Performs vector similarity search to find relevant context.
+ */
+async function getRelevantContext(query: string) {
+    const supabase = await createClient()
+
+    // 1. Generate embedding for the query using the specialized embedding client
+    const embeddingResponse = await embeddingClient.embeddings.create({
+        model: 'text-embedding-3-small',
+        input: query,
+    })
+    const embedding = embeddingResponse.data[0].embedding
+
+    // 2. Search Supabase for similar content
+    const { data: context, error } = await supabase.rpc('match_knowledge', {
+        query_embedding: embedding,
+        match_threshold: 0.3, // Lowered from 0.5 to be more inclusive
+        match_count: 5
+    })
+
+    if (error) {
+        console.error('Vector search failed:', error)
+        return ''
+    }
+
+    return context?.map((c: any) => c.content).join('\n---\n') || ''
+}
+
+/**
+ * Unified Academy AI Chat Response with RAG support.
+ */
+export async function getAcademyChatResponse({ 
+    message, 
+    history = [], 
+    role = 'tutor', 
+    name = 'Mwenaro Tutor' 
+}: { 
+    message: string, 
+    history?: any[], 
+    role?: string, 
+    name?: string 
+}) {
+    const context = await getRelevantContext(message)
+
+    const groundingInstructions = `
+    IMPORTANT GROUNDING RULES:
+    1. ONLY use the provided context to answer questions about fees, staff, and policies.
+    2. If the context does not contain a specific price or policy, say: "I'm sorry, I don't have the specific details for that in my current records. Please reach out to our support team at support@mwenaro.com or call +254 116 477 282 for exact information."
+    3. NEVER invent prices, scholarship programs, or USD dollar values. All prices are in KSh (Kenyan Shillings).
+    4. If the user asks about programs not mentioned in the context, refer them to the official course catalog.
+    `;
+
+    const systemPrompts: Record<string, string> = {
+        tutor: `You are ${name}, a helpful AI tutor at Mwenaro Academy. Help students understand the curriculum using the provided context. ${groundingInstructions}`,
+        support: `You are ${name}, an administrative assistant at Mwenaro Academy. Help prospective students/parents with fees and policies using the provided context. ${groundingInstructions}`,
+        advisor: `You are ${name}, a career advisor at Mwenaro Academy. Help students choose courses. ${groundingInstructions}`,
+    }
+
+    const response = await chatClient.chat.completions.create({
+        model: process.env.GROQ_API_KEY ? "llama-3.1-8b-instant" : "gpt-4o",
+        messages: [
+            { role: "system", content: systemPrompts[role] || systemPrompts.tutor },
+            { role: "system", content: `CONTEXT FROM ACADEMY KNOWLEDGE BASE:\n${context}` },
+            ...history,
+            { role: "user", content: message }
+        ],
+        temperature: 0.7,
+    })
+
+    return response.choices[0].message.content
+}
 
 /**
  * Analyzes a GitHub repository and provides a suggested rating and feedback.
@@ -30,14 +110,14 @@ export async function analyzeProject(lessonId: string, repoLink: string, student
         .eq('lesson_id', lessonId)
 
     // Check for API key
-    if (!process.env.OPENAI_API_KEY) {
-        console.warn('OPENAI_API_KEY not found. Skipping real AI analysis.')
+    if (!process.env.OPENAI_API_KEY && !process.env.GROQ_API_KEY) {
+        console.warn('AI API key not found. Skipping real AI analysis.')
         await supabase
             .from('lesson_progress')
             .update({
                 ai_status: 'completed',
                 ai_rating: 85,
-                ai_feedback: "MOCK AI FEEDBACK: The project repository was successfully submitted. The code structure appears organized, and the README provides clear instructions. (Add OPENAI_API_KEY to .env.local for real analysis)"
+                ai_feedback: "MOCK AI FEEDBACK: The project repository was successfully submitted. The code structure appears organized, and the README provides clear instructions. (Add API key to .env.local for real analysis)"
             })
             .eq('user_id', studentId)
             .eq('lesson_id', lessonId)
@@ -47,8 +127,8 @@ export async function analyzeProject(lessonId: string, repoLink: string, student
     try {
         // In a real implementation with more time, we would fetch the repo contents (README, main files)
         // For now, we'll provide the context we have to GPT-4o
-        const response = await openai.chat.completions.create({
-            model: "gpt-4o",
+        const response = await chatClient.chat.completions.create({
+            model: process.env.GROQ_API_KEY ? "llama-3.1-8b-instant" : "gpt-4o",
             messages: [
                 {
                     role: "system",
