@@ -73,7 +73,7 @@ export function AIStrategist() {
   const renderMarkdown = (text: string) => {
     return text.split('\n').map((line, i) => {
       // Handle bold
-      let formattedLine = line.replace(/\\*\\*(.*?)\\*\\*/g, '<strong>$1</strong>');
+      let formattedLine = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
       // Handle list items
       if (formattedLine.trim().startsWith('- ')) {
         formattedLine = `<li class="ml-4 list-disc">${formattedLine.trim().substring(2)}</li>`;
@@ -95,7 +95,7 @@ export function AIStrategist() {
             <h3 className="text-sm font-bold text-foreground">AI Strategist</h3>
             <div className="flex items-center gap-1.5 mt-0.5">
               <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-              <span className="text-[10px] text-zinc-500 font-medium uppercase tracking-widest">Llama 3.2 3B</span>
+              <span className="text-[10px] text-zinc-500 font-medium uppercase tracking-widest">Multi-Provider Core</span>
             </div>
           </div>
         </div>

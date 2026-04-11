@@ -1,15 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import OpenAI from "openai";
-
-// Initialize OpenAI client to point to OpenRouter
-const openai = new OpenAI({
-  baseURL: "https://openrouter.ai/api/v1",
-  apiKey: process.env.OPENROUTER_API_KEY || "",
-  defaultHeaders: {
-    "HTTP-Referer": process.env.NEXT_PUBLIC_LABS_URL || "http://localhost:3000",
-    "X-Title": "Mwenaro Labs Forge",
-  },
-});
+import { generateAICompletion } from "@/lib/ai-provider";
 
 export async function POST(req: NextRequest) {
   try {
@@ -22,13 +12,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (!process.env.OPENROUTER_API_KEY) {
-      return NextResponse.json(
-        { error: "AI service is not configured. Missing OPENROUTER_API_KEY." },
-        { status: 503 }
-      );
-    }
-
     const systemInstruction = `You are the "Mwenaro Labs AI Strategist", an elite technical architect and product strategist.
 Your goal is to help visitors frame their software project ideas and suggest modern tech stacks (React, Next.js, Tailwnid, Supabase, etc).
 Keep your responses very concise, highly technical, and professional. 
@@ -38,7 +21,6 @@ If they ask about Mwenaro Labs, explain it's the R&D division of the Mwenaro Tec
 
 Format the response in Markdown.`;
 
-    // OpenRouter uses standard OpenAI messages array format
     const messages = [
       { role: "system", content: systemInstruction },
       ...history.map((msg: any) => ({
@@ -48,14 +30,9 @@ Format the response in Markdown.`;
       { role: "user", content: message }
     ];
 
-    const completion = await openai.chat.completions.create({
-      model: "meta-llama/llama-3.2-3b-instruct:free",
-      messages: messages as any,
-    });
+    const { text, provider } = await generateAICompletion(messages);
 
-    const text = completion.choices[0]?.message?.content?.trim() || "";
-
-    return NextResponse.json({ reply: text });
+    return NextResponse.json({ reply: text, provider });
   } catch (err: any) {
     console.error("[forge/strategist] error:", err?.message || err);
 

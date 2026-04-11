@@ -1,15 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import OpenAI from "openai";
-
-// Initialize OpenAI client to point to OpenRouter
-const openai = new OpenAI({
-  baseURL: "https://openrouter.ai/api/v1",
-  apiKey: process.env.OPENROUTER_API_KEY || "",
-  defaultHeaders: {
-    "HTTP-Referer": process.env.NEXT_PUBLIC_LABS_URL || "http://localhost:3000",
-    "X-Title": "Mwenaro Labs Forge",
-  },
-});
+import { generateAICompletion } from "@/lib/ai-provider";
 
 export async function POST(req: NextRequest) {
   try {
@@ -19,13 +9,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { error: "Please provide a prompt with at least 5 characters." },
         { status: 400 }
-      );
-    }
-
-    if (!process.env.OPENROUTER_API_KEY) {
-      return NextResponse.json(
-        { error: "AI service is not configured. Missing OPENROUTER_API_KEY." },
-        { status: 503 }
       );
     }
 
@@ -51,24 +34,17 @@ Return ONLY a JSON object with these fields:
 
     const systemInstruction = modeInstructions[mode] || modeInstructions.refine;
 
-    const completion = await openai.chat.completions.create({
-      model: "meta-llama/llama-3.2-3b-instruct:free",
-      messages: [
-        { role: "system", content: systemInstruction },
-        { 
-          role: "user", 
-          content: `Here is the user's prompt to optimize:\n\n"${prompt.trim()}"\n\nRespond with ONLY a valid JSON object, no markdown or extra text.` 
-        }
-      ],
-      // Ensure we get valid JSON since we asked for it
-      response_format: { type: "json_object" },
-    });
+    const messages = [
+      { role: "system", content: systemInstruction },
+      { 
+        role: "user", 
+        content: `Here is the user's prompt to optimize:\n\n"${prompt.trim()}"\n\nRespond with ONLY a valid JSON object, no markdown or extra text.` 
+      }
+    ];
 
-    const text = completion.choices[0]?.message?.content?.trim() || "{}";
+    const { text } = await generateAICompletion(messages, "json_object");
 
-    // Strip markdown code fences if the model still returns them despite instructions
     const cleaned = text.replace(/^```(json)?\n?/, "").replace(/\n?```$/, "").trim();
-
     const parsed = JSON.parse(cleaned);
 
     return NextResponse.json(parsed);
@@ -81,7 +57,7 @@ Return ONLY a JSON object with these fields:
       err?.message?.includes("quota")
     ) {
       return NextResponse.json({
-        optimized: `[SIMULATED RESPONSE - API LIMIT REACHED]\n\nAct as a senior software architect. Analyze the prompt: "${prompt}". Expand it by detailing specific architectural constraints, ensuring high performance, accessibility, and clean code principles. Provide structured outputs.`,
+        optimized: `[SIMULATED RESPONSE - API LIMIT REACHED]\n\nAct as a senior software architect. Analyze the original prompt constraints, ensuring high performance, accessibility, and clean code principles. Provide structured outputs.`,
         improvements: [
           "Bypassed API lock with a simulated fallback",
           "Added role-based framing (Senior Architect)",
