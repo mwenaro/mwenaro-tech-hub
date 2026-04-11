@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, Loader2, X, MessageSquare, Sparkles, Copy, Check, Info } from 'lucide-react';
+import { Send, Bot, User, Loader2, X, MessageSquare, BotMessageSquare, Sparkles, Copy, Check, Info } from 'lucide-react';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -142,6 +142,9 @@ export function AcademyAI({
                         ? 'bg-blue-600 text-white rounded-tr-sm'
                         : 'bg-zinc-50 dark:bg-zinc-900 text-foreground rounded-tl-sm border dark:border-zinc-800'
                     }`}>
+                      {msg.role === 'assistant' && (
+                        <div className="text-xs font-bold text-blue-600 dark:text-blue-400 mb-1">{name}</div>
+                      )}
                       <p className="whitespace-pre-wrap">{msg.content}</p>
                       {msg.role === 'assistant' && (
                         <button
@@ -162,10 +165,13 @@ export function AcademyAI({
                     <div className="w-7 h-7 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 flex items-center justify-center flex-shrink-0 mt-1">
                       <Bot size={14} />
                     </div>
-                    <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-900 rounded-tl-sm border dark:border-zinc-800 flex items-center gap-1">
-                      {[0, 1, 2].map((i) => (
-                        <div key={i} className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
-                      ))}
+                    <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-900 rounded-tl-sm border dark:border-zinc-800 flex flex-col gap-1">
+                      <div className="text-xs font-bold text-blue-600 dark:text-blue-400 mb-1">{name}</div>
+                      <div className="flex items-center gap-1">
+                        {[0, 1, 2].map((i) => (
+                          <div key={i} className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -209,7 +215,7 @@ export function AcademyAI({
               : 'bg-blue-600 text-white hover:scale-110 hover:shadow-blue-500/30 active:scale-95'
           }`}
         >
-          {isOpen ? <X size={24} /> : <MessageSquare size={24} />}
+          {isOpen ? <X size={24} /> : <BotMessageSquare size={24} />}
         </button>
       </div>
     </div>
