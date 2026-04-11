@@ -3,6 +3,7 @@ import { NavBar, Footer, Button, Card } from "@mwenaro/ui";
 import { ArrowRight } from "lucide-react";
 import { labsContent } from "@mwenaro/content/labs-content";
 import { Metadata } from 'next'
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Custom Software Development Agency | Mwenaro Labs",
@@ -17,7 +18,7 @@ export default function LabsPage() {
 
     return (
         <main className="min-h-screen bg-background selection:bg-primary/20">
-            <NavBar currentApp="labs" />
+            <NavBar currentApp="labs" ctaLabel="Get Started" ctaHref="/register" />
 
             {/* HERO */}
             <section className="relative pt-48 pb-32 px-6 text-center lg:pt-56 lg:pb-40 overflow-hidden bg-zinc-50 dark:bg-zinc-950">
@@ -30,12 +31,16 @@ export default function LabsPage() {
                         {hero.subtext}
                     </p>
                     <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-6 animate-reveal [animation-delay:400ms]">
-                        <Button size="lg" className="rounded-full px-12 h-16 text-lg shadow-[0_8px_30px_rgb(232,93,59,0.3)] hover:shadow-[0_12px_40px_rgb(232,93,59,0.4)] hover:-translate-y-1 transition-all duration-300 group">
-                            {hero.primaryCTA.text} <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={20} />
-                        </Button>
-                        <Button variant="outline" size="lg" className="rounded-full px-12 h-16 text-lg border-zinc-200 dark:border-zinc-800 text-foreground hover:bg-zinc-100 dark:hover:bg-zinc-900 shadow-sm transition-all duration-300">
-                            {hero.secondaryCTA.text}
-                        </Button>
+                        <Link href="/register">
+                            <Button size="lg" className="rounded-full px-12 h-16 text-lg shadow-[0_8px_30px_rgb(232,93,59,0.3)] hover:shadow-[0_12px_40px_rgb(232,93,59,0.4)] hover:-translate-y-1 transition-all duration-300 group">
+                                {hero.primaryCTA.text} <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={20} />
+                            </Button>
+                        </Link>
+                        <Link href="/contact">
+                            <Button variant="outline" size="lg" className="rounded-full px-12 h-16 text-lg border-zinc-200 dark:border-zinc-800 text-foreground hover:bg-zinc-100 dark:hover:bg-zinc-900 shadow-sm transition-all duration-300">
+                                {hero.secondaryCTA.text}
+                            </Button>
+                        </Link>
                     </div>
                 </div>
             </section>
@@ -77,6 +82,34 @@ export default function LabsPage() {
                 </div>
             </section>
 
+            {/* THE FORGE & CHRONICLE TEASER */}
+            <section className="py-32 px-6 bg-zinc-950 dark:bg-black relative overflow-hidden">
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent pointer-events-none" />
+                <div className="max-w-7xl mx-auto relative z-10">
+                    <div className="text-center mb-16">
+                        <span className="inline-flex items-center gap-2 px-5 py-2 rounded-full border border-white/10 bg-white/5 text-white/50 text-xs font-black uppercase tracking-[0.2em] mb-6">
+                            🧪 R&D Ecosystem
+                        </span>
+                        <h2 className="text-4xl md:text-6xl font-black text-white tracking-tight mb-4">Explore the Lab</h2>
+                        <p className="text-zinc-400 text-xl max-w-2xl mx-auto">Beyond client work — see what we're building and learning.</p>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <Link href="/forge" className="group block p-8 lg:p-10 rounded-[2.5rem] border border-white/10 bg-white/5 hover:bg-white/10 hover:border-primary/40 hover:-translate-y-1 transition-all duration-300 backdrop-blur-sm">
+                            <div className="w-16 h-16 rounded-2xl bg-primary/20 flex items-center justify-center text-3xl mb-6">⚗️</div>
+                            <h3 className="text-3xl font-black text-white mb-3">The Forge</h3>
+                            <p className="text-zinc-400 text-base leading-relaxed mb-6">Interactive AI tools, design system showcases, and live proof-of-concepts — built in public.</p>
+                            <div className="flex items-center gap-2 text-primary font-bold text-sm group-hover:gap-3 transition-all">Enter The Forge <ArrowRight size={16} /></div>
+                        </Link>
+                        <Link href="/chronicle" className="group block p-8 lg:p-10 rounded-[2.5rem] border border-white/10 bg-white/5 hover:bg-white/10 hover:border-cyan-500/40 hover:-translate-y-1 transition-all duration-300 backdrop-blur-sm">
+                            <div className="w-16 h-16 rounded-2xl bg-cyan-500/20 flex items-center justify-center text-3xl mb-6">📖</div>
+                            <h3 className="text-3xl font-black text-white mb-3">Labs Chronicle</h3>
+                            <p className="text-zinc-400 text-base leading-relaxed mb-6">Real builds, real decisions, real learning — from the team that ships production systems daily.</p>
+                            <div className="flex items-center gap-2 text-cyan-400 font-bold text-sm group-hover:gap-3 transition-all">Read the Chronicle <ArrowRight size={16} /></div>
+                        </Link>
+                    </div>
+                </div>
+            </section>
+
             {/* FINAL CTA */}
             <section className="py-40 px-6 bg-zinc-950 text-center relative overflow-hidden dark:bg-black">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent opacity-50 pointer-events-none" />
@@ -88,9 +121,11 @@ export default function LabsPage() {
                         {finalCTA.subtext}
                     </p>
                     <div className="flex justify-center animate-reveal [animation-delay:400ms]">
-                        <Button size="lg" className="rounded-full px-14 h-16 text-lg font-bold bg-primary text-white shadow-[0_8px_30px_rgb(232,93,59,0.3)] hover:shadow-[0_12px_40px_rgb(232,93,59,0.5)] hover:-translate-y-1 transition-all duration-300">
-                            {finalCTA.cta.text}
-                        </Button>
+                        <Link href="/contact">
+                            <Button size="lg" className="rounded-full px-14 h-16 text-lg font-bold bg-primary text-white shadow-[0_8px_30px_rgb(232,93,59,0.3)] hover:shadow-[0_12px_40px_rgb(232,93,59,0.5)] hover:-translate-y-1 transition-all duration-300">
+                                {finalCTA.cta.text}
+                            </Button>
+                        </Link>
                     </div>
                 </div>
             </section>
