@@ -5,6 +5,8 @@ export interface Lesson {
     title: string
     content: string
     video_url?: string
+    audio_url?: string
+    audio_script?: string
     has_project: boolean
     duration_minutes: number
     created_at: string
@@ -42,6 +44,8 @@ export async function getCourseLessons(courseId: string): Promise<Lesson[]> {
                     title,
                     content,
                     video_url,
+                    audio_url,
+                    audio_script,
                     has_project,
                     duration_minutes,
                     created_at

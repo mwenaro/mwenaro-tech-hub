@@ -28,6 +28,7 @@ export function LessonForm({ courseId, initialData, nextOrderIndex, phases, onSu
     const [error, setError] = useState<string | null>(null)
     const [previewMode, setPreviewMode] = useState(false)
     const [content, setContent] = useState(initialData?.content || '')
+    const [audioScript, setAudioScript] = useState(initialData?.audio_script || '')
     const [phaseId, setPhaseId] = useState<string>(initialData?.phase_id || (phases.length > 0 ? phases[0].id : ''))
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -41,6 +42,7 @@ export function LessonForm({ courseId, initialData, nextOrderIndex, phases, onSu
             phase_id: phaseId,
             title: formData.get('title') as string,
             content: content,
+            audio_script: audioScript,
             video_url: formData.get('video_url') as string,
             order_index: parseInt(formData.get('order_index') as string),
             has_project: formData.get('has_project') === 'on'
@@ -57,6 +59,7 @@ export function LessonForm({ courseId, initialData, nextOrderIndex, phases, onSu
                 const form = e.target as HTMLFormElement
                 form.reset()
                 setContent('')
+                setAudioScript('')
             }
 
             router.refresh()
@@ -139,6 +142,21 @@ export function LessonForm({ courseId, initialData, nextOrderIndex, phases, onSu
                         className="font-mono text-sm leading-relaxed rounded-xl focus-visible:ring-purple-500"
                     />
                 )}
+            </div>
+
+            <div className="space-y-2">
+                <label className="text-xs font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest">
+                    Audio Narration Script (Optional)
+                </label>
+                <p className="text-xs text-muted-foreground">The AI voice system will read from this text.</p>
+                <Textarea
+                    name="audio_script"
+                    value={audioScript}
+                    onChange={(e) => setAudioScript(e.target.value)}
+                    placeholder="Enter the spoken script here..."
+                    rows={6}
+                    className="font-mono text-sm leading-relaxed rounded-xl focus-visible:ring-blue-500"
+                />
             </div>
 
             {error && <p className="text-sm text-red-600">{error}</p>}
