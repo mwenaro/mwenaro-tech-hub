@@ -8,9 +8,7 @@ import { QuizModal } from '@/components/quiz-modal'
 import { ProjectSubmission } from '@/components/project-submission'
 import { VideoPlayer } from '@/components/video-player'
 import Mermaid from '@/components/mermaid'
-import { LessonQuiz } from '@/components/course/lesson-quiz'
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
+import { AudioNarration } from '@/components/course/audio-narration'
 import { ChevronLeft, ChevronRight, Monitor, PlayCircle, BookOpen, HelpCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -95,6 +93,11 @@ export default async function LessonPage({ params }: LessonPageProps) {
             <div className="space-y-8">
                 {lesson.video_url && (
                     <VideoPlayer url={lesson.video_url} />
+                )}
+                {lesson.audio_url && (
+                    <div className="max-w-2xl mx-auto">
+                        <AudioNarration url={lesson.audio_url} />
+                    </div>
                 )}
                 <div className="prose prose-slate lg:prose-xl dark:prose-invert max-w-none prose-headings:font-black prose-headings:tracking-tight prose-a:text-primary prose-a:font-bold prose-strong:font-black">
                     <div className="rounded-3xl border border-zinc-200/50 dark:border-zinc-800/50 bg-white dark:bg-zinc-900/50 p-8 md:p-12 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.12)]">
