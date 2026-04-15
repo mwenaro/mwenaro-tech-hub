@@ -7,6 +7,8 @@ import remarkGfm from 'remark-gfm'
 import Mermaid from '@/components/mermaid'
 import { LessonQuiz } from './lesson-quiz'
 import { LessonProgress } from '@/lib/progress'
+import { AudioNarration } from './audio-narration'
+import { cn } from '@/lib/utils'
 
 interface Question {
     question_text: string
@@ -19,6 +21,7 @@ interface LessonContentAreaProps {
     content: string
     questions: Question[]
     lessonId: string
+    audioUrl?: string
     userRole?: 'student' | 'instructor' | 'admin'
     nextLessonHref?: string
     initialProgress?: LessonProgress
@@ -28,6 +31,7 @@ export function LessonContentArea({
     content,
     questions,
     lessonId,
+    audioUrl,
     userRole,
     nextLessonHref,
     initialProgress,
@@ -41,6 +45,11 @@ export function LessonContentArea({
         <div className="grid grid-cols-1 gap-12">
             {/* Lesson Notes */}
             <div className={`prose prose-zinc lg:prose-xl dark:prose-invert max-w-none prose-headings:font-black prose-headings:tracking-tight prose-a:text-primary prose-a:font-bold hover:prose-a:text-primary/80 prose-img:rounded-3xl prose-img:shadow-xl prose-strong:font-black transition-all duration-500 ${quizActive ? 'pointer-events-none select-none' : ''}`}>
+                {audioUrl && (
+                    <div className={cn("transition-all duration-500", quizActive ? "blur-md opacity-20 pointer-events-none" : "opacity-100")}>
+                        <AudioNarration url={audioUrl} />
+                    </div>
+                )}
                 <div className="relative">
                     <div className={`rounded-3xl border border-zinc-200/50 dark:border-zinc-800/50 bg-white/80 dark:bg-zinc-900/50 p-8 md:p-14 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.12)] backdrop-blur-xl transition-all duration-500 ${quizActive ? 'blur-sm brightness-75 scale-[0.99]' : ''}`}>
                         <ReactMarkdown

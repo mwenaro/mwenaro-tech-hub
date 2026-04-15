@@ -88,6 +88,7 @@ export default async function ImmersiveLessonPage({ params }: LessonPageProps) {
                 content={lesson.content}
                 questions={questions}
                 lessonId={lessonId}
+                audioUrl={lesson.audio_url}
                 userRole={user?.user_metadata?.role}
                 nextLessonHref={nextLesson ? `/learn/${courseId}/${nextLesson.id}` : undefined}
                 initialProgress={progress || undefined}
