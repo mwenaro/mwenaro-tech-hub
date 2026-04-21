@@ -43,3 +43,8 @@ next-env.d.ts
 # Supabase
 supabase/.temp/
 .supabase/
+
+# Audio pipeline artifacts (Piper TTS binaries & temp output)
+academy/scratch/piper/
+academy/scratch/piper.tar.gz
+academy/scratch/audio_temp/
