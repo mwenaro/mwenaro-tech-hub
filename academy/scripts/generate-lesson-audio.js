@@ -46,19 +46,11 @@ async function generateSpokenScript(title, content) {
 async function run() {
     if (!fs.existsSync(OUTPUT_DIR)) fs.mkdirSync(OUTPUT_DIR, { recursive: true });
     
-    // Process Phase 1 lessons
-    const { data: phases } = await supabase.from('phases').select('id').eq('order_index', 1);
-    if (!phases || phases.length === 0) return;
-    const phaseIds = phases.map(p => p.id);
-    
-    const { data: lessons, error } = await supabase
-        .from('phase_lessons')
-        .select('lesson_id, lessons:lessons (id, title, content, audio_url)')
-        .in('phase_id', phaseIds);
-
-    const lessonsToProcess = lessons
-        .map(pl => pl.lessons)
-        .filter(l => l && !l.audio_url);
+    // Query all lessons that still need audio generated
+    const { data: lessonsToProcess, error } = await supabase
+        .from('lessons')
+        .select('id, title, content, audio_url')
+        .is('audio_url', null);
     
     console.log('Found ' + lessonsToProcess.length + ' lessons.');
 
